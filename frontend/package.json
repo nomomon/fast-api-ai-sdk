@@ -1,39 +1,39 @@
 {
-  "name": "ai-chatbot-frontend",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "pnpm exec biome lint .",
-    "lint:fix": "pnpm exec biome lint --write .",
-    "format": "pnpm exec biome format --write .",
-    "format:check": "pnpm exec biome format .",
-    "check": "pnpm exec biome check --write .",
-    "type-check": "tsc --noEmit",
-    "clean": "rm -rf .next out dist"
-  },
-  "dependencies": {
-    "next": "14.0.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "ai": "^2.2.31",
-    "@ai-sdk/openai": "^0.0.10",
-    "openai": "^4.20.1",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.0.0",
-    "tailwind-merge": "^2.2.0",
-    "lucide-react": "^0.294.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.3.3",
-    "@types/node": "^20.10.5",
-    "@types/react": "^18.2.45",
-    "@types/react-dom": "^18.2.18",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.32",
-    "tailwindcss": "^3.4.0",
-    "tailwindcss-animate": "^1.0.7"
-  }
+    "name": "ai-chatbot-frontend",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "pnpm exec biome lint .",
+        "lint:fix": "pnpm exec biome lint --write .",
+        "format": "pnpm exec biome format --write .",
+        "format:check": "pnpm exec biome format .",
+        "check": "pnpm exec biome check --write .",
+        "type-check": "tsc --noEmit",
+        "clean": "rm -rf .next out dist"
+    },
+    "dependencies": {
+        "next": "14.0.4",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "ai": "^2.2.31",
+        "@ai-sdk/openai": "^0.0.10",
+        "openai": "^4.20.1",
+        "class-variance-authority": "^0.7.0",
+        "clsx": "^2.0.0",
+        "tailwind-merge": "^2.2.0",
+        "lucide-react": "^0.294.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.3.3",
+        "@types/node": "^20.10.5",
+        "@types/react": "^18.2.45",
+        "@types/react-dom": "^18.2.18",
+        "autoprefixer": "^10.4.16",
+        "postcss": "^8.4.32",
+        "tailwindcss": "^3.4.0",
+        "tailwindcss-animate": "^1.0.7"
+    }
 }
