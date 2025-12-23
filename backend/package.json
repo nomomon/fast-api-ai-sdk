@@ -1,18 +1,17 @@
 {
-  "name": "ai-chatbot-backend",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
-    "build": "echo 'Backend build complete'",
-    "lint": "ruff check .",
-    "lint:fix": "ruff check --fix .",
-    "format": "ruff format .",
-    "format:check": "ruff format --check .",
-    "check": "ruff check . && ruff format --check .",
-    "check:fix": "ruff check --fix . && ruff format .",
-    "type-check": "mypy app || true",
-    "clean": "find . -type d -name '__pycache__' -exec rm -r {} + 2>/dev/null || true; find . -type f -name '*.pyc' -delete 2>/dev/null || true"
-  }
+    "name": "ai-chatbot-backend",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "if [ -d venv ]; then ./venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload; else python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload; fi",
+        "build": "echo 'Backend build complete'",
+        "lint": "ruff check .",
+        "lint:fix": "ruff check --fix .",
+        "format": "ruff format .",
+        "format:check": "ruff format --check .",
+        "check": "ruff check . && ruff format --check .",
+        "check:fix": "ruff check --fix . && ruff format .",
+        "type-check": "mypy app || true",
+        "clean": "find . -type d -name '__pycache__' -exec rm -r {} + 2>/dev/null || true; find . -type f -name '*.pyc' -delete 2>/dev/null || true"
+    }
 }
-

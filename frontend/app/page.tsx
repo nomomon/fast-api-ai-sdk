@@ -1,78 +1,44 @@
 'use client';
 
-import { ChatContainer } from '@/components/chat/ChatContainer';
-import { Card } from '@/components/ui/card';
+import { useChat } from '@ai-sdk/react';
 import { useState } from 'react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-type Message = { role: 'user' | 'assistant'; content: string };
-
-export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // TODO: Integrate ai/sdk for streaming when backend streaming route is implemented
-
-  const handleSendMessage = async (message: string) => {
-    setIsLoading(true);
-
-    // Add user message to local state
-    const userMessage: Message = { role: 'user', content: message };
-    setMessages((prev: Message[]) => [...prev, userMessage]);
-
-    try {
-      // For now, we'll use a simple fetch approach
-      // The ai/sdk integration will be fully implemented when backend streaming is ready
-      const response = await fetch(`${API_URL}/api/v1/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage].map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-          stream: false,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response');
-      }
-
-      const data = await response.json();
-
-      // Add assistant response
-      setMessages((prev: Message[]) => [
-        ...prev,
-        { role: 'assistant', content: data.message || 'No response' },
-      ]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setMessages((prev: Message[]) => [
-        ...prev,
-        { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+export default function Chat() {
+  const [input, setInput] = useState('');
+  const { messages, sendMessage } = useChat({
+    api: `${API_URL}/api/chat`,
+  });
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-4xl h-[600px] flex flex-col">
-        <div className="border-b p-4">
-          <h1 className="text-2xl font-bold">AI Chatbot</h1>
-          <p className="text-sm text-muted-foreground">Powered by FastAPI and Next.js</p>
+    <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
+      {messages.map(message => (
+        <div key={message.id} className="whitespace-pre-wrap">
+          {message.role === 'user' ? 'User: ' : 'AI: '}
+          {message.parts.map((part, i) => {
+            switch (part.type) {
+              case 'text':
+                return <div key={`${message.id}-${i}`}>{part.text}</div>;
+            }
+          })}
         </div>
-        <ChatContainer
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
+      ))}
+
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          sendMessage({ text: input });
+          setInput('');
+        }}
+      >
+        <input
+          className="fixed dark:bg-zinc-900 bottom-0 w-full max-w-md p-2 mb-8 border border-zinc-300 dark:border-zinc-800 rounded shadow-xl"
+          value={input}
+          placeholder="Say something..."
+          onChange={e => setInput(e.currentTarget.value)}
         />
-      </Card>
-    </main>
+      </form>
+    </div>
   );
 }
