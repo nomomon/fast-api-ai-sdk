@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Send } from 'lucide-react';
+import { type FormEvent, useState } from 'react';
 
 export interface ChatInputProps {
   onSendMessage: (message: string) => void;

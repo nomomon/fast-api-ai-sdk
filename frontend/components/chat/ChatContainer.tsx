@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { ChatMessage, ChatMessageProps } from './ChatMessage';
-import { ChatInput, ChatInputProps } from './ChatInput';
+import { useCallback, useEffect, useRef } from 'react';
+import { ChatInput, type ChatInputProps } from './ChatInput';
+import { ChatMessage, type ChatMessageProps } from './ChatMessage';
 
 export interface ChatContainerProps {
   messages: ChatMessageProps[];
@@ -13,13 +13,14 @@ export interface ChatContainerProps {
 export function ChatContainer({ messages, onSendMessage, isLoading = false }: ChatContainerProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We want to scroll when messages or loading state changes
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading]);
+  }, [messages.length, isLoading, scrollToBottom]);
 
   return (
     <div className="flex flex-col h-full">
@@ -30,7 +31,10 @@ export function ChatContainer({ messages, onSendMessage, isLoading = false }: Ch
           </div>
         )}
         {messages.map((message, index) => (
-          <ChatMessage key={index} {...message} />
+          <ChatMessage
+            key={`${message.role}-${index}-${message.content.slice(0, 10)}`}
+            {...message}
+          />
         ))}
         {isLoading && (
           <div className="flex justify-start">

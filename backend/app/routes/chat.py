@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from app.models.chat import ChatRequest, ChatResponse
 
 router = APIRouter()
@@ -11,8 +12,4 @@ async def chat_endpoint(request: ChatRequest):
     Will be implemented later with AI service integration.
     """
     # TODO: Implement chat logic with AI service
-    return ChatResponse(
-        message="Chat endpoint - to be implemented",
-        role="assistant"
-    )
-
+    return ChatResponse(message="Chat endpoint - to be implemented", role="assistant")

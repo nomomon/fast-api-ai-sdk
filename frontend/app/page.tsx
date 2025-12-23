@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { ChatContainer } from '@/components/chat/ChatContainer';
 import { Card } from '@/components/ui/card';
+import { useState } from 'react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 

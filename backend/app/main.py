@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.config import settings
 from app.routes import chat
 
@@ -32,4 +33,3 @@ async def root():
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
-
