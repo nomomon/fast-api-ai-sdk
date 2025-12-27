@@ -3,6 +3,11 @@
   "globalEnv": ["NODE_ENV"],
   "globalDependencies": [".env", "backend/.env", "frontend/.env"],
   "tasks": {
+    "setup": {
+      "cache": false,
+      "outputs": ["backend/.venv/**"],
+      "inputs": ["backend/requirements.txt"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["frontend/.next/**", "!frontend/.next/cache/**", "backend/dist/**"],
@@ -18,6 +23,7 @@
       ]
     },
     "dev": {
+      "dependsOn": ["setup"],
       "cache": false,
       "persistent": true,
       "env": ["NEXT_PUBLIC_API_URL", "OPENAI_API_KEY", "OPENAI_MODEL"],
