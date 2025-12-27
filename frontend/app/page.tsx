@@ -5,49 +5,16 @@ import {
     ConversationContent,
     ConversationScrollButton,
 } from '@/components/ai-elements/conversation';
-import {
-    PromptInput,
-    PromptInputActionAddAttachments,
-    PromptInputActionMenu,
-    PromptInputActionMenuContent,
-    PromptInputActionMenuTrigger,
-    PromptInputAttachment,
-    PromptInputAttachments,
-    PromptInputBody,
-    PromptInputButton,
-    PromptInputHeader,
-    type PromptInputMessage,
-    PromptInputSelect,
-    PromptInputSelectContent,
-    PromptInputSelectItem,
-    PromptInputSelectTrigger,
-    PromptInputSelectValue,
-    PromptInputSubmit,
-    PromptInputTextarea,
-    PromptInputFooter,
-    PromptInputTools,
-} from '@/components/ai-elements/prompt-input';
+import type { PromptInputMessage } from '@/components/ai-elements/prompt-input';
 import { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
-import { GlobeIcon } from 'lucide-react';
-import { Source, Sources, SourcesContent, SourcesTrigger } from '@/components/ai-elements/sources';
-import { Loader } from '@/components/ai-elements/loader';
-import { MessageParts } from '@/components/chat/MessageParts';
-
-const models = [
-    {
-        name: 'GPT 4o',
-        value: 'openai/gpt-4o',
-    },
-    {
-        name: 'GPT 5',
-        value: 'openai-gpt-5',
-    },
-];
+import { ChatInputBar } from '@/components/chat/ChatInputBar';
+import { MessagesList } from '@/components/chat/MessagesList';
+import { MODELS } from '@/lib/constants';
 
 const ChatBotDemo = () => {
     const [input, setInput] = useState('');
-    const [model, setModel] = useState<string>(models[0].value);
+    const [model, setModel] = useState<string>(MODELS[0].value);
     const [webSearch, setWebSearch] = useState(false);
     const { messages, sendMessage, status, regenerate } = useChat();
 
@@ -79,93 +46,27 @@ const ChatBotDemo = () => {
             <div className="flex flex-col h-full">
                 <Conversation className="h-full">
                     <ConversationContent>
-                        {messages.map((message, index) => {
-                            const isLastMessage = index === messages.length - 1;
-                            return (
-                                <div key={message.id}>
-                                    {message.role === 'assistant' &&
-                                        message.parts &&
-                                        message.parts.filter((part) => part.type === 'source-url').length > 0 && (
-                                            <Sources>
-                                                <SourcesTrigger
-                                                    count={message.parts.filter((part) => part.type === 'source-url').length}
-                                                />
-                                                {message.parts
-                                                    .filter((part) => part.type === 'source-url')
-                                                    .map((part, i) => (
-                                                        <SourcesContent key={`${message.id}-${i}`}>
-                                                            <Source
-                                                                key={`${message.id}-${i}`}
-                                                                href={part.url || ''}
-                                                                title={part.url}
-                                                            />
-                                                        </SourcesContent>
-                                                    ))}
-                                            </Sources>
-                                        )}
-                                    {message.parts && (
-                                        <MessageParts
-                                            parts={message.parts}
-                                            messageId={message.id}
-                                            role={message.role}
-                                            isLastMessage={isLastMessage}
-                                            status={status}
-                                            onRegenerate={regenerate}
-                                        />
-                                    )}
-                                </div>
-                            );
-                        })}
-                        {status === 'submitted' && <Loader />}
+                        <MessagesList
+                            messages={messages}
+                            status={status}
+                            onRegenerate={regenerate}
+                        />
                     </ConversationContent>
                     <ConversationScrollButton />
                 </Conversation>
 
-                <PromptInput onSubmit={handleSubmit} className="mt-4" globalDrop multiple>
-                    <PromptInputHeader>
-                        <PromptInputAttachments>
-                            {(attachment) => <PromptInputAttachment data={attachment} />}
-                        </PromptInputAttachments>
-                    </PromptInputHeader>
-                    <PromptInputBody>
-                        <PromptInputTextarea onChange={(e) => setInput(e.target.value)} value={input} />
-                    </PromptInputBody>
-                    <PromptInputFooter>
-                        <PromptInputTools>
-                            <PromptInputActionMenu>
-                                <PromptInputActionMenuTrigger />
-                                <PromptInputActionMenuContent>
-                                    <PromptInputActionAddAttachments />
-                                </PromptInputActionMenuContent>
-                            </PromptInputActionMenu>
-                            <PromptInputButton
-                                variant={webSearch ? 'default' : 'ghost'}
-                                onClick={() => setWebSearch(!webSearch)}
-                            >
-                                <GlobeIcon className="size-4" />
-                                <span>Search</span>
-                            </PromptInputButton>
-                            <PromptInputSelect
-                                onValueChange={(value) => {
-                                    setModel(value);
-                                }}
-                                value={model}
-                            >
-                                <PromptInputSelectTrigger>
-                                    <PromptInputSelectValue />
-                                </PromptInputSelectTrigger>
-                                <PromptInputSelectContent>
-                                    {models.map((model) => (
-                                        <PromptInputSelectItem key={model.value} value={model.value}>
-                                            {model.name}
-                                        </PromptInputSelectItem>
-                                    ))}
-                                </PromptInputSelectContent>
-                            </PromptInputSelect>
-                        </PromptInputTools>
-                        <PromptInputSubmit disabled={!input && !status} status={status} />
-                    </PromptInputFooter>
-                </PromptInput>
+                <ChatInputBar
+                    input={input}
+                    onInputChange={setInput}
+                    onSubmit={handleSubmit}
+                    models={MODELS}
+                    selectedModel={model}
+                    onModelChange={setModel}
+                    webSearch={webSearch}
+                    onWebSearchToggle={() => setWebSearch(!webSearch)}
+                    status={status}
+                    disabled={status === 'submitted' || status === 'streaming'}
+                />
             </div>
         </div>
     );
