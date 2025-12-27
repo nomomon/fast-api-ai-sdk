@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import { BrainIcon } from 'lucide-react';
 import type { ComponentProps, HTMLAttributes } from 'react';
@@ -14,20 +10,12 @@ export type ReasoningProps = ComponentProps<typeof Collapsible> & {
 };
 
 export const Reasoning = ({ className, isStreaming, ...props }: ReasoningProps) => (
-  <Collapsible
-    className={cn('w-full', className)}
-    defaultOpen={isStreaming}
-    {...props}
-  />
+  <Collapsible className={cn('w-full', className)} defaultOpen={isStreaming} {...props} />
 );
 
 export type ReasoningTriggerProps = ComponentProps<typeof CollapsibleTrigger>;
 
-export const ReasoningTrigger = ({
-  className,
-  children,
-  ...props
-}: ReasoningTriggerProps) => (
+export const ReasoningTrigger = ({ className, children, ...props }: ReasoningTriggerProps) => (
   <CollapsibleTrigger
     className={cn(
       'flex w-full items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-left text-muted-foreground text-sm transition-colors hover:bg-muted',
@@ -50,4 +38,3 @@ export const ReasoningContent = ({ className, children, ...props }: ReasoningCon
     </div>
   </CollapsibleContent>
 );
-
