@@ -1,94 +1,253 @@
 'use client';
 
-import { useChat } from '@ai-sdk/react';
 import {
   Conversation,
   ConversationContent,
-  ConversationEmptyState,
+  ConversationScrollButton,
 } from '@/components/ai-elements/conversation';
-import { Message, MessageContent } from '@/components/ai-elements/message';
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+  MessageActions,
+  MessageAction,
+} from '@/components/ai-elements/message';
 import {
   PromptInput,
-  PromptInputTextarea,
+  PromptInputActionAddAttachments,
+  PromptInputActionMenu,
+  PromptInputActionMenuContent,
+  PromptInputActionMenuTrigger,
+  PromptInputAttachment,
+  PromptInputAttachments,
+  PromptInputBody,
+  PromptInputButton,
+  PromptInputHeader,
+  type PromptInputMessage,
+  PromptInputSelect,
+  PromptInputSelectContent,
+  PromptInputSelectItem,
+  PromptInputSelectTrigger,
+  PromptInputSelectValue,
   PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputFooter,
+  PromptInputTools,
 } from '@/components/ai-elements/prompt-input';
+import { useState } from 'react';
+import { useChat } from '@ai-sdk/react';
+import { CopyIcon, GlobeIcon, RefreshCcwIcon } from 'lucide-react';
+import {
+  Source,
+  Sources,
+  SourcesContent,
+  SourcesTrigger,
+} from '@/components/ai-elements/sources';
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from '@/components/ai-elements/reasoning';
 import { Loader } from '@/components/ai-elements/loader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 
-export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
+const models = [
+  {
+    name: 'GPT 4o',
+    value: 'openai/gpt-4o',
+  },
+  {
+    name: 'Deepseek R1',
+    value: 'deepseek/deepseek-r1',
+  },
+];
+
+const ChatBotDemo = () => {
+  const [input, setInput] = useState('');
+  const [model, setModel] = useState<string>(models[0].value);
+  const [webSearch, setWebSearch] = useState(false);
+  const { messages, sendMessage, status, regenerate } = useChat({
+    api: '/api/chat',
+  });
+
+  const handleSubmit = (message: PromptInputMessage) => {
+    const hasText = Boolean(message.text);
+    const hasAttachments = Boolean(message.files?.length);
+
+    if (!(hasText || hasAttachments)) {
+      return;
+    }
+
+    sendMessage(
+      { 
+        text: message.text || 'Sent with attachments',
+        files: message.files 
+      },
+      {
+        body: {
+          model: model,
+          webSearch: webSearch,
+        },
+      },
+    );
+    setInput('');
+  };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Header with shadcn Card */}
-      <Card className="rounded-none border-x-0 border-t-0">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-xl">AI Chat Assistant</CardTitle>
-        </CardHeader>
-      </Card>
-
-      {/* Main chat area with AI Elements Conversation */}
-      <div className="flex-1 overflow-hidden">
+    <div className="max-w-4xl mx-auto p-6 relative size-full h-screen">
+      <div className="flex flex-col h-full">
         <Conversation className="h-full">
-          <ConversationContent className="h-full overflow-y-auto p-4">
-            {messages.length === 0 ? (
-              <ConversationEmptyState>
-                <div className="text-center text-muted-foreground py-8">
-                  <p className="text-lg font-medium mb-2">Start a conversation</p>
-                  <p className="text-sm">Ask me anything and I'll help you out!</p>
-                </div>
-              </ConversationEmptyState>
-            ) : (
-              <>
-                {messages.map((message) => (
-                  <Message
-                    key={message.id}
-                    from={message.role === 'user' ? 'user' : 'assistant'}
-                    className="mb-4"
-                  >
-                    <MessageContent className="whitespace-pre-wrap break-words">
-                      {message.content}
-                    </MessageContent>
-                  </Message>
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start mb-4">
-                    <Message from="assistant">
-                      <MessageContent>
-                        <Loader className="inline-block" />
-                      </MessageContent>
-                    </Message>
-                  </div>
+          <ConversationContent>
+            {messages.map((message) => (
+              <div key={message.id}>
+                {message.role === 'assistant' && message.parts && message.parts.filter((part) => part.type === 'source-url').length > 0 && (
+                  <Sources>
+                    <SourcesTrigger
+                      count={
+                        message.parts.filter(
+                          (part) => part.type === 'source-url',
+                        ).length
+                      }
+                    />
+                    {message.parts.filter((part) => part.type === 'source-url').map((part, i) => (
+                      <SourcesContent key={`${message.id}-${i}`}>
+                        <Source
+                          key={`${message.id}-${i}`}
+                          href={part.url || ''}
+                          title={part.url}
+                        />
+                      </SourcesContent>
+                    ))}
+                  </Sources>
                 )}
-              </>
-            )}
+                {message.parts ? message.parts.map((part, i) => {
+                  switch (part.type) {
+                    case 'text':
+                      return (
+                        <Message key={`${message.id}-${i}`} from={message.role}>
+                          <MessageContent>
+                            <MessageResponse>
+                              {part.text}
+                            </MessageResponse>
+                          </MessageContent>
+                          {message.role === 'assistant' && i === message.parts.length - 1 && messages.length > 0 && messages[messages.length - 1]?.id === message.id && (
+                            <MessageActions>
+                              <MessageAction
+                                onClick={() => regenerate()}
+                                label="Retry"
+                              >
+                                <RefreshCcwIcon className="size-3" />
+                              </MessageAction>
+                              <MessageAction
+                                onClick={() =>
+                                  navigator.clipboard.writeText(part.text)
+                                }
+                                label="Copy"
+                              >
+                                <CopyIcon className="size-3" />
+                              </MessageAction>
+                            </MessageActions>
+                          )}
+                        </Message>
+                      );
+                    case 'reasoning':
+                      return (
+                        <Reasoning
+                          key={`${message.id}-${i}`}
+                          className="w-full"
+                          isStreaming={status === 'streaming' && i === message.parts.length - 1 && message.id === messages.at(-1)?.id}
+                        >
+                          <ReasoningTrigger />
+                          <ReasoningContent>{part.text}</ReasoningContent>
+                        </Reasoning>
+                      );
+                    default:
+                      return null;
+                  }
+                }) : (
+                  <Message key={message.id} from={message.role}>
+                    <MessageContent>
+                      <MessageResponse>
+                        {typeof message.content === 'string' ? message.content : ''}
+                      </MessageResponse>
+                    </MessageContent>
+                    {message.role === 'assistant' && messages.length > 0 && messages[messages.length - 1]?.id === message.id && (
+                      <MessageActions>
+                        <MessageAction
+                          onClick={() => regenerate()}
+                          label="Retry"
+                        >
+                          <RefreshCcwIcon className="size-3" />
+                        </MessageAction>
+                        <MessageAction
+                          onClick={() =>
+                            navigator.clipboard.writeText(typeof message.content === 'string' ? message.content : '')
+                          }
+                          label="Copy"
+                        >
+                          <CopyIcon className="size-3" />
+                        </MessageAction>
+                      </MessageActions>
+                    )}
+                  </Message>
+                )}
+              </div>
+            ))}
+            {status === 'submitted' && <Loader />}
           </ConversationContent>
+          <ConversationScrollButton />
         </Conversation>
-      </div>
 
-      {/* Input area with AI Elements PromptInput and shadcn styling */}
-      <div className="border-t bg-background">
-        <Card className="rounded-none border-x-0 border-b-0 shadow-none">
-          <CardContent className="p-4">
-            <form onSubmit={handleSubmit} className="w-full">
-              <PromptInput className="w-full">
-                <PromptInputTextarea
-                  value={input}
-                  onChange={handleInputChange}
-                  placeholder="Type your message..."
-                  disabled={isLoading}
-                  className="min-h-[60px] max-h-[200px] resize-none"
-                />
-                <PromptInputSubmit
-                  disabled={isLoading || !input.trim()}
-                  className={cn('ml-2', isLoading && 'opacity-50 cursor-not-allowed')}
-                />
-              </PromptInput>
-            </form>
-          </CardContent>
-        </Card>
+        <PromptInput onSubmit={handleSubmit} className="mt-4" globalDrop multiple>
+          <PromptInputHeader>
+            <PromptInputAttachments>
+              {(attachment) => <PromptInputAttachment data={attachment} />}
+            </PromptInputAttachments>
+          </PromptInputHeader>
+          <PromptInputBody>
+            <PromptInputTextarea
+              onChange={(e) => setInput(e.target.value)}
+              value={input}
+            />
+          </PromptInputBody>
+          <PromptInputFooter>
+            <PromptInputTools>
+              <PromptInputActionMenu>
+                <PromptInputActionMenuTrigger />
+                <PromptInputActionMenuContent>
+                  <PromptInputActionAddAttachments />
+                </PromptInputActionMenuContent>
+              </PromptInputActionMenu>
+              <PromptInputButton
+                variant={webSearch ? 'default' : 'ghost'}
+                onClick={() => setWebSearch(!webSearch)}
+              >
+                <GlobeIcon className="size-4" />
+                <span>Search</span>
+              </PromptInputButton>
+              <PromptInputSelect
+                onValueChange={(value) => {
+                  setModel(value);
+                }}
+                value={model}
+              >
+                <PromptInputSelectTrigger>
+                  <PromptInputSelectValue />
+                </PromptInputSelectTrigger>
+                <PromptInputSelectContent>
+                  {models.map((model) => (
+                    <PromptInputSelectItem key={model.value} value={model.value}>
+                      {model.name}
+                    </PromptInputSelectItem>
+                  ))}
+                </PromptInputSelectContent>
+              </PromptInputSelect>
+            </PromptInputTools>
+            <PromptInputSubmit disabled={!input && !status} status={status} />
+          </PromptInputFooter>
+        </PromptInput>
       </div>
     </div>
   );
-}
+};
+
+export default ChatBotDemo;
