@@ -6,3 +6,4 @@ class ClientAttachment(BaseModel):
     contentType: str
     url: str
 
+
