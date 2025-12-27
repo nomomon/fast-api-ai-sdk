@@ -3,13 +3,9 @@
 import { useChat } from '@ai-sdk/react';
 import { useState } from 'react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
 export default function Chat() {
   const [input, setInput] = useState('');
-  const { messages, sendMessage } = useChat({
-    api: `${API_URL}/api/chat`,
-  });
+  const { messages, sendMessage } = useChat();
 
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">

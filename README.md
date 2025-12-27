@@ -139,12 +139,6 @@ OPENAI_API_KEY=your_openai_api_key
 ENVIRONMENT=development
 ```
 
-### Frontend (.env)
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
 ## Development
 
 ### Turborepo Workflow
@@ -199,4 +193,3 @@ See [pnpm documentation](https://pnpm.io/) for more details.
 ## License
 
 MIT
-

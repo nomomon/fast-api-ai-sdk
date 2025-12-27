@@ -11,7 +11,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["frontend/.next/**", "!frontend/.next/cache/**", "backend/dist/**"],
-      "env": ["NEXT_PUBLIC_API_URL", "OPENAI_API_KEY", "OPENAI_MODEL"],
+      "env": ["OPENAI_API_KEY", "OPENAI_MODEL"],
       "inputs": [
         "$TURBO_DEFAULT$",
         ".env.production.local",
@@ -26,7 +26,7 @@
       "dependsOn": ["setup"],
       "cache": false,
       "persistent": true,
-      "env": ["NEXT_PUBLIC_API_URL", "OPENAI_API_KEY", "OPENAI_MODEL"],
+      "env": ["OPENAI_API_KEY", "OPENAI_MODEL"],
       "inputs": [
         "$TURBO_DEFAULT$",
         ".env.development.local",

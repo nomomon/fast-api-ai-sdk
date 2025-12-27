@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   backend:
@@ -28,7 +28,6 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
       - NODE_ENV=${NODE_ENV:-development}
     env_file:
       - ./frontend/.env
@@ -46,4 +45,3 @@ services:
 networks:
   app-network:
     driver: bridge
-
