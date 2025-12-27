@@ -77,10 +77,7 @@ export function ChatInputBar({
               <PromptInputActionAddAttachments />
             </PromptInputActionMenuContent>
           </PromptInputActionMenu>
-          <PromptInputButton
-            variant={webSearch ? 'default' : 'ghost'}
-            onClick={onWebSearchToggle}
-          >
+          <PromptInputButton variant={webSearch ? 'default' : 'ghost'} onClick={onWebSearchToggle}>
             <GlobeIcon className="size-4" />
             <span>Search</span>
           </PromptInputButton>
@@ -102,4 +99,3 @@ export function ChatInputBar({
     </PromptInput>
   );
 }
-

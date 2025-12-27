@@ -29,4 +29,3 @@ export function MessagesList({ messages, status, onRegenerate }: MessagesListPro
     </>
   );
 }
-

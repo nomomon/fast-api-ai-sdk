@@ -37,4 +37,3 @@ export function MessageContainer({
     </div>
   );
 }
-
