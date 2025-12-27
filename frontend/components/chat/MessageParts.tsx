@@ -35,10 +35,12 @@ export function MessageParts({
           case 'text':
             // Ensure text is always a string for MessageResponse
             const text = part.text ?? '';
+            // Use a key that includes the text length to force re-render during streaming
+            const textKey = `${messageId}-${i}-${text.length}`;
             return (
-              <Message key={`${messageId}-${i}`} from={role}>
+              <Message key={textKey} from={role}>
                 <MessageContent>
-                  <MessageResponse>{text}</MessageResponse>
+                  <MessageResponse key={textKey}>{text}</MessageResponse>
                 </MessageContent>
                 {role === 'assistant' &&
                   isLastMessage &&

@@ -6,7 +6,7 @@ import {
   ConversationScrollButton,
 } from '@/components/ai-elements/conversation';
 import type { PromptInputMessage } from '@/components/ai-elements/prompt-input';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { ChatInputBar } from '@/components/chat/ChatInputBar';
 import { MessagesList } from '@/components/chat/MessagesList';
