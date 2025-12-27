@@ -33,24 +33,29 @@ export function MessageParts({
       {parts.map((part, i) => {
         switch (part.type) {
           case 'text':
+            // Ensure text is always a string for MessageResponse
+            const text = part.text ?? '';
             return (
               <Message key={`${messageId}-${i}`} from={role}>
                 <MessageContent>
-                  <MessageResponse>{part.text}</MessageResponse>
+                  <MessageResponse>{text}</MessageResponse>
                 </MessageContent>
-                {role === 'assistant' && isLastMessage && i === parts.length - 1 && (
-                  <MessageActions>
-                    <MessageAction onClick={() => onRegenerate?.()} label="Retry">
-                      <RefreshCcwIcon className="size-3" />
-                    </MessageAction>
-                    <MessageAction
-                      onClick={() => navigator.clipboard.writeText(part.text || '')}
-                      label="Copy"
-                    >
-                      <CopyIcon className="size-3" />
-                    </MessageAction>
-                  </MessageActions>
-                )}
+                {role === 'assistant' &&
+                  isLastMessage &&
+                  i === parts.length - 1 &&
+                  status !== 'streaming' && (
+                    <MessageActions>
+                      <MessageAction onClick={() => onRegenerate?.()} label="Retry">
+                        <RefreshCcwIcon className="size-3" />
+                      </MessageAction>
+                      <MessageAction
+                        onClick={() => navigator.clipboard.writeText(text)}
+                        label="Copy"
+                      >
+                        <CopyIcon className="size-3" />
+                      </MessageAction>
+                    </MessageActions>
+                  )}
               </Message>
             );
           case 'reasoning':
