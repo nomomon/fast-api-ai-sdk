@@ -1,6 +1,6 @@
 # AI Chatbot Template
 
-A clean, modular template for building AI chatbot applications with FastAPI backend and Next.js frontend.
+A clean, modular template for building AI chatbot applications with FastAPI backend and Next.js frontend. 
 
 ## Features
 
