@@ -1,39 +1,41 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Query, Request as FastAPIRequest
 from fastapi.responses import StreamingResponse
-from openai import OpenAI
 from pydantic import BaseModel
 
 from app.config import settings
-from app.utils.prompt import ClientMessage, convert_to_openai_messages
-from app.utils.stream import patch_response_with_headers, stream_text
-from app.utils.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
+from app.utils.prompt import ClientMessage
+from app.utils.stream import patch_response_with_headers
+from app.providers import ProviderFactory
 
 router = APIRouter()
 
 
 class ChatRequest(BaseModel):
     messages: List[ClientMessage]
+    model: Optional[str] = None
+    modelId: Optional[str] = None
 
 
 @router.post("/chat")
 async def handle_chat_data(request: ChatRequest, protocol: str = Query('data')):
     """
     Chat endpoint compatible with Vercel AI SDK.
-    Handles streaming chat completions with tool support.
+    Handles streaming chat completions with tool support through provider abstraction.
     """
-    messages = request.messages
-    
-    # Convert to OpenAI format
-    openai_messages = convert_to_openai_messages(messages)
+    print(request)
 
-    # Initialize OpenAI client
-    client = OpenAI(api_key=settings.openai_api_key)
+    messages = request.messages
+    model = request.modelId
+    
+    provider_name, model_id = model.split("/", 1)
+
+    provider = ProviderFactory.get_provider(provider_name)
     
     # Create streaming response
     response = StreamingResponse(
-        stream_text(client, openai_messages, TOOL_DEFINITIONS, AVAILABLE_TOOLS, protocol, settings.openai_model),
+        provider.stream_chat(messages, model_id, protocol),
         media_type="text/event-stream",
     )
     return patch_response_with_headers(response, protocol)

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routes import chat
+from app.routes import chat, models
 
 app = FastAPI(
     title=settings.api_title,
@@ -21,6 +21,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(chat.router, prefix="/api", tags=["chat"])
+app.include_router(models.router, prefix="/api", tags=["models"])
 
 
 @app.get("/")

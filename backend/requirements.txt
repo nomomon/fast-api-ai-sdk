@@ -10,3 +10,4 @@ requests>=2.31.0
 # Development dependencies
 ruff>=0.6.0
 
+google-genai
