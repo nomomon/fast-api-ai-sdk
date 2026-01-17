@@ -1,9 +1,10 @@
 import json
 import uuid
 from abc import ABC, abstractmethod
-from typing import Any, AsyncGenerator, Dict, Sequence
+from collections.abc import AsyncGenerator, Sequence
 
 from app.utils.prompt import ClientMessage
+
 
 class BaseProvider(ABC):
     @abstractmethod

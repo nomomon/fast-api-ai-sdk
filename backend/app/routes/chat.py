@@ -1,25 +1,22 @@
-from typing import List, Optional
-
-from fastapi import APIRouter, Query, Request as FastAPIRequest
+from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from app.config import settings
+from app.providers import ProviderFactory
 from app.utils.prompt import ClientMessage
 from app.utils.stream import patch_response_with_headers
-from app.providers import ProviderFactory
 
 router = APIRouter()
 
 
 class ChatRequest(BaseModel):
-    messages: List[ClientMessage]
-    model: Optional[str] = None
-    modelId: Optional[str] = None
+    messages: list[ClientMessage]
+    model: str | None = None
+    modelId: str | None = None
 
 
 @router.post("/chat")
-async def handle_chat_data(request: ChatRequest, protocol: str = Query('data')):
+async def handle_chat_data(request: ChatRequest, protocol: str = Query("data")):
     """
     Chat endpoint compatible with Vercel AI SDK.
     Handles streaming chat completions with tool support through provider abstraction.
@@ -28,11 +25,11 @@ async def handle_chat_data(request: ChatRequest, protocol: str = Query('data')):
 
     messages = request.messages
     model = request.modelId
-    
+
     provider_name, model_id = model.split("/", 1)
 
     provider = ProviderFactory.get_provider(provider_name)
-    
+
     # Create streaming response
     response = StreamingResponse(
         provider.stream_chat(messages, model_id, protocol),

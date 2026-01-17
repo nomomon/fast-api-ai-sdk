@@ -1,5 +1,6 @@
 from fastapi.responses import StreamingResponse
 
+
 def patch_response_with_headers(
     response: StreamingResponse,
     protocol: str = "data",

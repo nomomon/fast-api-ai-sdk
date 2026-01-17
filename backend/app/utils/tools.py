@@ -21,31 +21,31 @@ def get_current_weather(latitude, longitude):
         return None
 
 
-TOOL_DEFINITIONS = [{
-    "type": "function",
-    "function": {
-        "name": "get_current_weather",
-        "description": "Get the current weather at a location",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "latitude": {
-                    "type": "number",
-                    "description": "The latitude of the location",
+TOOL_DEFINITIONS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_weather",
+            "description": "Get the current weather at a location",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "latitude": {
+                        "type": "number",
+                        "description": "The latitude of the location",
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "description": "The longitude of the location",
+                    },
                 },
-                "longitude": {
-                    "type": "number",
-                    "description": "The longitude of the location",
-                },
+                "required": ["latitude", "longitude"],
             },
-            "required": ["latitude", "longitude"],
         },
-    },
-}]
+    }
+]
 
 
 AVAILABLE_TOOLS = {
     "get_current_weather": get_current_weather,
 }
-
-

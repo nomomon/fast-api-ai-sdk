@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     # OpenAI Configuration
     openai_api_key: str
     openai_model: str = "gpt-5-mini"
-    
+
     # Gemini Configuration
     gemini_api_key: str | None = None
 

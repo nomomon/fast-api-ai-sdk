@@ -1,19 +1,19 @@
 import json
 import traceback
-from typing import Any, Dict, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from openai import OpenAI
+
 from app.config import settings
 from app.providers.base import BaseProvider
 from app.utils.prompt import ClientMessage, convert_to_openai_messages
 from app.utils.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
 
+
 class OpenAIProvider(BaseProvider):
     def __init__(self, api_key: str = None, base_url: str = None):
-        self.client = OpenAI(
-            api_key=api_key or settings.openai_api_key,
-            base_url=base_url
-        )
+        self.client = OpenAI(api_key=api_key or settings.openai_api_key, base_url=base_url)
 
     async def stream_chat(
         self,
@@ -35,7 +35,7 @@ class OpenAIProvider(BaseProvider):
             reasoning_finished = False
             finish_reason = None
             usage_data = None
-            tool_calls_state: Dict[int, Dict[str, Any]] = {}
+            tool_calls_state: dict[int, dict[str, Any]] = {}
 
             yield self.format_sse({"type": "start", "messageId": message_id})
 
@@ -54,14 +54,20 @@ class OpenAIProvider(BaseProvider):
                     delta = choice.delta
                     if delta is None:
                         continue
-                    
+
                     reasoning_content = getattr(delta, "reasoning_content", None)
                     if reasoning_content is not None:
                         if not reasoning_started:
-                            yield self.format_sse({"type": "reasoning-start", "id": reasoning_stream_id})
+                            yield self.format_sse(
+                                {"type": "reasoning-start", "id": reasoning_stream_id}
+                            )
                             reasoning_started = True
                         yield self.format_sse(
-                            {"type": "reasoning-delta", "id": reasoning_stream_id, "delta": reasoning_content}
+                            {
+                                "type": "reasoning-delta",
+                                "id": reasoning_stream_id,
+                                "delta": reasoning_content,
+                            }
                         )
 
                     if delta.content is not None:
@@ -232,7 +238,7 @@ class OpenAIProvider(BaseProvider):
                 yield self.format_sse({"type": "text-end", "id": text_stream_id})
                 text_finished = True
 
-            finish_metadata: Dict[str, Any] = {}
+            finish_metadata: dict[str, Any] = {}
             if finish_reason is not None:
                 finish_metadata["finishReason"] = finish_reason.replace("_", "-")
 
