@@ -8,6 +8,7 @@
     "backend"
   ],
   "scripts": {
+    "fe:add": "cd frontend && pnpm add",
     "setup": "turbo run setup",
     "dev": "turbo run dev",
     "build": "turbo run build",

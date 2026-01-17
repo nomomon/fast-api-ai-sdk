@@ -1,7 +1,16 @@
+import '@/envConfig.ts';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      {
+        source: '/api/chat',
+        destination: `${process.env.BASE_BACKEND_URL}/api/chat`,
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
