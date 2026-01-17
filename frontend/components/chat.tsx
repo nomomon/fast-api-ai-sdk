@@ -1,5 +1,11 @@
 'use client';
 
+import { useChat } from '@ai-sdk/react';
+import { AlertCircle, PlusIcon, SendIcon } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Streamdown } from 'streamdown';
 import { ModelSelector } from '@/components/model-selector';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -7,13 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DEFAULT_MODEL } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { useChat } from '@ai-sdk/react';
-import { PlusIcon, SendIcon } from 'lucide-react';
-import { AlertCircle } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import { Streamdown } from 'streamdown';
 
 function ModelSelectorHandler({
   modelId,
@@ -153,6 +152,8 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
                         ) : (
                           <div key={`${m.id}-${i}`}>{part.text}</div>
                         );
+                      default:
+                        return null;
                     }
                   })}
                 </div>

@@ -1,6 +1,6 @@
+import { convertToModelMessages, streamText, type UIMessage } from 'ai';
 import { DEFAULT_MODEL, SUPPORTED_MODELS } from '@/lib/constants';
 import { gateway } from '@/lib/gateway';
-import { type UIMessage, convertToModelMessages, streamText } from 'ai';
 
 export const maxDuration = 60;
 

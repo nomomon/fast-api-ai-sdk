@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@8.15.0",
-  "workspaces": ["frontend", "backend"],
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
     "setup": "turbo run setup",
     "dev": "turbo run dev",
@@ -18,7 +21,7 @@
     "postinstall": "turbo run setup"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
-    "@biomejs/biome": "^1.8.0"
+    "@biomejs/biome": "^2.3.11",
+    "turbo": "^2.0.0"
   }
 }

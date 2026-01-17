@@ -1,5 +1,7 @@
 'use client';
 
+import { ChevronDown, Loader2 } from 'lucide-react';
+import { memo } from 'react';
 import {
   Select,
   SelectContent,
@@ -11,8 +13,6 @@ import {
 } from '@/components/ui/select';
 import { DEFAULT_MODEL } from '@/lib/constants';
 import { useAvailableModels } from '@/lib/hooks/use-available-models';
-import { ChevronDown, Loader2 } from 'lucide-react';
-import { memo } from 'react';
 
 type ModelSelectorProps = {
   modelId: string;

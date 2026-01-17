@@ -1,13 +1,26 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.8.0/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
-  "linter": {
+  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
+  "vcs": {
     "enabled": true,
-    "rules": {
-      "recommended": true
-    }
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": [
+      "**",
+      "!backend",
+      "!node_modules",
+      "!.next",
+      "!dist",
+      "!build",
+      "!.turbo",
+      "!**/*.min.js",
+      "!**/*.min.css",
+      "!pnpm-lock.yaml",
+      "!package-lock.json",
+      "!yarn.lock"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -16,6 +29,12 @@
     "indentWidth": 2,
     "lineWidth": 100,
     "lineEnding": "lf"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
   },
   "javascript": {
     "formatter": {
@@ -28,22 +47,15 @@
   },
   "css": {
     "parser": {
-      "cssModules": true
+      "tailwindDirectives": true
     }
   },
-  "files": {
-    "ignore": [
-      "node_modules/**",
-      ".next/**",
-      "dist/**",
-      "build/**",
-      ".turbo/**",
-      "*.min.js",
-      "*.min.css",
-      "pnpm-lock.yaml",
-      "package-lock.json",
-      "yarn.lock",
-      "backend/**"
-    ]
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
   }
 }
