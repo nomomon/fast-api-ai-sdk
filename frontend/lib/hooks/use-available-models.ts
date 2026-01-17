@@ -1,12 +1,17 @@
 import { SUPPORTED_MODELS } from '@/lib/constants';
 import type { DisplayModel } from '@/lib/display-model';
-import type { GatewayLanguageModelEntry } from '@ai-sdk/gateway';
 import { useCallback, useEffect, useState } from 'react';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MILLIS = 5000;
 
-function buildModelList(models: GatewayLanguageModelEntry[]): DisplayModel[] {
+interface ModelEntry {
+  id: string;
+  name: string;
+  provider: string;
+}
+
+function buildModelList(models: ModelEntry[]): DisplayModel[] {
   return models
     .filter((model) => SUPPORTED_MODELS.includes(model.id))
     .map((model) => ({

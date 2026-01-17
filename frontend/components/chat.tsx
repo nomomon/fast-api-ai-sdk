@@ -2,7 +2,6 @@
 
 import { useChat } from '@ai-sdk/react';
 import { AlertCircle, PlusIcon, SendIcon } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
@@ -12,7 +11,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DEFAULT_MODEL } from '@/lib/constants';
+import { chatApiUrl } from '@/lib/urls';
 import { cn } from '@/lib/utils';
+import { DefaultChatTransport } from 'ai';
 
 function ModelSelectorHandler({
   modelId,
@@ -42,7 +43,11 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
     setCurrentModelId(newModelId);
   };
 
-  const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat();
+  const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat({
+    transport: new DefaultChatTransport({
+        api: chatApiUrl,
+    })
+  });
 
   const hasMessages = messages.length > 0;
 
@@ -78,7 +83,7 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
           <div className="w-full max-w-2xl text-center space-y-8 md:space-y-12">
             <h1 className="text-3xl md:text-6xl font-light tracking-tight text-foreground animate-slide-up">
               <span className="font-mono font-semibold tracking-tight bg-foreground text-background px-4 py-3 rounded-2xl shadow-border-medium">
-                AI GATEWAY
+                AI CHATBOT
               </span>
             </h1>
             <div className="w-full animate-slide-up" style={{ animationDelay: '100ms' }}>
@@ -171,22 +176,7 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
             <div className="flex flex-row gap-2">
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <AlertDescription className="dark:text-red-400 text-red-600">
-                {error.message.startsWith('AI Gateway requires a valid credit card') ? (
-                  <div>
-                    AI Gateway requires a valid credit card on file to service requests. Please
-                    visit your{' '}
-                    <Link
-                      className="underline underline-offset-4"
-                      href="https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dadd-credit-card"
-                      target="_noblank"
-                    >
-                      dashboard
-                    </Link>{' '}
-                    to add a card and unlock your free credits.
-                  </div>
-                ) : (
-                  'An error occurred while generating the response.'
-                )}
+                'An error occurred while generating the response.'
               </AlertDescription>
             </div>
             <Button
@@ -244,19 +234,7 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
 
       <footer className="pb-8 text-center animate-fade-in" style={{ animationDelay: '200ms' }}>
         <p className="text-xs md:text-sm text-muted-foreground">
-          The models in the list are a small subset of those available in the Vercel AI Gateway.
-          <br />
-          See the{' '}
-          <Button variant="link" asChild className="p-0 h-auto text-xs md:text-sm font-normal">
-            <a
-              href="https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%2Fmodel-list&title="
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              model library
-            </a>
-          </Button>{' '}
-          for the full set.
+          The chatbot supports various AI models for different use cases.
         </p>
       </footer>
     </div>
