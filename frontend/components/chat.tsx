@@ -5,6 +5,7 @@ import { AlertCircle, Github, PlusIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
+import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/ai-elements/reasoning';
 import { ChatInput } from '@/components/chat-input';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -113,6 +114,24 @@ export function Chat({ modelId }: { modelId: string }) {
                       'max-w-[95%] md:max-w-[85%] text-foreground/90 leading-relaxed text-sm md:text-base'
                   )}
                 >
+                  {/* Handle reasoning parts separately if they exist */}
+                  {m.role === 'assistant' && m.parts.some((part) => part.type === 'reasoning') && (
+                    <Reasoning
+                      isStreaming={
+                        status === 'streaming' && m.id === messages[messages.length - 1]?.id
+                      }
+                    >
+                      <ReasoningTrigger />
+                      <ReasoningContent>
+                        {m.parts
+                          .filter((part) => part.type === 'reasoning')
+                          .map((part) => part.text || '')
+                          .join('')}
+                      </ReasoningContent>
+                    </Reasoning>
+                  )}
+
+                  {/* Handle text and other parts */}
                   {m.parts.map((part, i) => {
                     switch (part.type) {
                       case 'text':
@@ -128,6 +147,9 @@ export function Chat({ modelId }: { modelId: string }) {
                         ) : (
                           <div key={`${m.id}-${i}`}>{part.text}</div>
                         );
+                      case 'reasoning':
+                        // Reasoning parts are handled above
+                        return null;
                       default:
                         return null;
                     }

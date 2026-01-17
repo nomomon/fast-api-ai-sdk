@@ -59,14 +59,24 @@ class GeminiProvider(BaseProvider):
         message_id = self.generate_id()
         text_stream_id = "text-1"
         text_started = False
+        text_finished = False
+        reasoning_stream_id = "reasoning-1"
+        reasoning_started = False
+        reasoning_finished = False
         
         yield self.format_sse({"type": "start", "messageId": message_id})
         
         google_contents, system_instruction = self.convert_to_google_messages(messages)
         
-        config = types.GenerateContentConfig(
-            system_instruction=system_instruction
-        ) if system_instruction else None
+        # Build config with thinking enabled
+        config_params = {}
+        if system_instruction:
+            config_params["system_instruction"] = system_instruction
+        
+        # Add thinking config for reasoning support
+        config_params["thinking_config"] = types.ThinkingConfig(include_thoughts=True)
+        
+        config = types.GenerateContentConfig(**config_params)
 
         try:
             # We need to reconstruct the chat history if we act as a stateless endpoint
@@ -79,16 +89,48 @@ class GeminiProvider(BaseProvider):
             )
 
             for chunk in response_stream:
-                text_delta = chunk.text
+                # Handle reasoning and text parts separately
+                if hasattr(chunk, 'candidates') and chunk.candidates:
+                    candidate = chunk.candidates[0]
+                    if hasattr(candidate, 'content') and candidate.content and candidate.content.parts:
+                        for part in candidate.content.parts:
+                            if hasattr(part, 'text') and part.text:
+                                # Check if this is a thought (reasoning) or regular text
+                                if hasattr(part, 'thought') and part.thought:
+                                    # This is reasoning content
+                                    if not reasoning_started:
+                                        yield self.format_sse({"type": "reasoning-start", "id": reasoning_stream_id})
+                                        reasoning_started = True
+                                    yield self.format_sse(
+                                        {"type": "reasoning-delta", "id": reasoning_stream_id, "delta": part.text}
+                                    )
+                                else:
+                                    # This is regular text content
+                                    if not text_started:
+                                        yield self.format_sse({"type": "text-start", "id": text_stream_id})
+                                        text_started = True
+                                    yield self.format_sse(
+                                        {"type": "text-delta", "id": text_stream_id, "delta": part.text}
+                                    )
                 
-                if text_delta:  
+                # Fallback to the original text property for backwards compatibility
+                elif hasattr(chunk, 'text') and chunk.text:
                     if not text_started:
                         yield self.format_sse({"type": "text-start", "id": text_stream_id})
                         text_started = True
-                    
                     yield self.format_sse(
-                        {"type": "text-delta", "id": text_stream_id, "delta": text_delta}
+                        {"type": "text-delta", "id": text_stream_id, "delta": chunk.text}
                     )
+            
+            # Finish reasoning stream if it was started
+            if reasoning_started and not reasoning_finished:
+                yield self.format_sse({"type": "reasoning-end", "id": reasoning_stream_id})
+                reasoning_finished = True
+            
+            # Finish text stream if it was started
+            if text_started and not text_finished:
+                yield self.format_sse({"type": "text-end", "id": text_stream_id})
+                text_finished = True
             
             # Finish
             yield self.format_sse({"type": "finish", "finishReason": "stop"}) # Simplified finish reason
