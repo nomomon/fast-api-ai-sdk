@@ -21,8 +21,6 @@ async def handle_chat_data(request: ChatRequest, protocol: str = Query("data")):
     Chat endpoint compatible with Vercel AI SDK.
     Handles streaming chat completions with tool support through provider abstraction.
     """
-    print(request)
-
     messages = request.messages
     model = request.modelId
 
