@@ -1,7 +1,7 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
-import { AlertCircle, PlusIcon } from 'lucide-react';
+import { AlertCircle, Github, PlusIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
@@ -63,6 +63,20 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
           <PlusIcon className="h-4 w-4" />
         </Button>
         <ThemeToggle />
+        <Button
+          asChild
+          variant="outline"
+          size="icon"
+          className="h-9 w-9 shadow-border-small hover:shadow-border-medium bg-background/80 backdrop-blur-sm border-0 hover:bg-background hover:scale-[1.02] transition-all duration-150 ease"
+        >
+          <a
+            href="https://github.com/nomomon/fast-api-ai-sdk"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Github className="h-4 w-4" />
+          </a>
+        </Button>
       </div>
       {!hasMessages && (
         <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-8 animate-fade-in">
