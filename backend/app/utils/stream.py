@@ -25,6 +25,9 @@ def stream_text(
         text_stream_id = "text-1"
         text_started = False
         text_finished = False
+        reasoning_stream_id = "reasoning-1"
+        reasoning_started = False
+        reasoning_finished = False
         finish_reason = None
         usage_data = None
         tool_calls_state: Dict[int, Dict[str, Any]] = {}
@@ -46,6 +49,15 @@ def stream_text(
                 delta = choice.delta
                 if delta is None:
                     continue
+                
+                reasoning_content = getattr(delta, "reasoning_content", None)
+                if reasoning_content is not None:
+                    if not reasoning_started:
+                        yield format_sse({"type": "reasoning-start", "id": reasoning_stream_id})
+                        reasoning_started = True
+                    yield format_sse(
+                        {"type": "reasoning-delta", "id": reasoning_stream_id, "delta": reasoning_content}
+                    )
 
                 if delta.content is not None:
                     if not text_started:
@@ -129,6 +141,10 @@ def stream_text(
 
             if not chunk.choices and chunk.usage is not None:
                 usage_data = chunk.usage
+
+        if reasoning_started and not reasoning_finished:
+            yield format_sse({"type": "reasoning-end", "id": reasoning_stream_id})
+            reasoning_finished = True
 
         if finish_reason == "stop" and text_started and not text_finished:
             yield format_sse({"type": "text-end", "id": text_stream_id})
@@ -251,4 +267,3 @@ def patch_response_with_headers(
         response.headers.setdefault("x-vercel-ai-protocol", protocol)
 
     return response
-
