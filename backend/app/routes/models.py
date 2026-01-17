@@ -16,6 +16,6 @@ async def list_models():
     return {
         "models": [
             {"id": "openai/gpt-5", "name": "GPT-5", "provider": "OpenAI"},
-            {"id": "google/gemini-3-flash-preview", "name": "Gemini 3 Flash", "provider": "Google"},
+            {"id": "gemini/gemini-3-flash-preview", "name": "Gemini 3 Flash", "provider": "Google"},
         ]
     }
