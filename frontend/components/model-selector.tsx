@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useAvailableModels } from "@/lib/hooks/use-available-models";
-import { Loader2, ChevronDown } from "lucide-react";
-import { DEFAULT_MODEL } from "@/lib/constants";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
-  SelectGroup,
-  SelectLabel,
-} from "@/components/ui/select";
-import { memo } from "react";
+} from '@/components/ui/select';
+import { DEFAULT_MODEL } from '@/lib/constants';
+import { useAvailableModels } from '@/lib/hooks/use-available-models';
+import { ChevronDown, Loader2 } from 'lucide-react';
+import { memo } from 'react';
 
 type ModelSelectorProps = {
   modelId: string;
@@ -55,11 +55,19 @@ export const ModelSelector = memo(function ModelSelector({
         </div>
       </SelectTrigger>
 
-      <SelectContent className="rounded-2xl border-0 shadow-border-medium bg-popover/95 backdrop-blur-sm animate-scale-in" align="start" sideOffset={4}>
+      <SelectContent
+        className="rounded-2xl border-0 shadow-border-medium bg-popover/95 backdrop-blur-sm animate-scale-in"
+        align="start"
+        sideOffset={4}
+      >
         <SelectGroup>
           <SelectLabel className="text-xs text-muted-foreground px-2 py-1">Models</SelectLabel>
           {models?.map((model) => (
-            <SelectItem key={model.id} value={model.id} className="rounded-lg transition-colors duration-150 ease-out">
+            <SelectItem
+              key={model.id}
+              value={model.id}
+              className="rounded-lg transition-colors duration-150 ease-out"
+            >
               {model.label}
             </SelectItem>
           )) || []}

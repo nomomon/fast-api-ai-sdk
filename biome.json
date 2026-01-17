@@ -26,6 +26,11 @@
       "arrowParentheses": "always"
     }
   },
+  "css": {
+    "parser": {
+      "cssModules": true
+    }
+  },
   "files": {
     "ignore": [
       "node_modules/**",

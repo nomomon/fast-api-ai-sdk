@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
-import type { DisplayModel } from "@/lib/display-model";
-import type { GatewayLanguageModelEntry } from "@ai-sdk/gateway";
-import { SUPPORTED_MODELS } from "@/lib/constants";
+import { SUPPORTED_MODELS } from '@/lib/constants';
+import type { DisplayModel } from '@/lib/display-model';
+import type { GatewayLanguageModelEntry } from '@ai-sdk/gateway';
+import { useCallback, useEffect, useState } from 'react';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MILLIS = 5000;
@@ -22,16 +22,16 @@ export function useAvailableModels() {
   const [retryCount, setRetryCount] = useState(0);
 
   const fetchModels = useCallback(
-    async (isRetry: boolean = false) => {
+    async (isRetry = false) => {
       if (!isRetry) {
         setIsLoading(true);
         setError(null);
       }
 
       try {
-        const response = await fetch("/api/models");
+        const response = await fetch('/api/models');
         if (!response.ok) {
-          throw new Error("Failed to fetch models");
+          throw new Error('Failed to fetch models');
         }
         const data = await response.json();
         const newModels = buildModelList(data.models);
@@ -40,9 +40,7 @@ export function useAvailableModels() {
         setRetryCount(0);
         setIsLoading(false);
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch models")
-        );
+        setError(err instanceof Error ? err : new Error('Failed to fetch models'));
         if (retryCount < MAX_RETRIES) {
           setRetryCount((prev) => prev + 1);
           setIsLoading(true);

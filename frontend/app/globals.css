@@ -126,7 +126,7 @@
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* Internet Explorer 10+ */
   }
-  
+
   .hide-scrollbar::-webkit-scrollbar {
     display: none; /* Safari and Chrome */
   }
@@ -136,47 +136,39 @@
   .animate-fade-in {
     animation: fade-in 200ms ease-out;
   }
-  
+
   .animate-slide-up {
     animation: slide-up 200ms ease-out;
   }
-  
+
   .animate-slide-down {
     animation: slide-down 150ms ease-out;
   }
-  
+
   .animate-scale-in {
     animation: scale-in 200ms ease-out;
   }
-  
+
   .animate-message-in {
     animation: message-in 300ms ease-out;
   }
 
   .shadow-border-small {
-    box-shadow: 
-      0 0 0 1px rgba(0, 0, 0, 0.08),
-      0 1px 2px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.12);
   }
-  
+
   .shadow-border-medium {
-    box-shadow: 
-      0 0 0 1px rgba(0, 0, 0, 0.08),
-      0 2px 4px rgba(0, 0, 0, 0.12),
-      0 1px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.12), 0 1px 6px
+      rgba(0, 0, 0, 0.05);
   }
-  
+
   .dark .shadow-border-small {
-    box-shadow: 
-      0 0 0 1px rgba(255, 255, 255, 0.1),
-      0 1px 2px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  
+
   .dark .shadow-border-medium {
-    box-shadow: 
-      0 0 0 1px rgba(255, 255, 255, 0.1),
-      0 2px 4px rgba(0, 0, 0, 0.4),
-      0 1px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 6px
+      rgba(0, 0, 0, 0.2);
   }
 
   .glass-effect {
@@ -184,12 +176,12 @@
     background: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
-  
+
   .dark .glass-effect {
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
-  
+
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -198,7 +190,7 @@
       opacity: 1;
     }
   }
-  
+
   @keyframes slide-up {
     from {
       opacity: 0;
@@ -209,7 +201,7 @@
       transform: translateY(0);
     }
   }
-  
+
   @keyframes slide-down {
     from {
       opacity: 0;
@@ -220,7 +212,7 @@
       transform: translateY(0);
     }
   }
-  
+
   @keyframes scale-in {
     from {
       opacity: 0;
@@ -231,7 +223,7 @@
       transform: scale(1);
     }
   }
-  
+
   @keyframes message-in {
     from {
       opacity: 0;
@@ -244,7 +236,7 @@
       filter: blur(0);
     }
   }
-  
+
   @media (prefers-reduced-motion: reduce) {
     .animate-fade-in,
     .animate-slide-up,

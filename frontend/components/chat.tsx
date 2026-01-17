@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useChat } from "@ai-sdk/react";
-import { useRouter } from "next/navigation";
-import { ModelSelector } from "@/components/model-selector";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { SendIcon, PlusIcon } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
-import { DEFAULT_MODEL } from "@/lib/constants";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { Streamdown } from "streamdown";
+import { ModelSelector } from '@/components/model-selector';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { DEFAULT_MODEL } from '@/lib/constants';
+import { cn } from '@/lib/utils';
+import { useChat } from '@ai-sdk/react';
+import { PlusIcon, SendIcon } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { Streamdown } from 'streamdown';
 
 function ModelSelectorHandler({
   modelId,
@@ -27,7 +27,7 @@ function ModelSelectorHandler({
   const handleSelectChange = (newModelId: string) => {
     onModelIdChange(newModelId);
     const params = new URLSearchParams();
-    params.set("modelId", newModelId);
+    params.set('modelId', newModelId);
     router.push(`?${params.toString()}`);
   };
 
@@ -35,7 +35,7 @@ function ModelSelectorHandler({
 }
 
 export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [currentModelId, setCurrentModelId] = useState(modelId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -47,18 +47,18 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
 
   const hasMessages = messages.length > 0;
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [scrollToBottom]);
 
   const handleNewChat = () => {
     stop();
     setMessages([]);
-    setInput("");
+    setInput('');
   };
 
   return (
@@ -87,14 +87,11 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
                 onSubmit={(e) => {
                   e.preventDefault();
                   sendMessage({ text: input }, { body: { modelId: currentModelId } });
-                  setInput("");
+                  setInput('');
                 }}
               >
                 <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4 rounded-2xl glass-effect shadow-border-medium transition-all duration-200 ease-out">
-                  <ModelSelectorHandler
-                    modelId={modelId}
-                    onModelIdChange={handleModelIdChange}
-                  />
+                  <ModelSelectorHandler modelId={modelId} onModelIdChange={handleModelIdChange} />
                   <div className="flex flex-1 items-center">
                     <Input
                       name="prompt"
@@ -104,12 +101,9 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
                       autoFocus
                       className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60"
                       onKeyDown={(e) => {
-                        if (e.metaKey && e.key === "Enter") {
-                          sendMessage(
-                            { text: input },
-                            { body: { modelId: currentModelId } },
-                          );
-                          setInput("");
+                        if (e.metaKey && e.key === 'Enter') {
+                          sendMessage({ text: input }, { body: { modelId: currentModelId } });
+                          setInput('');
                         }
                       }}
                     />
@@ -138,16 +132,22 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
                 <div
                   key={m.id}
                   className={cn(
-                    m.role === "user" &&
-                      "bg-foreground text-background rounded-2xl p-3 md:p-4 ml-auto max-w-[90%] md:max-w-[75%] shadow-border-small font-medium text-sm md:text-base",
-                    m.role === "assistant" && "max-w-[95%] md:max-w-[85%] text-foreground/90 leading-relaxed text-sm md:text-base"
+                    m.role === 'user' &&
+                      'bg-foreground text-background rounded-2xl p-3 md:p-4 ml-auto max-w-[90%] md:max-w-[75%] shadow-border-small font-medium text-sm md:text-base',
+                    m.role === 'assistant' &&
+                      'max-w-[95%] md:max-w-[85%] text-foreground/90 leading-relaxed text-sm md:text-base'
                   )}
                 >
                   {m.parts.map((part, i) => {
                     switch (part.type) {
-                      case "text":
-                        return m.role === "assistant" ? (
-                          <Streamdown key={`${m.id}-${i}`} isAnimating={status === "streaming" && m.id === messages[messages.length - 1]?.id}>
+                      case 'text':
+                        return m.role === 'assistant' ? (
+                          <Streamdown
+                            key={`${m.id}-${i}`}
+                            isAnimating={
+                              status === 'streaming' && m.id === messages[messages.length - 1]?.id
+                            }
+                          >
                             {part.text}
                           </Streamdown>
                         ) : (
@@ -170,7 +170,22 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
             <div className="flex flex-row gap-2">
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <AlertDescription className="dark:text-red-400 text-red-600">
-                {error.message.startsWith("AI Gateway requires a valid credit card") ? <div>AI Gateway requires a valid credit card on file to service requests. Please visit your <Link className="underline underline-offset-4" href="https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dadd-credit-card" target="_noblank">dashboard</Link> to add a card and unlock your free credits.</div> : "An error occurred while generating the response."}
+                {error.message.startsWith('AI Gateway requires a valid credit card') ? (
+                  <div>
+                    AI Gateway requires a valid credit card on file to service requests. Please
+                    visit your{' '}
+                    <Link
+                      className="underline underline-offset-4"
+                      href="https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dadd-credit-card"
+                      target="_noblank"
+                    >
+                      dashboard
+                    </Link>{' '}
+                    to add a card and unlock your free credits.
+                  </div>
+                ) : (
+                  'An error occurred while generating the response.'
+                )}
               </AlertDescription>
             </div>
             <Button
@@ -191,15 +206,12 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
             onSubmit={(e) => {
               e.preventDefault();
               sendMessage({ text: input }, { body: { modelId: currentModelId } });
-              setInput("");
+              setInput('');
             }}
             className="px-4 md:px-8 pb-6 md:pb-8"
           >
             <div className="flex items-center gap-3 p-4 rounded-2xl glass-effect shadow-border-medium transition-all duration-200 ease-out">
-              <ModelSelectorHandler
-                modelId={modelId}
-                onModelIdChange={handleModelIdChange}
-              />
+              <ModelSelectorHandler modelId={modelId} onModelIdChange={handleModelIdChange} />
               <div className="flex flex-1 items-center">
                 <Input
                   name="prompt"
@@ -208,12 +220,9 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
                   value={input}
                   className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60 font-medium"
                   onKeyDown={(e) => {
-                    if (e.metaKey && e.key === "Enter") {
-                      sendMessage(
-                        { text: input },
-                        { body: { modelId: currentModelId } },
-                      );
-                      setInput("");
+                    if (e.metaKey && e.key === 'Enter') {
+                      sendMessage({ text: input }, { body: { modelId: currentModelId } });
+                      setInput('');
                     }
                   }}
                 />
@@ -234,15 +243,10 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
 
       <footer className="pb-8 text-center animate-fade-in" style={{ animationDelay: '200ms' }}>
         <p className="text-xs md:text-sm text-muted-foreground">
-          The models in the list are a small subset of those available in the
-          Vercel AI Gateway.
+          The models in the list are a small subset of those available in the Vercel AI Gateway.
           <br />
-          See the{" "}
-          <Button
-            variant="link"
-            asChild
-            className="p-0 h-auto text-xs md:text-sm font-normal"
-          >
+          See the{' '}
+          <Button variant="link" asChild className="p-0 h-auto text-xs md:text-sm font-normal">
             <a
               href="https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%2Fmodel-list&title="
               target="_blank"
@@ -250,7 +254,7 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
             >
               model library
             </a>
-          </Button>{" "}
+          </Button>{' '}
           for the full set.
         </p>
       </footer>
