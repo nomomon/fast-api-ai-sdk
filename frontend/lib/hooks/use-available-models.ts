@@ -24,6 +24,7 @@ export function useAvailableModels() {
           data.models.map((model: ModelEntry) => ({
             id: model.id,
             label: model.name,
+            provider: model.provider,
           }))
         );
         setError(null);
