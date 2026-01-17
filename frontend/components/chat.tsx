@@ -2,7 +2,6 @@
 
 import { useChat } from '@ai-sdk/react';
 import { AlertCircle, Github, PlusIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
 import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/ai-elements/reasoning';
@@ -10,19 +9,23 @@ import { ChatInput } from '@/components/chat-input';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { useDefaultModel } from '@/lib/hooks/use-default-model';
 import { cn } from '@/lib/utils';
 
-export function Chat({ modelId }: { modelId: string }) {
-  const router = useRouter();
+export function Chat() {
   const [input, setInput] = useState('');
-  const [currentModelId, setCurrentModelId] = useState(modelId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const {
+    modelId: currentModelId,
+    setModelId: setCurrentModelId,
+    models,
+    isLoading: isModelLoading,
+    error: modelError,
+  } = useDefaultModel();
 
   const handleModelChange = (newModelId: string) => {
     setCurrentModelId(newModelId);
-    const params = new URLSearchParams();
-    params.set('modelId', newModelId);
-    router.push(`?${params.toString()}`);
   };
 
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat();
@@ -94,6 +97,9 @@ export function Chat({ modelId }: { modelId: string }) {
                 isLoading={isLoading}
                 modelId={currentModelId}
                 onModelChange={handleModelChange}
+                models={models}
+                isModelLoading={isModelLoading}
+                modelError={modelError}
               />
             </div>
           </div>
@@ -193,6 +199,9 @@ export function Chat({ modelId }: { modelId: string }) {
             isLoading={isLoading}
             modelId={currentModelId}
             onModelChange={handleModelChange}
+            models={models}
+            isModelLoading={isModelLoading}
+            modelError={modelError}
           />
         </div>
       )}

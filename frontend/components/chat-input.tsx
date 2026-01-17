@@ -5,14 +5,20 @@ import { useCallback, useEffect, useRef } from 'react';
 import { ModelSelector } from '@/components/model-selector';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import type { DisplayModel } from '@/lib/display-model';
 
 interface ChatInputProps {
   input: string;
   setInput: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
+
+  // Model selection props
+  models: DisplayModel[];
   modelId: string;
   onModelChange: (modelId: string) => void;
+  isModelLoading: boolean;
+  modelError: Error | null;
 }
 
 export function ChatInput({
@@ -20,8 +26,11 @@ export function ChatInput({
   setInput,
   onSubmit,
   isLoading,
+  models,
   modelId,
   onModelChange,
+  isModelLoading,
+  modelError,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -58,7 +67,13 @@ export function ChatInput({
         />
         <div className="flex justify-between items-center mt-2">
           <div className="flex items-center gap-2">
-            <ModelSelector modelId={modelId} onModelChange={onModelChange} />
+            <ModelSelector
+              modelId={modelId}
+              models={models}
+              onModelChange={onModelChange}
+              isLoading={isModelLoading}
+              error={modelError}
+            />
             <Button
               type="button"
               variant="ghost"

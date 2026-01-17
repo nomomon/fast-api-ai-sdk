@@ -1,37 +1,30 @@
-import { useEffect } from 'react';
-import type { DisplayModel } from '@/lib/display-model';
+import { useEffect, useState } from 'react';
+import { useAvailableModels } from '@/lib/hooks/use-available-models';
 
-interface UseDefaultModelOptions {
-  modelId: string;
-  models: DisplayModel[] | undefined;
-  isLoading: boolean;
-  error: Error | null;
-  onModelChange: (modelId: string) => void;
-}
+export function useDefaultModel() {
+  const { models, isLoading, error } = useAvailableModels();
+  const [modelId, setModelId] = useState<string>('');
 
-export function useDefaultModel({
-  modelId,
-  models,
-  isLoading,
-  error,
-  onModelChange,
-}: UseDefaultModelOptions) {
-  // Auto-select the first model if no modelId is provided or if the provided modelId is not valid
   useEffect(() => {
-    if (!isLoading && !error && models && models.length > 0) {
-      // Check if the current modelId is valid
-      const isValidModelId = modelId && models.some((model) => model.id === modelId);
+    // if the request is still loading, do nothing
+    if (isLoading || !models || models.length === 0) return;
 
-      // If no valid modelId is provided, select the first model
-      if (!isValidModelId) {
-        onModelChange(models[0].id);
-      }
+    // if modelId is already set, do nothing (preserve user selection)
+    if (modelId) return;
+
+    const savedModelId = localStorage.getItem('default-model');
+
+    if (savedModelId && models.some((m) => m.id === savedModelId)) {
+      setModelId(savedModelId);
+    } else {
+      setModelId(models[0].id);
     }
-  }, [models, modelId, onModelChange, isLoading, error]);
+  }, [models, isLoading, modelId]);
 
-  // Get the effective modelId (either the provided one or the first available model)
-  const effectiveModelId =
-    modelId && models?.some((model) => model.id === modelId) ? modelId : models?.[0]?.id || '';
+  const handleModelChange = (id: string) => {
+    setModelId(id);
+    localStorage.setItem('default-model', id);
+  };
 
-  return effectiveModelId;
+  return { modelId, setModelId: handleModelChange, models, isLoading, error };
 }

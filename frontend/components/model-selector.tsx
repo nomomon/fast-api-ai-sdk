@@ -11,33 +11,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAvailableModels } from '@/lib/hooks/use-available-models';
-import { useDefaultModel } from '@/lib/hooks/use-default-model';
+import type { DisplayModel } from '@/lib/display-model';
 
 type ModelSelectorProps = {
   modelId: string;
+  models: DisplayModel[];
   onModelChange: (modelId: string) => void;
+  isLoading: boolean;
+  error: Error | null;
 };
 
 export const ModelSelector = memo(function ModelSelector({
   modelId,
+  models,
   onModelChange,
+  isLoading,
+  error,
 }: ModelSelectorProps) {
-  const { models, isLoading, error } = useAvailableModels();
-
-  const effectiveModelId = useDefaultModel({
-    modelId,
-    models,
-    isLoading,
-    error,
-    onModelChange,
-  });
-
   return (
     <Select
-      value={effectiveModelId}
+      value={modelId}
       onValueChange={onModelChange}
-      disabled={isLoading || !!error || !models?.length}
+      disabled={isLoading || !!error || !models.length}
     >
       <SelectTrigger className="w-9 h-9 md:w-35 border-0 bg-transparent focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:outline-none focus:border-0 focus-visible:border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-xl font-medium text-sm p-0 md:px-3 **:data-placeholder:hidden md:**:data-placeholder:block [&>svg]:hidden md:[&>svg]:block">
         <div className="flex items-center justify-center w-full h-full md:hidden">
@@ -55,7 +50,7 @@ export const ModelSelector = memo(function ModelSelector({
             </>
           ) : error ? (
             <span className="text-red-500 text-sm">Error</span>
-          ) : !models?.length ? (
+          ) : !models.length ? (
             <span className="text-sm">No models</span>
           ) : (
             <SelectValue placeholder="Select model" />
@@ -70,7 +65,7 @@ export const ModelSelector = memo(function ModelSelector({
       >
         <SelectGroup>
           <SelectLabel className="text-xs text-muted-foreground px-2 py-1">Models</SelectLabel>
-          {models?.map((model) => (
+          {models.map((model) => (
             <SelectItem
               key={model.id}
               value={model.id}
@@ -78,7 +73,7 @@ export const ModelSelector = memo(function ModelSelector({
             >
               {model.label}
             </SelectItem>
-          )) || []}
+          ))}
         </SelectGroup>
       </SelectContent>
     </Select>
