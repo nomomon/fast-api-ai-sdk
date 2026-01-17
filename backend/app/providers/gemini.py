@@ -50,6 +50,11 @@ class GeminiProvider(BaseProvider):
 
         return google_messages, system_instruction
 
+    async def async_sleep(self, delay: float):
+        import asyncio
+
+        await asyncio.sleep(delay)
+
     async def stream_chat(
         self,
         messages: Sequence[ClientMessage],
@@ -112,6 +117,9 @@ class GeminiProvider(BaseProvider):
                                             "delta": part.text,
                                         }
                                     )
+                                    # TODO: Fix what ever this reasoning is doing
+                                    # wait for 200ms
+                                    await self.async_sleep(0.2)
                                 else:
                                     # This is regular text content
                                     if not text_started:
