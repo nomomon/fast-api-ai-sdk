@@ -6,6 +6,10 @@
 *.swo
 *~
 .DS_Store
+
+# Node
+node_modules/
+
 # TypeScript
 *.tsbuildinfo
 

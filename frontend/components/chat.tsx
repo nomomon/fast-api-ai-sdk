@@ -1,6 +1,7 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { AlertCircle, PlusIcon, SendIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -13,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { DEFAULT_MODEL } from '@/lib/constants';
 import { chatApiUrl } from '@/lib/urls';
 import { cn } from '@/lib/utils';
-import { DefaultChatTransport } from 'ai';
 
 function ModelSelectorHandler({
   modelId,
@@ -45,8 +45,8 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
 
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat({
     transport: new DefaultChatTransport({
-        api: chatApiUrl,
-    })
+      api: chatApiUrl,
+    }),
   });
 
   const hasMessages = messages.length > 0;

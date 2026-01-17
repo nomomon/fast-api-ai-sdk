@@ -1,6 +1,6 @@
+import { useCallback, useEffect, useState } from 'react';
 import { SUPPORTED_MODELS } from '@/lib/constants';
 import type { DisplayModel } from '@/lib/display-model';
-import { useCallback, useEffect, useState } from 'react';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MILLIS = 5000;
