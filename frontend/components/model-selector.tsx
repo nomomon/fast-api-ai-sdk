@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAvailableModels } from '@/lib/hooks/use-available-models';
+import { useDefaultModel } from '@/lib/hooks/use-default-model';
 
 type ModelSelectorProps = {
   modelId: string;
@@ -24,9 +25,17 @@ export const ModelSelector = memo(function ModelSelector({
 }: ModelSelectorProps) {
   const { models, isLoading, error } = useAvailableModels();
 
+  const effectiveModelId = useDefaultModel({
+    modelId,
+    models,
+    isLoading,
+    error,
+    onModelChange,
+  });
+
   return (
     <Select
-      value={modelId}
+      value={effectiveModelId}
       onValueChange={onModelChange}
       disabled={isLoading || !!error || !models?.length}
     >
