@@ -1,44 +1,28 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
-import { AlertCircle, PlusIcon, SendIcon } from 'lucide-react';
+import { AlertCircle, PlusIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Streamdown } from 'streamdown';
-import { ModelSelector } from '@/components/model-selector';
+import { ChatInput } from '@/components/chat-input';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { DEFAULT_MODEL } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
-function ModelSelectorHandler({
-  modelId,
-  onModelIdChange,
-}: {
-  modelId: string;
-  onModelIdChange: (newModelId: string) => void;
-}) {
-  const router = useRouter();
-
-  const handleSelectChange = (newModelId: string) => {
-    onModelIdChange(newModelId);
-    const params = new URLSearchParams();
-    params.set('modelId', newModelId);
-    router.push(`?${params.toString()}`);
-  };
-
-  return <ModelSelector modelId={modelId} onModelChange={handleSelectChange} />;
-}
-
 export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
+  const router = useRouter();
   const [input, setInput] = useState('');
   const [currentModelId, setCurrentModelId] = useState(modelId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleModelIdChange = (newModelId: string) => {
+  const handleModelChange = (newModelId: string) => {
     setCurrentModelId(newModelId);
+    const params = new URLSearchParams();
+    params.set('modelId', newModelId);
+    router.push(`?${params.toString()}`);
   };
 
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat();
@@ -56,6 +40,14 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
   const handleNewChat = () => {
     stop();
     setMessages([]);
+    setInput('');
+  };
+
+  const isLoading = status === 'streaming';
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage({ text: input }, { body: { modelId: currentModelId } });
     setInput('');
   };
 
@@ -81,42 +73,14 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
               </span>
             </h1>
             <div className="w-full animate-slide-up" style={{ animationDelay: '100ms' }}>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  sendMessage({ text: input }, { body: { modelId: currentModelId } });
-                  setInput('');
-                }}
-              >
-                <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4 rounded-2xl glass-effect shadow-border-medium transition-all duration-200 ease-out">
-                  <ModelSelectorHandler modelId={modelId} onModelIdChange={handleModelIdChange} />
-                  <div className="flex flex-1 items-center">
-                    <Input
-                      name="prompt"
-                      placeholder="Ask a question..."
-                      onChange={(e) => setInput(e.target.value)}
-                      value={input}
-                      autoFocus
-                      className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60"
-                      onKeyDown={(e) => {
-                        if (e.metaKey && e.key === 'Enter') {
-                          sendMessage({ text: input }, { body: { modelId: currentModelId } });
-                          setInput('');
-                        }
-                      }}
-                    />
-                    <Button
-                      type="submit"
-                      size="icon"
-                      variant="ghost"
-                      className="h-9 w-9 rounded-xl hover:bg-muted/50"
-                      disabled={!input.trim()}
-                    >
-                      <SendIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </form>
+              <ChatInput
+                input={input}
+                setInput={setInput}
+                onSubmit={handleSubmit}
+                isLoading={isLoading}
+                modelId={currentModelId}
+                onModelChange={handleModelChange}
+              />
             </div>
           </div>
         </div>
@@ -186,43 +150,15 @@ export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
       )}
 
       {hasMessages && (
-        <div className="w-full max-w-4xl mx-auto">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              sendMessage({ text: input }, { body: { modelId: currentModelId } });
-              setInput('');
-            }}
-            className="px-4 md:px-8 pb-6 md:pb-8"
-          >
-            <div className="flex items-center gap-3 p-4 rounded-2xl glass-effect shadow-border-medium transition-all duration-200 ease-out">
-              <ModelSelectorHandler modelId={modelId} onModelIdChange={handleModelIdChange} />
-              <div className="flex flex-1 items-center">
-                <Input
-                  name="prompt"
-                  placeholder="Ask a question..."
-                  onChange={(e) => setInput(e.target.value)}
-                  value={input}
-                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60 font-medium"
-                  onKeyDown={(e) => {
-                    if (e.metaKey && e.key === 'Enter') {
-                      sendMessage({ text: input }, { body: { modelId: currentModelId } });
-                      setInput('');
-                    }
-                  }}
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  variant="ghost"
-                  className="h-9 w-9 rounded-xl hover:bg-accent hover:text-accent-foreground hover:scale-110 transition-all duration-150 ease disabled:opacity-50 disabled:hover:scale-100"
-                  disabled={!input.trim()}
-                >
-                  <SendIcon className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </form>
+        <div className="w-full max-w-4xl mx-auto px-4 md:px-8 pb-6 md:pb-8">
+          <ChatInput
+            input={input}
+            setInput={setInput}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            modelId={currentModelId}
+            onModelChange={handleModelChange}
+          />
         </div>
       )}
 
