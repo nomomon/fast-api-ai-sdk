@@ -9,10 +9,9 @@ import { ChatInput } from '@/components/chat-input';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { DEFAULT_MODEL } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
-export function Chat({ modelId = DEFAULT_MODEL }: { modelId: string }) {
+export function Chat({ modelId }: { modelId: string }) {
   const router = useRouter();
   const [input, setInput] = useState('');
   const [currentModelId, setCurrentModelId] = useState(modelId);

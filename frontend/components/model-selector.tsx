@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DEFAULT_MODEL } from '@/lib/constants';
 import { useAvailableModels } from '@/lib/hooks/use-available-models';
 
 type ModelSelectorProps = {
@@ -20,7 +19,7 @@ type ModelSelectorProps = {
 };
 
 export const ModelSelector = memo(function ModelSelector({
-  modelId = DEFAULT_MODEL,
+  modelId,
   onModelChange,
 }: ModelSelectorProps) {
   const { models, isLoading, error } = useAvailableModels();

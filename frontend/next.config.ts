@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: '/api/chat',
-        destination: `${process.env.BASE_BACKEND_URL}/api/chat`,
+        source: '/api/:path*',
+        destination: `${process.env.BASE_BACKEND_URL}/api/:path*`,
         permanent: true,
       },
     ];
