@@ -12,7 +12,6 @@ class BaseProvider(ABC):
         self,
         messages: Sequence[ClientMessage],
         model: str,
-        protocol: str = "data",
     ) -> AsyncGenerator[str, None]:
         """Stream chat responses in Vercel AI SDK format."""
         pass

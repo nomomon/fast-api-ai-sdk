@@ -25,7 +25,6 @@ class LiteLLMProvider(BaseProvider):
         self,
         messages: Sequence[ClientMessage],
         model: str,
-        protocol: str = "data",
     ):
         openai_messages = convert_to_openai_messages(messages)
         tool_definitions = TOOL_DEFINITIONS
