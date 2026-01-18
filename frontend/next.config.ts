@@ -3,7 +3,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  async redirects() {
+  async rewrites() {
     return [
       {
         source: '/api/:path*',

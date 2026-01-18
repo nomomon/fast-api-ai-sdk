@@ -9,10 +9,10 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - ENVIRONMENT=production
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - ENVIRONMENT=production
-      - CORS_ORIGINS=http://localhost:3001,http://nextjs-frontend:3000,https://chat.nomomon.xyz
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:3001}
     restart: always
 
   frontend:
