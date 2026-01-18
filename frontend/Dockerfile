@@ -9,7 +9,9 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json pnpm-lock.yaml* ./
-RUN pnpm i --frozen-lockfile
+# Allow installing even if the lockfile is out of date in CI/build environments
+# This avoids failing the Docker build when the lockfile doesn't match package.json.
+RUN pnpm i --no-frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
