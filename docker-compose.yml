@@ -8,6 +8,7 @@ services:
     container_name: fastapi-backend
     ports:
       - "8000:8000"
+    working_dir: /app
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
@@ -16,10 +17,10 @@ services:
       - API_VERSION=${API_VERSION:-1.0.0}
       - HOST=${HOST:-0.0.0.0}
       - PORT=${PORT:-8000}
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3001}
     volumes:
       - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app"
     networks:
       - app-network
     restart: unless-stopped
@@ -30,7 +31,7 @@ services:
       dockerfile: Dockerfile
     container_name: nextjs-frontend
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - BASE_BACKEND_URL=${BASE_BACKEND_URL:-http://localhost:8000}
