@@ -1,6 +1,6 @@
 'use client';
 
-import { BrainCircuit, ChevronDown, Loader2 } from 'lucide-react';
+import { BrainCircuit, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { memo, useState } from 'react';
 import {
@@ -56,24 +56,17 @@ export const ModelSelector = memo(function ModelSelector({
       onValueChange={onModelChange}
       disabled={isLoading || !!error || !models.length}
     >
-      <SelectTrigger className="w-9 h-9 md:w-42 border-0 bg-transparent focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:outline-none focus:border-0 focus-visible:border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-xl font-medium text-sm p-0 shadow-none md:px-3 **:data-placeholder:hidden md:**:data-placeholder:block [&>svg]:hidden md:[&>svg]:block">
-        <div className="flex items-center justify-center w-full h-full md:hidden">
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
-        </div>
-        <div className="hidden md:flex items-center gap-2 w-full">
+      <SelectTrigger className="w-fit md:w-42 border-0 bg-transparent focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:outline-none focus:border-0 focus-visible:border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-xl font-medium text-xs px-2 md:px-3 shadow-none">
+        <div className="flex items-center gap-2 w-full">
           {isLoading ? (
             <>
               <Loader2 className="h-3 w-3 animate-spin" />
-              <span className="text-sm">Loading</span>
+              <span className="text-xs">Loading</span>
             </>
           ) : error ? (
-            <span className="text-red-500 text-sm">Error</span>
+            <span className="text-red-500 text-xs">Error</span>
           ) : !models.length ? (
-            <span className="text-sm">No models</span>
+            <span className="text-xs">No models</span>
           ) : (
             <SelectValue placeholder="Select model" />
           )}
@@ -92,7 +85,7 @@ export const ModelSelector = memo(function ModelSelector({
               key={model.id}
               value={model.id}
               textValue={model.label}
-              className="rounded-lg transition-colors duration-150 ease-out data-[state=checked]:font-medium"
+              className="rounded-lg transition-colors duration-150 ease-out data-[state=checked]:font-medium text-xs"
             >
               <div className="flex items-center gap-2">
                 <ProviderIcon provider={model.provider} />
