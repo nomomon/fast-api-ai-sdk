@@ -1,6 +1,7 @@
+import os
 from collections.abc import AsyncGenerator
 
-from openai import AsyncOpenAI
+import litellm
 
 from app.config import settings
 
@@ -9,14 +10,15 @@ class AIService:
     """Service for interacting with AI models."""
 
     def __init__(self):
-        self.client = AsyncOpenAI(api_key=settings.openai_api_key)
         self.model = settings.openai_model
+        if settings.openai_api_key:
+            os.environ["OPENAI_API_KEY"] = settings.openai_api_key
 
     async def stream_chat(
         self, messages: list[dict[str, str]], temperature: float = 0.7, max_tokens: int = 1000
     ) -> AsyncGenerator[str, None]:
         """
-        Stream chat responses from OpenAI.
+        Stream chat responses using LiteLLM.
 
         Args:
             messages: List of message dictionaries with 'role' and 'content'
@@ -26,7 +28,7 @@ class AIService:
         Yields:
             Chunks of the response as strings
         """
-        stream = await self.client.chat.completions.create(
+        stream = await litellm.acompletion(
             model=self.model,
             messages=messages,
             temperature=temperature,
@@ -35,14 +37,14 @@ class AIService:
         )
 
         async for chunk in stream:
-            if chunk.choices[0].delta.content:
+            if chunk.choices and chunk.choices[0].delta.content:
                 yield chunk.choices[0].delta.content
 
     async def chat(
         self, messages: list[dict[str, str]], temperature: float = 0.7, max_tokens: int = 1000
     ) -> str:
         """
-        Get a complete chat response from OpenAI.
+        Get a complete chat response using LiteLLM.
 
         Args:
             messages: List of message dictionaries with 'role' and 'content'
@@ -52,7 +54,7 @@ class AIService:
         Returns:
             Complete response string
         """
-        response = await self.client.chat.completions.create(
+        response = await litellm.acompletion(
             model=self.model,
             messages=messages,
             temperature=temperature,
