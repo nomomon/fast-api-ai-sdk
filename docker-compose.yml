@@ -8,21 +8,15 @@ services:
     container_name: fastapi-backend
     ports:
       - "8000:8000"
-    working_dir: /app
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - API_TITLE=${API_TITLE:-AI Chatbot API}
-      - API_VERSION=${API_VERSION:-1.0.0}
-      - HOST=${HOST:-0.0.0.0}
-      - PORT=${PORT:-8000}
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
-    volumes:
-      - ./backend:/app
+      - ENVIRONMENT=production
+      # Allow requests from the frontend container (SSR) and the user's browser
+      - CORS_ORIGINS=http://localhost:3001,http://nextjs-frontend:3000
     networks:
       - app-network
-    restart: unless-stopped
+    restart: always
 
   frontend:
     build:
@@ -30,19 +24,15 @@ services:
       dockerfile: Dockerfile
     container_name: nextjs-frontend
     ports:
-      - "3000:3000"
+      - "3001:3000" # External Port 3001 -> Internal Port 3000
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - BASE_BACKEND_URL=${BASE_BACKEND_URL:-http://localhost:8000}
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
+      - NODE_ENV=production
+      - BASE_BACKEND_URL=http://backend:8000
     networks:
       - app-network
     depends_on:
       - backend
-    restart: unless-stopped
+    restart: always
 
 networks:
   app-network:
