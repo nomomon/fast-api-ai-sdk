@@ -2,7 +2,7 @@
 
 import { ArrowUpIcon, PaperclipIcon } from 'lucide-react';
 import { useCallback, useEffect, useRef } from 'react';
-import { ModelSelector } from '@/components/model-selector';
+import { ModelSelector } from '@/components/chat/model-selector';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import type { DisplayModel } from '@/lib/display-model';
