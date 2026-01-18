@@ -28,6 +28,7 @@ function SelectTrigger({
 }) {
   return (
     <SelectPrimitive.Trigger
+      suppressHydrationWarning={true} // To avoid hydration mismatch due to dynamic class names
       data-slot="select-trigger"
       data-size={size}
       className={cn(
