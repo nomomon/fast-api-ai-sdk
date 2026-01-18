@@ -7,6 +7,7 @@ import { Streamdown } from 'streamdown';
 import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/ai-elements/reasoning';
 import { ChatInput } from '@/components/chat-input';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { ToolInvocation } from '@/components/tool-invocation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
@@ -157,6 +158,35 @@ export function Chat() {
                         // Reasoning parts are handled above
                         return null;
                       default:
+                        if (part.type === 'tool-invocation') {
+                          const toolInvocation = part.toolInvocation;
+                          return (
+                            <ToolInvocation
+                              key={`${m.id}-${i}`}
+                              toolType={part.type}
+                              toolName={toolInvocation.toolName}
+                              state={toolInvocation.state}
+                              input={toolInvocation.args}
+                            />
+                          );
+                        }
+                        if (part.type.startsWith('tool-')) {
+                          const toolPart = part as {
+                            type: string;
+                            toolName?: string;
+                            state?: string;
+                            input?: unknown;
+                          };
+                          return (
+                            <ToolInvocation
+                              key={`${m.id}-${i}`}
+                              toolType={toolPart.type}
+                              toolName={toolPart.toolName}
+                              state={toolPart.state}
+                              input={toolPart.input}
+                            />
+                          );
+                        }
                         return null;
                     }
                   })}
