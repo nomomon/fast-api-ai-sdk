@@ -11,7 +11,7 @@
 <h3 align="center">Fast API & AI SDK Template</h3>
 
   <p align="center">
-    A _(wanna be)_ production-ready solution for building LLM chat applications with Next.js (Frontend) and FastAPI (Backend), powered by the Vercel AI SDK.
+    A <i>(wannabe)</i> production-ready solution for building LLM chat applications with Next.js (Frontend) and FastAPI (Backend), powered by the Vercel AI SDK.
     <br />
     <a href="#getting-started"><strong>Get Started »</strong></a>
     <br />
