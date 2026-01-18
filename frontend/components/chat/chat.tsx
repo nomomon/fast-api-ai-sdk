@@ -2,20 +2,17 @@
 
 import { useChat } from '@ai-sdk/react';
 import { AlertCircle, Github, PlusIcon } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Streamdown } from 'streamdown';
-import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/ai-elements/reasoning';
+import { useState } from 'react';
 import { ChatInput } from '@/components/chat/chat-input';
-import { ToolInvocation } from '@/components/chat/tool-invocation';
+import { MessageList } from '@/components/chat/message-list';
+import { ModelSelector } from '@/components/chat/model-selector';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
-import { cn } from '@/lib/utils';
 
 export function Chat() {
   const [input, setInput] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const {
     modelId: currentModelId,
@@ -32,22 +29,13 @@ export function Chat() {
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat();
 
   const hasMessages = messages.length > 0;
-
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [scrollToBottom]);
+  const isLoading = status === 'streaming';
 
   const handleNewChat = () => {
     stop();
     setMessages([]);
     setInput('');
   };
-
-  const isLoading = status === 'streaming';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,12 +84,15 @@ export function Chat() {
                 setInput={setInput}
                 onSubmit={handleSubmit}
                 isLoading={isLoading}
-                modelId={currentModelId}
-                onModelChange={handleModelChange}
-                models={models}
-                isModelLoading={isModelLoading}
-                modelError={modelError}
-              />
+              >
+                <ModelSelector
+                  modelId={currentModelId}
+                  models={models}
+                  onModelChange={handleModelChange}
+                  isLoading={isModelLoading}
+                  error={modelError}
+                />
+              </ChatInput>
             </div>
           </div>
         </div>
@@ -109,81 +100,7 @@ export function Chat() {
 
       {hasMessages && (
         <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full animate-fade-in overflow-hidden">
-          <div className="flex-1 overflow-y-auto px-4 md:px-8 py-4 hide-scrollbar">
-            <div className="flex flex-col gap-4 md:gap-6 pb-4">
-              {messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={cn(
-                    m.role === 'user' &&
-                      'bg-foreground text-background rounded-2xl p-3 md:p-4 ml-auto max-w-[90%] md:max-w-[75%] shadow-border-small font-medium text-sm md:text-base',
-                    m.role === 'assistant' &&
-                      'max-w-[95%] md:max-w-[85%] text-foreground/90 leading-relaxed text-sm md:text-base'
-                  )}
-                >
-                  {/* Handle reasoning parts separately if they exist */}
-                  {m.role === 'assistant' && m.parts.some((part) => part.type === 'reasoning') && (
-                    <Reasoning
-                      isStreaming={
-                        status === 'streaming' && m.id === messages[messages.length - 1]?.id
-                      }
-                    >
-                      <ReasoningTrigger />
-                      <ReasoningContent>
-                        {m.parts
-                          .filter((part) => part.type === 'reasoning')
-                          .map((part) => part.text || '')
-                          .join('')}
-                      </ReasoningContent>
-                    </Reasoning>
-                  )}
-
-                  {/* Handle text and other parts */}
-                  {m.parts.map((part, i) => {
-                    switch (part.type) {
-                      case 'text':
-                        return m.role === 'assistant' ? (
-                          <Streamdown
-                            key={`${m.id}-${i}`}
-                            isAnimating={
-                              status === 'streaming' && m.id === messages[messages.length - 1]?.id
-                            }
-                          >
-                            {part.text}
-                          </Streamdown>
-                        ) : (
-                          <div key={`${m.id}-${i}`}>{part.text}</div>
-                        );
-                      case 'reasoning':
-                        // Reasoning parts are handled above
-                        return null;
-                      default:
-                        if (part.type.startsWith('tool-')) {
-                          const toolPart = part as {
-                            type: string;
-                            toolName?: string;
-                            state?: string;
-                            input?: unknown;
-                          };
-                          return (
-                            <ToolInvocation
-                              key={`${m.id}-${i}`}
-                              toolType={toolPart.type}
-                              toolName={toolPart.toolName}
-                              state={toolPart.state}
-                              input={toolPart.input}
-                            />
-                          );
-                        }
-                        return null;
-                    }
-                  })}
-                </div>
-              ))}
-
-              <div ref={messagesEndRef} />
-            </div>
-          </div>
+          <MessageList messages={messages} isLoading={isLoading} />
         </div>
       )}
 
@@ -215,12 +132,15 @@ export function Chat() {
             setInput={setInput}
             onSubmit={handleSubmit}
             isLoading={isLoading}
-            modelId={currentModelId}
-            onModelChange={handleModelChange}
-            models={models}
-            isModelLoading={isModelLoading}
-            modelError={modelError}
-          />
+          >
+            <ModelSelector
+              modelId={currentModelId}
+              models={models}
+              onModelChange={handleModelChange}
+              isLoading={isModelLoading}
+              error={modelError}
+            />
+          </ChatInput>
         </div>
       )}
 
