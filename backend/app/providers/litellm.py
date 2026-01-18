@@ -126,7 +126,7 @@ class LiteLLMProvider(BaseProvider):
                         ):
                             yield self.format_sse(
                                 {
-                                    "type": "tool-call-start",
+                                    "type": "tool-input-start",
                                     "toolCallId": state["id"],
                                     "toolName": state["name"],
                                 }
@@ -136,9 +136,9 @@ class LiteLLMProvider(BaseProvider):
                         if state["started"] and tool_call_delta.function and tool_call_delta.function.arguments:
                              yield self.format_sse(
                                 {
-                                    "type": "tool-call-delta",
+                                    "type": "tool-input-delta",
                                     "toolCallId": state["id"],
-                                    "argsTextDelta": tool_call_delta.function.arguments,
+                                    "inputTextDelta": tool_call_delta.function.arguments,
                                 }
                             )
 
@@ -150,31 +150,40 @@ class LiteLLMProvider(BaseProvider):
                     
                     try:
                         arguments = json.loads(arguments_str)
+
+                        yield self.format_sse(
+                            {
+                                "type": "tool-input-available",
+                                "toolCallId": tool_call_id,
+                                "toolName": tool_name,
+                                "input": arguments,
+                            }
+                        )
                         
                         tool_func = available_tools.get(tool_name)
                         if tool_func:
                             yield self.format_sse(
                                 {
-                                    "type": "tool-call-result",
+                                    "type": "tool-output-available",
                                     "toolCallId": tool_call_id,
-                                    "result": tool_func(**arguments),
+                                    "output": tool_func(**arguments),
                                 }
                             )
                         else:
                              yield self.format_sse(
                                 {
-                                    "type": "tool-call-result",
+                                    "type": "tool-output-available",
                                     "toolCallId": tool_call_id,
-                                    "result": {"error": f"Tool {tool_name} not found"},
+                                    "output": {"error": f"Tool {tool_name} not found"},
                                 }
                              )
 
                     except json.JSONDecodeError:
                          yield self.format_sse(
                             {
-                                "type": "tool-call-result",
+                                "type": "tool-output-available",
                                 "toolCallId": tool_call_id,
-                                "result": {"error": "Failed to parse arguments"},
+                                "output": {"error": "Failed to parse arguments"},
                             }
                         )
                 
