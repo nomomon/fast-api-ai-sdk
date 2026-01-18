@@ -158,18 +158,6 @@ export function Chat() {
                         // Reasoning parts are handled above
                         return null;
                       default:
-                        if (part.type === 'tool-invocation') {
-                          const toolInvocation = part.toolInvocation;
-                          return (
-                            <ToolInvocation
-                              key={`${m.id}-${i}`}
-                              toolType={part.type}
-                              toolName={toolInvocation.toolName}
-                              state={toolInvocation.state}
-                              input={toolInvocation.args}
-                            />
-                          );
-                        }
                         if (part.type.startsWith('tool-')) {
                           const toolPart = part as {
                             type: string;
