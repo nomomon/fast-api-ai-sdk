@@ -5,7 +5,8 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   output: 'standalone',
   async rewrites() {
-    const backendUrl = process.env.BASE_BACKEND_URL || 'http://localhost:8000';
+    // TODO: docker env variable not working, fix later
+    const backendUrl = process.env.BASE_BACKEND_URL || 'http://backend:8000';
 
     return [
       {
