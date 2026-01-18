@@ -1,1 +1,0 @@
-// Gateway functionality removed
