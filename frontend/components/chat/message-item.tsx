@@ -18,7 +18,7 @@ export function MessageItem({ message, isStreaming }: MessageItemProps) {
   return (
     <div
       className={cn({
-        'bg-foreground text-background rounded-2xl p-3 md:p-4 ml-auto max-w-[90%] md:max-w-[75%] shadow-border-small font-medium text-sm md:text-base':
+        'bg-foreground text-background rounded-sm md:rounded-md p-2 md:px-3 ml-auto max-w-[90%] md:max-w-[75%] shadow-border-small font-medium text-sm md:text-base':
           message.role === 'user',
         'max-w-[95%] md:max-w-[85%] text-foreground/90 leading-relaxed text-sm md:text-base':
           message.role === 'assistant',
