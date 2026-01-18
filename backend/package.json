@@ -1,5 +1,5 @@
 {
-    "name": "ai-chatbot-backend",
+    "name": "fast-api-ai-sdk-backend",
     "version": "0.1.0",
     "private": true,
     "scripts": {

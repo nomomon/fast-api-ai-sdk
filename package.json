@@ -1,5 +1,6 @@
 {
-  "name": "ai-chatbot-monorepo",
+  "name": "fast-api-ai-sdk",
+  "description": "A production-ready template for building LLM chat applications with Next.js (Frontend) and FastAPI (Backend), managing state and streaming with the Vercel AI SDK.",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@8.15.0",
