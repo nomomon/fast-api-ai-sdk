@@ -24,7 +24,7 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
 
   return (
     <div className="flex-1 overflow-y-auto px-4 md:px-8 py-4 hide-scrollbar">
-      <div className="flex flex-col gap-4 md:gap-6 pb-4">
+      <div className="flex flex-col gap-4 md:gap-6 pb-4 pt-10 md:pt-0">
         {messages.map((m, index) => (
           <MessageItem
             key={m.id}
