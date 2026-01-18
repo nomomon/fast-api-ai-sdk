@@ -12,7 +12,6 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - ENVIRONMENT=production
-      # Allow requests from the frontend container (SSR) and the user's browser
       - CORS_ORIGINS=http://localhost:3001,http://nextjs-frontend:3000
     networks:
       - app-network
@@ -20,13 +19,16 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      # context from the root of the repo
+      # bc: turbo monorepo structure
+      context: .
+      dockerfile: frontend/Dockerfile
     container_name: nextjs-frontend
     ports:
-      - "3001:3000" # External Port 3001 -> Internal Port 3000
+      - "3001:3000"
     environment:
       - NODE_ENV=production
+      # Docker networking: Use the service name 'backend'
       - BASE_BACKEND_URL=http://backend:8000
     networks:
       - app-network
