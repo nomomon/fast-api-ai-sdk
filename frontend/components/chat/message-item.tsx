@@ -1,6 +1,6 @@
 'use client';
 
-import type { UIMessage } from 'ai';
+import type { DynamicToolUIPart, UIMessage } from 'ai';
 import { Streamdown } from 'streamdown';
 import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/ai-elements/reasoning';
 import { ToolInvocation } from '@/components/chat/tool-invocation';
@@ -17,12 +17,12 @@ export function MessageItem({ message, isStreaming }: MessageItemProps) {
 
   return (
     <div
-      className={cn(
-        message.role === 'user' &&
-          'bg-foreground text-background rounded-2xl p-3 md:p-4 ml-auto max-w-[90%] md:max-w-[75%] shadow-border-small font-medium text-sm md:text-base',
-        message.role === 'assistant' &&
-          'max-w-[95%] md:max-w-[85%] text-foreground/90 leading-relaxed text-sm md:text-base'
-      )}
+      className={cn({
+        'bg-foreground text-background rounded-2xl p-3 md:p-4 ml-auto max-w-[90%] md:max-w-[75%] shadow-border-small font-medium text-sm md:text-base':
+          message.role === 'user',
+        'max-w-[95%] md:max-w-[85%] text-foreground/90 leading-relaxed text-sm md:text-base':
+          message.role === 'assistant',
+      })}
     >
       {/* Handle reasoning parts separately if they exist */}
       {isReasoning && (
@@ -53,12 +53,7 @@ export function MessageItem({ message, isStreaming }: MessageItemProps) {
             return null;
           default:
             if (part.type.startsWith('tool-')) {
-              const toolPart = part as {
-                type: string;
-                toolName?: string;
-                state?: string;
-                input?: unknown;
-              };
+              const toolPart = part as DynamicToolUIPart;
               return (
                 <ToolInvocation
                   key={`${message.id}-${i}`}
