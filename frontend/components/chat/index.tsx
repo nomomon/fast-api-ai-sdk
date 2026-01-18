@@ -79,7 +79,7 @@ export function Chat() {
                 <Image
                   src="/app-icon.svg"
                   alt="AI Chatbot"
-                  className="h-8 w-8 md:h-10 md:w-10"
+                  className="h-8 w-8 md:h-10 md:w-10 border-2 border-gray-200 rounded-md"
                   width={40}
                   height={40}
                 />
