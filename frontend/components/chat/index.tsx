@@ -2,6 +2,7 @@
 
 import { useChat } from '@ai-sdk/react';
 import { AlertCircle, Github, PlusIcon } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
@@ -72,12 +73,22 @@ export function Chat() {
       </div>
       {!hasMessages && (
         <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-8 animate-fade-in">
-          <div className="w-full max-w-2xl text-center space-y-8 md:space-y-12">
-            <h1 className="text-3xl md:text-6xl font-light tracking-tight text-foreground animate-slide-up">
-              <span className="font-mono font-semibold tracking-tight bg-foreground text-background px-4 py-3 rounded-2xl shadow-border-medium">
-                AI CHATBOT
-              </span>
-            </h1>
+          <div className="w-full max-w-2xl space-y-8 md:space-y-12">
+            <div className="flex flex-col gap-6 animate-slide-up">
+              <div className="flex flex-row items-center gap-3">
+                <Image
+                  src="/app-icon.svg"
+                  alt="AI Chatbot"
+                  className="h-8 w-8 md:h-10 md:w-10"
+                  width={40}
+                  height={40}
+                />
+                <h1 className="text-lg md:text-xl font-medium text-muted-foreground">AI Chatbot</h1>
+              </div>
+              <p className="text-2xl md:text-4xl font-medium tracking-tight text-foreground">
+                How can I help you today?
+              </p>
+            </div>
             <div className="w-full animate-slide-up" style={{ animationDelay: '100ms' }}>
               <ChatInput
                 input={input}
