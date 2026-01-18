@@ -1,13 +1,6 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
 
 router = APIRouter()
-
-
-class Model(BaseModel):
-    id: str
-    name: str
-    provider: str
 
 
 @router.get("/models")

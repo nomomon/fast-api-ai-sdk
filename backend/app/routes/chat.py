@@ -11,7 +11,6 @@ router = APIRouter()
 
 class ChatRequest(BaseModel):
     messages: list[ClientMessage]
-    model: str | None = None
     modelId: str | None = None
 
 
