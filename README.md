@@ -4,7 +4,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/github_username/repo_name">
+  <a href="https://github.com/nomomon/fast-api-ai-sdk">
     <img src="assets/icon.png" alt="Logo" width="80" height="80">
   </a>
 
