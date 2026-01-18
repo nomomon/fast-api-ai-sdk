@@ -1,6 +1,7 @@
 'use client';
 
 import { BrainCircuit, ChevronDown, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import { memo, useState } from 'react';
 import {
   Select,
@@ -31,9 +32,11 @@ function ProviderIcon({ provider }: { provider?: string }) {
   const iconPath = `/providers/${provider.toLowerCase()}.svg`;
 
   return (
-    <img
+    <Image
       src={iconPath}
       alt={provider}
+      width={16}
+      height={16}
       className="h-4 w-4 object-contain"
       onError={() => setError(true)}
     />

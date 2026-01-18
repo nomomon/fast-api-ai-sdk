@@ -15,4 +15,7 @@ node_modules/
 
 # Turborepo
 .turbo/
+
+# VsCode Copilot
 .github/instructions/
+.github/agents/

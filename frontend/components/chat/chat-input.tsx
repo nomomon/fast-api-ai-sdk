@@ -2,36 +2,18 @@
 
 import { ArrowUpIcon, PaperclipIcon } from 'lucide-react';
 import { useCallback, useEffect, useRef } from 'react';
-import { ModelSelector } from '@/components/model-selector';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import type { DisplayModel } from '@/lib/display-model';
 
 interface ChatInputProps {
   input: string;
   setInput: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
-
-  // Model selection props
-  models: DisplayModel[];
-  modelId: string;
-  onModelChange: (modelId: string) => void;
-  isModelLoading: boolean;
-  modelError: Error | null;
+  children?: React.ReactNode;
 }
 
-export function ChatInput({
-  input,
-  setInput,
-  onSubmit,
-  isLoading,
-  models,
-  modelId,
-  onModelChange,
-  isModelLoading,
-  modelError,
-}: ChatInputProps) {
+export function ChatInput({ input, setInput, onSubmit, isLoading, children }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const adjustHeight = useCallback(() => {
@@ -42,9 +24,10 @@ export function ChatInput({
     }
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ensure height adjustment on input change
   useEffect(() => {
     adjustHeight();
-  }, [adjustHeight]);
+  }, [adjustHeight, input]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -67,18 +50,13 @@ export function ChatInput({
         />
         <div className="flex justify-between items-center mt-2">
           <div className="flex items-center gap-2">
-            <ModelSelector
-              modelId={modelId}
-              models={models}
-              onModelChange={onModelChange}
-              isLoading={isModelLoading}
-              error={modelError}
-            />
+            {children}
             <Button
               type="button"
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              aria-label="Attach file"
             >
               <PaperclipIcon className="h-4 w-4" />
             </Button>
@@ -88,6 +66,7 @@ export function ChatInput({
             size="icon"
             className="h-8 w-8 rounded-full"
             disabled={!input.trim() || isLoading}
+            aria-label="Send message"
           >
             <ArrowUpIcon className="h-4 w-4" />
           </Button>
