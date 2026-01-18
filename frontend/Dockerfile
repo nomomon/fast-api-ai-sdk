@@ -30,15 +30,11 @@ WORKDIR /app
 # Copy lockfile and package.json's first (for better caching)
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-
-# This prevents "turbo run setup" (Python setup) from running in the Node container.
-RUN sed -i '/"postinstall":/d' package.json
-
-# Copy turbo.json explicitly just in case (fixes "Could not find turbo.json")
+# We still want turbo.json explicitly
 COPY --from=pruner /app/turbo.json ./turbo.json
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy the full source code for the specific app
 COPY --from=pruner /app/out/full/ .
