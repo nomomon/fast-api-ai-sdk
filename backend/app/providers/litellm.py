@@ -53,6 +53,7 @@ class LiteLLMProvider(BaseProvider):
                 messages=openai_messages,
                 stream=True,
                 tools=tool_definitions if tool_definitions else None,
+                reasoning_effort={"effort": "low", "summary": "detailed"},
             )
 
             async for chunk in stream:
