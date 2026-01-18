@@ -10,9 +10,13 @@ services:
       - "8000:8000"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-    env_file:
-      - ./backend/.env
+      - API_TITLE=${API_TITLE:-AI Chatbot API}
+      - API_VERSION=${API_VERSION:-1.0.0}
+      - HOST=${HOST:-0.0.0.0}
+      - PORT=${PORT:-8000}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
     volumes:
       - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -29,13 +33,12 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=${NODE_ENV:-development}
-    env_file:
-      - ./frontend/.env
+      - BASE_BACKEND_URL=${BASE_BACKEND_URL:-http://localhost:8000}
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
-    command: npm run dev
+    command: node server.js
     networks:
       - app-network
     depends_on:

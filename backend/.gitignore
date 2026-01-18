@@ -42,7 +42,6 @@ ENV/
 
 # Docker
 *.log
-.dockerignore
 
 # Testing
 .coverage
