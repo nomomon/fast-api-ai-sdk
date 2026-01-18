@@ -48,12 +48,19 @@ class LiteLLMProvider(BaseProvider):
             # Special handling for Gemini thinking if needed or other provider specifics
             # For now, we rely on LiteLLM's abstraction
             
+            reasoning_effort = None
+            if litellm.supports_reasoning(model=full_model_name):
+                if "/responses/" in full_model_name:
+                    reasoning_effort = {"effort": "low", "summary": "detailed"}
+                else:
+                    reasoning_effort = "low"
+            
             stream = await litellm.acompletion(
                 model=full_model_name,
                 messages=openai_messages,
                 stream=True,
                 tools=tool_definitions if tool_definitions else None,
-                reasoning_effort={"effort": "low", "summary": "detailed"},
+                reasoning_effort=reasoning_effort
             )
 
             async for chunk in stream:
