@@ -1,4 +1,4 @@
-import { ListChecks } from 'lucide-react';
+import Image from 'next/image';
 
 export default async function AuthLayout({
   children,
@@ -16,10 +16,14 @@ export default async function AuthLayout({
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <div className="flex items-center gap-2 font-medium">
-            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-              <ListChecks className="size-4" />
-            </div>
-            todo app
+            <Image
+              src="/app-icon.svg"
+              alt="AI Chatbot"
+              className="h-6 w-6 border-2 border-gray-200 rounded-sm"
+              width={40}
+              height={40}
+            />
+            AI Chatbot
           </div>
         </div>
         <div className="flex flex-1 items-center justify-center">
