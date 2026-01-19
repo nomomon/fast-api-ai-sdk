@@ -8,24 +8,44 @@ import { type NextRequest, NextResponse } from 'next/server';
 // Route segment config for streaming support
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return proxyRequest(request, params.path, 'GET');
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const { path } = await params;
+  return proxyRequest(request, path, 'GET');
 }
 
-export async function POST(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return proxyRequest(request, params.path, 'POST');
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const { path } = await params;
+  return proxyRequest(request, path, 'POST');
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return proxyRequest(request, params.path, 'PUT');
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const { path } = await params;
+  return proxyRequest(request, path, 'PUT');
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return proxyRequest(request, params.path, 'DELETE');
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const { path } = await params;
+  return proxyRequest(request, path, 'DELETE');
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return proxyRequest(request, params.path, 'PATCH');
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const { path } = await params;
+  return proxyRequest(request, path, 'PATCH');
 }
 
 async function proxyRequest(request: NextRequest, pathSegments: string[], method: string) {
