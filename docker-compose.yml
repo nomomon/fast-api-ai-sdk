@@ -26,14 +26,11 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     container_name: nextjs-frontend
-    ports:
-      - "3001:3000"
-    # Port mapping: Host 3001 -> Container 3000
-    # Dokploy connects via Docker network to container:3000 (use port 3000 in Dokploy config)
+    # ports:
+    #   - "3000:3000"
     environment:
       - NODE_ENV=production
       - BASE_BACKEND_URL=http://backend:8000
-      - PORT=3000
     depends_on:
       backend:
         condition: service_healthy
