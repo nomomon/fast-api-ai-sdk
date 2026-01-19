@@ -29,6 +29,10 @@ FROM base AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Accept build argument for backend URL
+ARG BASE_BACKEND_URL=http://backend:8000
+ENV BASE_BACKEND_URL=$BASE_BACKEND_URL
+
 # Copy lockfile and package.json's first (for better caching)
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
@@ -43,8 +47,7 @@ COPY --from=pruner /app/out/full/ .
 
 # Build the project
 ENV NEXT_TELEMETRY_DISABLED 1
-# Note: Next.js requires build-time env vars. If your build crashes 
-# due to missing keys, you may need to add dummy ARG vars here.
+# Note: Next.js requires build-time env vars. BASE_BACKEND_URL is set above.
 RUN pnpm run build
 
 # ---------------------------------------------------------
