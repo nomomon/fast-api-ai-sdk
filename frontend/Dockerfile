@@ -1,3 +1,8 @@
+# Due to monorepo structure, this assumes 
+# the Docker context is the ROOT of your repo, 
+# not the frontend/ folder.
+
+
 FROM node:20-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -22,16 +27,16 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 
 COPY --from=pruner /app/out/full/ .
 
-ENV NEXT_TELEMETRY_DISABLED=1
+
 RUN pnpm run build
 
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/frontend/public ./frontend/public
 COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
