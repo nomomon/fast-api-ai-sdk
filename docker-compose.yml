@@ -11,7 +11,15 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import http.client; c = http.client.HTTPConnection('localhost', 8000); c.request('GET', '/health'); r = c.getresponse(); exit(0 if r.status == 200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: always
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -24,5 +32,12 @@ services:
       - NODE_ENV=production
       - BASE_BACKEND_URL=http://backend:8000
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
