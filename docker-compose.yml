@@ -27,7 +27,7 @@ services:
       dockerfile: frontend/Dockerfile
     container_name: nextjs-frontend
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       - BASE_BACKEND_URL=http://backend:8000
