@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { DisplayModel } from '@/lib/display-model';
+import type { DisplayModel } from '@/lib/interfaces/display-model';
 
 interface ModelEntry {
   id: string;

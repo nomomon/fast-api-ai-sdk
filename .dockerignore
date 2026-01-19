@@ -4,6 +4,10 @@ node_modules
 .git
 .env
 .env.local
+.env.*
+**/.env
+**/.env.local
+**/.env.*.local
 *.log
 .DS_Store
 

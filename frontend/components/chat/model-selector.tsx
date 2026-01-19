@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { DisplayModel } from '@/lib/display-model';
+import type { DisplayModel } from '@/lib/interfaces/display-model';
 
 type ModelSelectorProps = {
   modelId: string;
