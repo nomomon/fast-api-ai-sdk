@@ -26,8 +26,10 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     container_name: nextjs-frontend
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
+    # No port mapping - Dokploy connects via Docker network to container:3000
+    # Container name 'nextjs-frontend' must match what Dokploy expects
     environment:
       - NODE_ENV=production
       - BASE_BACKEND_URL=http://backend:8000

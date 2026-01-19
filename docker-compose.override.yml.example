@@ -1,0 +1,8 @@
+# Copy this file to docker-compose.override.yml for local development
+# This adds port mappings for local testing
+# Dokploy deployments should NOT use this file
+
+services:
+  frontend:
+    ports:
+      - "3000:3000"
