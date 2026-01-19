@@ -26,10 +26,8 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     container_name: nextjs-frontend
-    # For Dokploy: Port mapping may not be needed as Dokploy handles reverse proxying
-    # Uncomment and adjust if you need to expose the port directly
-    # ports:
-    #   - "${FRONTEND_PORT:-3000}:3000"
+    ports:
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       - BASE_BACKEND_URL=http://backend:8000
