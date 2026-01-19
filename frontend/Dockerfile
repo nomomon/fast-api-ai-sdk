@@ -1,4 +1,6 @@
-# This assumes the Docker context is the ROOT of your repo, not the frontend/ folder.
+# Due to monorepo structure, this assumes 
+# the Docker context is the ROOT of your repo, 
+# not the frontend/ folder.
 
 
 FROM node:20-alpine AS base
