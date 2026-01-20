@@ -1,11 +1,20 @@
 /**
  * User repository functions for interacting with the FastAPI backend.
+ *
+ * Client-side calls use relative URLs that go through Next.js API proxy.
+ * Server-side calls use the backend URL directly.
  */
 
-const BASE_BACKEND_URL =
-  process.env.NEXT_PUBLIC_BASE_BACKEND_URL ||
-  process.env.BASE_BACKEND_URL ||
-  'http://localhost:8000';
+// For server-side calls (NextAuth callbacks, server components)
+const getServerBackendUrl = () => {
+  return process.env.BASE_BACKEND_URL || 'http://localhost:8000';
+};
+
+// For client-side calls, use relative URLs that go through Next.js proxy
+const getClientBackendUrl = () => {
+  // Use relative URL to go through Next.js API proxy route
+  return '';
+};
 
 export interface User {
   id: number;
@@ -26,10 +35,12 @@ export interface LoginData {
 
 /**
  * Verify user credentials and get user data.
+ * This is called server-side from NextAuth, so it uses the backend URL directly.
  */
 export async function verifyCredentials(data: LoginData): Promise<User | null> {
   try {
-    const response = await fetch(`${BASE_BACKEND_URL}/api/auth/login`, {
+    const backendUrl = getServerBackendUrl();
+    const response = await fetch(`${backendUrl}/api/auth/login`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -51,11 +62,13 @@ export async function verifyCredentials(data: LoginData): Promise<User | null> {
 
 /**
  * Check if a user exists by email (public endpoint, used for OAuth flows).
+ * This is called server-side from NextAuth, so it uses the backend URL directly.
  */
 export async function userExistsByEmail(email: string): Promise<boolean> {
   try {
+    const backendUrl = getServerBackendUrl();
     const response = await fetch(
-      `${BASE_BACKEND_URL}/api/auth/user-exists/${encodeURIComponent(email)}`,
+      `${backendUrl}/api/auth/user-exists/${encodeURIComponent(email)}`,
       {
         method: 'GET',
         credentials: 'include',
@@ -90,7 +103,8 @@ export async function getUserByEmail(email: string): Promise<User | null> {
     }
 
     // Then get user details from /auth/me (requires auth)
-    const response = await fetch(`${BASE_BACKEND_URL}/api/auth/me`, {
+    const backendUrl = getServerBackendUrl();
+    const response = await fetch(`${backendUrl}/api/auth/me`, {
       method: 'GET',
       credentials: 'include',
       headers: {
@@ -116,9 +130,12 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 
 /**
  * Create a new user via the signup endpoint.
+ * This is called from client-side, so it uses the Next.js API proxy route.
  */
 export async function addUser(data: SignupData): Promise<User> {
-  const response = await fetch(`${BASE_BACKEND_URL}/api/auth/signup`, {
+  // Use relative URL to go through Next.js API proxy
+  const backendUrl = getClientBackendUrl();
+  const response = await fetch(`${backendUrl}/api/auth/signup`, {
     method: 'POST',
     credentials: 'include',
     headers: {
