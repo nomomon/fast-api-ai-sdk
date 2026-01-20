@@ -6,6 +6,14 @@ pydantic-settings>=2.6.0
 openai>=1.54.0
 requests>=2.31.0
 
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+bcrypt>=4.0.0
+
+# Authentication
+fastapi-nextauth-jwt>=0.1.0
+
 # Development dependencies
 ruff>=0.6.0
 mypy>=1.5.0

@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
-// import { signUp } from "@/app/actions/auth";
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Field,
@@ -13,38 +13,55 @@ import {
   FieldSeparator,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { addUser } from '@/lib/db/repository/users';
 import { cn } from '@/lib/utils';
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>) {
-  const _router = useRouter();
+  const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, _setError] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (_e: React.FormEvent) => {
-    // e.preventDefault();
-    // setError('');
-    // const formData = new FormData();
-    // formData.append('name', name);
-    // formData.append('email', email);
-    // formData.append('password', password);
-    // const result = await signUp(formData);
-    // if (result.success) {
-    //   // Automatically sign in after sign up
-    //   const signInResult = await signIn('credentials', {
-    //     email,
-    //     password,
-    //     redirect: false,
-    //   });
-    //   if (signInResult?.ok) {
-    //     router.push('/');
-    //   } else {
-    //     router.push('/login');
-    //   }
-    // } else {
-    //   setError(result.error || 'Something went wrong');
-    // }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      // Create user account
+      await addUser({
+        name,
+        email,
+        password,
+      });
+
+      // Automatically sign in after sign up
+      const signInResult = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInResult?.ok) {
+        toast.success('Account created successfully!');
+        router.push('/');
+      } else {
+        toast.error('Account created but sign in failed', {
+          description: 'Please try logging in manually.',
+        });
+        router.push('/login');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Something went wrong';
+      setError(errorMessage);
+      toast.error('Failed to create account', {
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -90,7 +107,9 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>
           />
         </Field>
         <Field>
-          <Button type="submit">Sign Up</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? 'Creating account...' : 'Sign Up'}
+          </Button>
         </Field>
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>

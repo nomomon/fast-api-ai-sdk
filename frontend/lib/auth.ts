@@ -1,7 +1,8 @@
+import { randomUUID } from 'crypto';
 import { getServerSession, type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
-// import { addUser, getUserByEmail } from '@/lib/db/repository/users';
+import { addUser, getUserByEmail, verifyCredentials } from '@/lib/db/repository/users';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -20,25 +21,20 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        return null;
+        const user = await verifyCredentials({
+          email: credentials.email,
+          password: credentials.password,
+        });
 
-        // const user = await getUserByEmail(credentials.email);
+        if (!user) {
+          return null;
+        }
 
-        // if (!user) {
-        //   return null;
-        // }
-
-        // const isPasswordValid = await compare(credentials.password, user.password);
-
-        // if (!isPasswordValid) {
-        //   return null;
-        // }
-
-        // return {
-        //   id: user.id,
-        //   name: user.name,
-        //   email: user.email,
-        // };
+        return {
+          id: user.id.toString(),
+          name: user.name,
+          email: user.email,
+        };
       },
     }),
   ],
@@ -56,27 +52,29 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
 
-      return false;
-      //   const existing = await getUserByEmail(email);
+      // Check if user exists using public endpoint
+      const { userExistsByEmail } = await import('@/lib/db/repository/users');
+      const exists = await userExistsByEmail(email);
 
-      //   if (existing) {
-      //     return true;
-      //   }
+      if (exists) {
+        return true;
+      }
 
-      //   const placeholderPassword = await hash(randomUUID(), 10);
+      // Generate a random password for GitHub users (they won't use it)
+      const placeholderPassword = randomUUID();
 
-      //   try {
-      //     await addUser({
-      //       name: user.name || (profile as { name?: string } | null)?.name || 'GitHub User',
-      //       email,
-      //       password: placeholderPassword,
-      //     });
-      //   } catch (error) {
-      //     // Ignore unique constraint races; sign-in can still continue if another request just created the row.
-      //     console.error('GitHub sign-in user create error', error);
-      //   }
+      try {
+        await addUser({
+          name: user.name || (profile as { name?: string } | null)?.name || 'GitHub User',
+          email,
+          password: placeholderPassword,
+        });
+      } catch (error) {
+        // Ignore unique constraint races; sign-in can still continue if another request just created the row.
+        console.error('GitHub sign-in user create error', error);
+      }
 
-      //   return true;
+      return true;
     },
   },
 };
@@ -87,8 +85,6 @@ export async function getAuthenticatedUser() {
     return null;
   }
 
-  return null;
-
-  //   const user = await getUserByEmail(session.user.email);
-  //   return user || null;
+  const user = await getUserByEmail(session.user.email);
+  return user || null;
 }

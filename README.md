@@ -101,11 +101,29 @@ Ensure you have the following installed on your system:
     # Optional
     GEMINI_API_KEY=...
     CORS_ORIGINS=http://localhost:3000
+    # Authentication (required)
+    AUTH_SECRET=your-secret-key-here-min-32-chars
+    # Database (required for Docker)
+    DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fastapi_auth
+    POSTGRES_USER=postgres
+    POSTGRES_PASSWORD=postgres
+    POSTGRES_DB=fastapi_auth
     ```
-
+    
     **Frontend (`frontend/.env`):**
     ```env
     BASE_BACKEND_URL=http://localhost:8000
+    # Authentication (required)
+    AUTH_SECRET=your-secret-key-here-min-32-chars
+    AUTH_URL=http://localhost:3000
+    # GitHub OAuth (optional, for GitHub login)
+    GITHUB_ID=your-github-client-id
+    GITHUB_SECRET=your-github-client-secret
+    ```
+    
+    **Note:** The `AUTH_SECRET` must be the same value in both frontend and backend. Generate a secure random string (minimum 32 characters). You can use:
+    ```sh
+    openssl rand -base64 32
     ```
 
 4.  **Run the application**

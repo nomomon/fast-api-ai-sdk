@@ -1,4 +1,24 @@
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-fastapi_auth}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - app-network
+
   backend:
     build:
       context: ./backend
@@ -11,6 +31,11 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-fastapi_auth}
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import http.client; c = http.client.HTTPConnection('localhost', 8000); c.request('GET', '/health'); r = c.getresponse(); exit(0 if r.status == 200 else 1)"]
       interval: 10s
@@ -31,6 +56,8 @@ services:
     environment:
       - NODE_ENV=production
       - BASE_BACKEND_URL=http://backend:8000
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_URL=${AUTH_URL:-http://localhost:3000}
     depends_on:
       backend:
         condition: service_healthy
@@ -41,3 +68,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  postgres_data:

@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routes import chat, models
+from app.db.database import Base, engine
+from app.routes import auth, chat, models
 
 app = FastAPI(
     title=settings.api_title,
@@ -19,7 +20,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database tables on startup."""
+    Base.metadata.create_all(bind=engine)
+
+
 # Include routers
+app.include_router(auth.router, prefix="/api", tags=["auth"])
 app.include_router(chat.router, prefix="/api", tags=["chat"])
 app.include_router(models.router, prefix="/api", tags=["models"])
 

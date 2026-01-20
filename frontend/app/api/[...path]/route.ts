@@ -80,6 +80,12 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
     }
   });
 
+  // Forward cookies for authentication
+  const cookieHeader = request.headers.get('cookie');
+  if (cookieHeader) {
+    headers.set('cookie', cookieHeader);
+  }
+
   try {
     // Get request body if present
     let body: BodyInit | undefined;
@@ -151,6 +157,12 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
       if (key.toLowerCase() !== 'content-encoding' && key.toLowerCase() !== 'transfer-encoding') {
         responseHeaders.set(key, value);
       }
+    });
+
+    // Forward set-cookie headers for authentication
+    const setCookieHeaders = response.headers.getSetCookie();
+    setCookieHeaders.forEach((cookie) => {
+      responseHeaders.append('set-cookie', cookie);
     });
 
     return new NextResponse(responseBody, {
