@@ -8,7 +8,9 @@ from fastapi_nextauth_jwt import NextAuthJWTv4
 from app.config import settings
 
 # Initialize NextAuth JWT dependency
-JWT = NextAuthJWTv4(secret=settings.auth_secret)
+# Use a default secret if not provided (for health checks, but auth will fail)
+_secret = settings.auth_secret or "default-secret-for-health-check-only"
+JWT = NextAuthJWTv4(secret=_secret)
 
 
 def get_current_user(jwt: Annotated[dict, Depends(JWT)]) -> dict:

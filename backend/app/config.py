@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # OpenAI Configuration
-    openai_api_key: str
+    openai_api_key: str = ""
 
     # Gemini Configuration
     gemini_api_key: str | None = None
@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://postgres:postgres@localhost:5432/fastapi_auth"
 
     # Authentication Configuration
-    auth_secret: str
+    auth_secret: str = ""
 
     @property
     def cors_origins_list(self) -> list[str]:

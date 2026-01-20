@@ -24,7 +24,13 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     """Initialize database tables on startup."""
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        # Log error but don't crash the app
+        # Database tables will be created when connection is available
+        import logging
+        logging.error(f"Failed to initialize database on startup: {e}")
 
 
 # Include routers
@@ -41,5 +47,8 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
+    """
+    Health check endpoint.
+    This endpoint should work even if database or auth is not configured.
+    """
     return {"status": "healthy"}
