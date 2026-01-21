@@ -6,7 +6,7 @@ from app.providers import ProviderFactory
 from app.utils.prompt import ClientMessage
 from app.utils.stream import patch_response_with_headers
 
-router = APIRouter()
+router = APIRouter(tags=["chat"])
 
 
 class ChatRequest(BaseModel):

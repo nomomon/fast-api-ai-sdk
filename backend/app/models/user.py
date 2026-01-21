@@ -20,7 +20,9 @@ class User(Base):
         default=uuid.uuid4,
         index=True,
     )
+    name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
+    password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(
         DateTime,

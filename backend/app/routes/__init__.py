@@ -1,5 +1,5 @@
 """Routes package exports."""
 
-from app.routes import chat, models, users
+from app.routes import auth, chat, models, users
 
-__all__ = ["chat", "models", "users"]
+__all__ = ["auth", "chat", "models", "users"]

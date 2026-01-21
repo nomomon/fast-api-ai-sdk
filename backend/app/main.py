@@ -1,12 +1,12 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database.base import Base, engine
 from app.models import User  # noqa: F401 - Import to register model
-from app.routes import chat, models, users
+from app.routes import auth, chat, models, users
 
 
 @asynccontextmanager
@@ -35,9 +35,13 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(chat.router, prefix="/api", tags=["chat"])
-app.include_router(models.router, prefix="/api", tags=["models"])
-app.include_router(users.router, prefix="/api", tags=["users"])
+api = APIRouter(prefix="/api")
+api.include_router(auth.router)
+api.include_router(chat.router)
+api.include_router(models.router)
+api.include_router(users.router)
+
+app.include_router(api)
 
 
 @app.get("/")
