@@ -16,6 +16,10 @@ import { cn } from '@/lib/utils';
 
 async function signUp(_formData: FormData) {
   // TODO: Implement sign up logic to call backend API
+  return {
+    success: false,
+    error: 'Sign up not implemented yet',
+  };
 }
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>) {
