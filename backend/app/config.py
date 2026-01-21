@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     # CORS Configuration
     cors_origins: str = "http://localhost:3000,http://localhost:3001"
 
+    # Database Configuration
+    database_url: str = "postgresql://postgres:postgres@localhost:5432/fastapi_ai_sdk"
+
     @property
     def cors_origins_list(self) -> list[str]:
         """Parse CORS origins from comma-separated string."""
