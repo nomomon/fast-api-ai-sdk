@@ -11,7 +11,8 @@
   "scripts": {
     "fe:add": "cd frontend && pnpm add",
     "setup": "turbo run setup",
-    "dev": "turbo run dev",
+    "db": "docker-compose -f docker-compose.turbo.yml up -d",
+    "dev": "pnpm db && turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
