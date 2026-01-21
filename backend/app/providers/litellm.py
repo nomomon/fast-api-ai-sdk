@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from typing import Any
 
 import litellm
+
 from app.config import settings
 from app.providers.base import BaseProvider
 from app.utils.prompt import ClientMessage, convert_to_openai_messages
@@ -157,7 +158,7 @@ class LiteLLMProvider(BaseProvider):
                 assistant_message_tool_calls = []
                 tool_results_messages = []
 
-                for index, state in tool_calls_state.items():
+                for _index, state in tool_calls_state.items():
                     tool_call_id = state["id"]
                     tool_name = state["name"]
                     arguments_str = state["arguments"]
