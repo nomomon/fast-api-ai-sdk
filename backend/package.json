@@ -6,13 +6,13 @@
         "setup": "if [ ! -d .venv ]; then python3 -m venv .venv; fi && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -r requirements.txt",
         "dev": ".venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
         "build": "echo 'Backend build complete'",
-        "lint": ".venv/bin/ruff check .",
-        "lint:fix": ".venv/bin/ruff check --fix .",
-        "format": ".venv/bin/ruff format .",
-        "format:check": ".venv/bin/ruff format --check .",
-        "check": ".venv/bin/ruff check . && .venv/bin/ruff format --check .",
-        "check:fix": ".venv/bin/ruff check --fix . && .venv/bin/ruff format .",
-        "type-check": ".venv/bin/mypy app || true",
+        "lint": "if [ ! -d .venv ]; then echo 'Error: Backend virtual environment not found. Run \"pnpm setup\" first.'; exit 1; fi && .venv/bin/ruff check .",
+        "lint:fix": "if [ ! -d .venv ]; then echo 'Error: Backend virtual environment not found. Run \"pnpm setup\" first.'; exit 1; fi && .venv/bin/ruff check --fix .",
+        "format": "if [ ! -d .venv ]; then echo 'Error: Backend virtual environment not found. Run \"pnpm setup\" first.'; exit 1; fi && .venv/bin/ruff format .",
+        "format:check": "if [ ! -d .venv ]; then echo 'Error: Backend virtual environment not found. Run \"pnpm setup\" first.'; exit 1; fi && .venv/bin/ruff format --check .",
+        "check": "if [ ! -d .venv ]; then echo 'Error: Backend virtual environment not found. Run \"pnpm setup\" first.'; exit 1; fi && .venv/bin/ruff check . && .venv/bin/ruff format --check .",
+        "check:fix": "if [ ! -d .venv ]; then echo 'Error: Backend virtual environment not found. Run \"pnpm setup\" first.'; exit 1; fi && .venv/bin/ruff check --fix . && .venv/bin/ruff format .",
+        "type-check": "if [ ! -d .venv ]; then echo 'Error: Backend virtual environment not found. Run \"pnpm setup\" first.'; exit 1; fi && .venv/bin/mypy app || true",
         "clean": "find . -type d -name '__pycache__' -exec rm -r {} + 2>/dev/null || true; find . -type f -name '*.pyc' -delete 2>/dev/null || true; rm -rf .venv"
     }
 }
