@@ -40,33 +40,33 @@
     "lint": {
       "dependsOn": ["^lint"],
       "outputs": [],
-      "inputs": ["**/*.py", "ruff.toml", "pyproject.toml"]
+      "inputs": ["**/*.py", "**/*.{js,ts,jsx,tsx,json}", "ruff.toml", "pyproject.toml", "biome.json"]
     },
     "lint:fix": {
       "dependsOn": ["^lint:fix"],
       "cache": false,
       "outputs": [],
-      "inputs": ["**/*.py", "ruff.toml", "pyproject.toml"]
+      "inputs": ["**/*.py", "**/*.{js,ts,jsx,tsx,json}", "ruff.toml", "pyproject.toml", "biome.json"]
     },
     "format": {
       "cache": false,
       "outputs": [],
-      "inputs": ["**/*.py", "ruff.toml", "pyproject.toml"]
+      "inputs": ["**/*.py", "**/*.{js,ts,jsx,tsx,json}", "ruff.toml", "pyproject.toml", "biome.json"]
     },
     "format:check": {
       "outputs": [],
-      "inputs": ["**/*.py", "ruff.toml", "pyproject.toml"]
+      "inputs": ["**/*.py", "**/*.{js,ts,jsx,tsx,json}", "ruff.toml", "pyproject.toml", "biome.json"]
     },
     "check": {
       "dependsOn": ["^check"],
       "outputs": [],
-      "inputs": ["**/*.py", "ruff.toml", "pyproject.toml"]
+      "inputs": ["**/*.py", "**/*.{js,ts,jsx,tsx,json}", "ruff.toml", "pyproject.toml", "biome.json"]
     },
     "check:fix": {
       "dependsOn": ["^check:fix"],
       "cache": false,
       "outputs": [],
-      "inputs": ["**/*.py", "ruff.toml", "pyproject.toml"]
+      "inputs": ["**/*.py", "**/*.{js,ts,jsx,tsx,json}", "ruff.toml", "pyproject.toml", "biome.json"]
     },
     "type-check": {
       "dependsOn": ["^type-check"],
