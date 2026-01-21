@@ -38,7 +38,7 @@ class LiteLLMProvider(BaseProvider):
 
             # Construct the model string expected by LiteLLM
             full_model_name = f"{self.provider_name}/{model}"
-            
+
             reasoning_effort = None
             if litellm.supports_reasoning(model=full_model_name):
                 if "/responses/" in full_model_name:
@@ -58,15 +58,15 @@ class LiteLLMProvider(BaseProvider):
                     messages=openai_messages,
                     stream=True,
                     tools=tool_definitions if tool_definitions else None,
-                    reasoning_effort=reasoning_effort
+                    reasoning_effort=reasoning_effort,
                 )
 
                 async for chunk in stream:
                     if not chunk.choices:
                         continue
-                    
+
                     choice = chunk.choices[0]
-                    
+
                     if choice.finish_reason is not None:
                         finish_reason = choice.finish_reason
 
@@ -114,11 +114,11 @@ class LiteLLMProvider(BaseProvider):
 
                             if tool_call_delta.id is not None:
                                 state["id"] = tool_call_delta.id
-                            
+
                             if tool_call_delta.function:
                                 if tool_call_delta.function.name:
                                     state["name"] = tool_call_delta.function.name
-                                
+
                                 if tool_call_delta.function.arguments:
                                     state["arguments"] += tool_call_delta.function.arguments
 
@@ -135,8 +135,12 @@ class LiteLLMProvider(BaseProvider):
                                     }
                                 )
                                 state["started"] = True
-                            
-                            if state["started"] and tool_call_delta.function and tool_call_delta.function.arguments:
+
+                            if (
+                                state["started"]
+                                and tool_call_delta.function
+                                and tool_call_delta.function.arguments
+                            ):
                                 yield self.format_sse(
                                     {
                                         "type": "tool-input-delta",
@@ -152,24 +156,23 @@ class LiteLLMProvider(BaseProvider):
                 # If we have tool calls, process them and continue the loop
                 assistant_message_tool_calls = []
                 tool_results_messages = []
-                
+
                 for index, state in tool_calls_state.items():
                     tool_call_id = state["id"]
                     tool_name = state["name"]
                     arguments_str = state["arguments"]
-                    
+
                     try:
                         arguments = json.loads(arguments_str)
 
                         # Reconstruct the tool call object for the assistant message
-                        assistant_message_tool_calls.append({
-                            "id": tool_call_id,
-                            "type": "function",
-                            "function": {
-                                "name": tool_name,
-                                "arguments": arguments_str
+                        assistant_message_tool_calls.append(
+                            {
+                                "id": tool_call_id,
+                                "type": "function",
+                                "function": {"name": tool_name, "arguments": arguments_str},
                             }
-                        })
+                        )
 
                         yield self.format_sse(
                             {
@@ -179,10 +182,10 @@ class LiteLLMProvider(BaseProvider):
                                 "input": arguments,
                             }
                         )
-                        
+
                         tool_func = available_tools.get(tool_name)
                         tool_result = None
-                        
+
                         if tool_func:
                             tool_result = tool_func(**arguments)
                             yield self.format_sse(
@@ -201,13 +204,17 @@ class LiteLLMProvider(BaseProvider):
                                     "output": tool_result,
                                 }
                             )
-                        
-                        tool_results_messages.append({
-                            "role": "tool",
-                            "tool_call_id": tool_call_id,
-                            "name": tool_name,
-                            "content": json.dumps(tool_result) if not isinstance(tool_result, str) else tool_result
-                        })
+
+                        tool_results_messages.append(
+                            {
+                                "role": "tool",
+                                "tool_call_id": tool_call_id,
+                                "name": tool_name,
+                                "content": json.dumps(tool_result)
+                                if not isinstance(tool_result, str)
+                                else tool_result,
+                            }
+                        )
 
                     except json.JSONDecodeError:
                         yield self.format_sse(
@@ -217,13 +224,15 @@ class LiteLLMProvider(BaseProvider):
                                 "output": {"error": "Failed to parse arguments"},
                             }
                         )
-                
+
                 # Append assistant message with ALL tool calls
-                openai_messages.append({
-                    "role": "assistant",
-                    "content": current_text_content if current_text_content else None,
-                    "tool_calls": assistant_message_tool_calls
-                })
+                openai_messages.append(
+                    {
+                        "role": "assistant",
+                        "content": current_text_content if current_text_content else None,
+                        "tool_calls": assistant_message_tool_calls,
+                    }
+                )
 
                 # Append tool results
                 openai_messages.extend(tool_results_messages)
