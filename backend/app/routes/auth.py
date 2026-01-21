@@ -46,7 +46,7 @@ async def check_user_exists(
 ):
     """
     Check if a user exists by email (public endpoint for OAuth flows).
-    
+
     Returns a boolean indicating if the user exists.
     """
     user = repository.get_user_by_email(db, email)
@@ -60,7 +60,7 @@ async def login(
 ):
     """
     Verify user credentials and return user data.
-    
+
     Used by NextAuth credentials provider.
     """
     # Get user by email
@@ -72,9 +72,7 @@ async def login(
         )
 
     # Verify password
-    is_valid = bcrypt.checkpw(
-        request.password.encode("utf-8"), user.password.encode("utf-8")
-    )
+    is_valid = bcrypt.checkpw(request.password.encode("utf-8"), user.password.encode("utf-8"))
     if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -91,7 +89,7 @@ async def signup(
 ):
     """
     Create a new user account.
-    
+
     Returns the created user without password.
     """
     # Check if user already exists
@@ -120,7 +118,7 @@ async def get_current_user_info(
 ):
     """
     Get current authenticated user information.
-    
+
     Requires authentication via JWT.
     """
     # Get user from database
@@ -131,11 +129,11 @@ async def get_current_user_info(
         user = repository.get_user_by_id(db, user_id)
     except (ValueError, KeyError):
         pass
-    
+
     if not user:
         # Fall back to email lookup
         user = repository.get_user_by_email(db, current_user["email"])
-    
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

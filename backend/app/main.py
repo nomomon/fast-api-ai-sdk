@@ -30,6 +30,7 @@ async def startup_event():
         # Log error but don't crash the app
         # Database tables will be created when connection is available
         import logging
+
         logging.error(f"Failed to initialize database on startup: {e}")
 
 
