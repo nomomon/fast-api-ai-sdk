@@ -8,11 +8,9 @@ interface DecodedToken {
   exp: number;
 }
 
-async function auth(payload: { email: string; password: string }) {
+async function authenticateUser(payload: { email: string; password: string }) {
   try {
     const url = `${process.env.BASE_BACKEND_URL}/api/auth/token`;
-    console.log('Auth URL:', url);
-    console.log('Auth Payload:', payload);
 
     const res = await axios.post(url, payload);
     const data = await res.data;
@@ -43,7 +41,7 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-        return auth(credentials);
+        return authenticateUser(credentials);
       },
     }),
   ],
