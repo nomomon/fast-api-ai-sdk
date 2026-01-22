@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     # Database Configuration
     database_url: str = "postgresql://postgres:postgres@localhost:5432/fastapi_ai_sdk"
 
+    # JWT Configuration
+    secret_key: str = "your-secret-key-change-in-production"
+    algorithm: str = "HS256"
+
     @property
     def cors_origins_list(self) -> list[str]:
         """Parse CORS origins from comma-separated string."""

@@ -21,28 +21,26 @@ class SignupResponse(BaseModel):
     error: str | None = None
 
 
+class TokenRequest(BaseModel):
+    """Token request schema for user login."""
+
+    email: EmailStr = Field(..., description="User's email address")
+    password: str = Field(..., description="User's password")
+
+
+class TokenResponse(BaseModel):
+    """Token response schema for authentication."""
+
+    access_token: str = Field(..., description="JWT access token")
+    token_type: str = Field(default="bearer", description="Token type")
+
+
 class UserResponse(BaseModel):
     """User response schema for API responses."""
 
     id: UUID
     name: str
     email: EmailStr
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        """Pydantic config."""
-
-        from_attributes = True
-
-
-class AuthUserResponse(BaseModel):
-    """User response schema for authentication (includes password hash for NextAuth)."""
-
-    id: UUID
-    name: str
-    email: EmailStr
-    password: str
     created_at: datetime
     updated_at: datetime
 

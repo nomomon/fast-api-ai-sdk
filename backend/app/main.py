@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database.base import Base, engine
 from app.models import User  # noqa: F401 - Import to register model
-from app.routes import auth, chat, models, users
+from app.routes import auth, chat, models
 
 
 @asynccontextmanager
@@ -39,7 +39,6 @@ api = APIRouter(prefix="/api")
 api.include_router(auth.router)
 api.include_router(chat.router)
 api.include_router(models.router)
-api.include_router(users.router)
 
 app.include_router(api)
 
