@@ -1,54 +1,14 @@
 'use client';
 
-import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { signUp } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-
-interface SignUpResponse {
-  success: boolean;
-  error?: string;
-}
-
-async function signUp(data: {
-  name: string;
-  email: string;
-  password: string;
-}): Promise<SignUpResponse> {
-  'use server';
-  try {
-    const url = `${process.env.BASE_BACKEND_URL}/api/auth/signup`;
-
-    const res = await axios.post(url, data);
-    const result = await res.data;
-
-    return {
-      success: result.success || true,
-    };
-  } catch (error: unknown) {
-    console.error('Signup error:', error);
-    if (!(error instanceof AxiosError)) {
-      return {
-        success: false,
-        error: 'An unexpected error occurred. Please try again.',
-      };
-    }
-
-    const errorMessage =
-      error.response?.data?.detail ||
-      error.response?.data?.error ||
-      'Network error. Please try again.';
-    return {
-      success: false,
-      error: errorMessage,
-    };
-  }
-}
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>) {
   const router = useRouter();
