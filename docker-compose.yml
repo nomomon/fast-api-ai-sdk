@@ -61,6 +61,8 @@ services:
     environment:
       - NODE_ENV=production
       - BASE_BACKEND_URL=http://backend:8000
+      - AUTH_SECRET=${AUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
     depends_on:
       backend:
         condition: service_healthy
