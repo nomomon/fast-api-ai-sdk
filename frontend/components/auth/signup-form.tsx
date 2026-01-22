@@ -1,5 +1,6 @@
 'use client';
 
+import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
@@ -19,32 +20,32 @@ async function signUp(data: {
   email: string;
   password: string;
 }): Promise<SignUpResponse> {
+  'use server';
   try {
-    const response = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
+    const url = `${process.env.BASE_BACKEND_URL}/api/auth/signup`;
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: result.detail || result.error || 'Failed to create account',
-      };
-    }
+    const res = await axios.post(url, data);
+    const result = await res.data;
 
     return {
       success: result.success || true,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Signup error:', error);
+    if (!(error instanceof AxiosError)) {
+      return {
+        success: false,
+        error: 'An unexpected error occurred. Please try again.',
+      };
+    }
+
+    const errorMessage =
+      error.response?.data?.detail ||
+      error.response?.data?.error ||
+      'Network error. Please try again.';
     return {
       success: false,
-      error: 'Network error. Please try again.',
+      error: errorMessage,
     };
   }
 }
