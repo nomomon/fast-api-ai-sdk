@@ -3,7 +3,6 @@
 import { useChat } from '@ai-sdk/react';
 import { AlertCircle, Github, PlusIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
@@ -29,17 +28,7 @@ export function Chat() {
     setCurrentModelId(newModelId);
   };
 
-  const { data: session } = useSession();
-  const token = session?.accessToken;
-
-  const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat({
-    api: '/api/chat',
-    headers: token
-      ? {
-          Authorization: `Bearer ${token}`,
-        }
-      : undefined,
-  });
+  const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat();
 
   const hasMessages = messages.length > 0;
   const isLoading = status === 'streaming';
