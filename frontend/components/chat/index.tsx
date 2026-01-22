@@ -11,6 +11,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
+import { UserDropdownButton } from '../user/user-dropdown';
 
 export function Chat() {
   const [input, setInput] = useState('');
@@ -70,6 +71,7 @@ export function Chat() {
             <Github className="h-4 w-4" />
           </a>
         </Button>
+        <UserDropdownButton />
       </div>
       {!hasMessages && (
         <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-8 animate-fade-in">
