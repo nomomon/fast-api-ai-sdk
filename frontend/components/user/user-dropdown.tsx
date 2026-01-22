@@ -30,7 +30,8 @@ export function UserDropdownButton() {
           className="h-9 w-9 shadow-border-small hover:shadow-border-medium bg-background/80 backdrop-blur-sm border-0 hover:bg-background hover:scale-[1.02] transition-all duration-150 ease"
         >
           <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage src={user.image ?? ''} alt={user.name ?? ''} />
+            {/* TODO: add support for images */}
+            <AvatarImage src={''} alt={user.name ?? ''} />
             <AvatarFallback className="rounded-lg">{user.name?.[0] ?? '?'}</AvatarFallback>
           </Avatar>
         </Button>
