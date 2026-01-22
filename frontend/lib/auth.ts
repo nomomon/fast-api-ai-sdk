@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import type { NextAuthOptions } from 'next-auth';
+import type { NextAuthOptions, User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 interface DecodedToken {
@@ -11,17 +11,10 @@ interface DecodedToken {
   iat: number;
 }
 
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  accessToken: string;
-}
-
 async function authenticateUser(payload: {
   email: string;
   password: string;
-}): Promise<UserData | null> {
+}): Promise<User | null> {
   try {
     const url = `${process.env.BASE_BACKEND_URL}/api/auth/token`;
 
