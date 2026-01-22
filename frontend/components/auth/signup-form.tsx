@@ -3,17 +3,50 @@
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-async function signUp(_formData: FormData) {
-  // TODO: Implement sign up logic to call backend API
-  return {
-    success: false,
-    error: 'Sign up not implemented yet',
-  };
+interface SignUpResponse {
+  success: boolean;
+  error?: string;
+}
+
+async function signUp(data: {
+  name: string;
+  email: string;
+  password: string;
+}): Promise<SignUpResponse> {
+  try {
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: result.detail || result.error || 'Failed to create account',
+      };
+    }
+
+    return {
+      success: result.success || true,
+    };
+  } catch (error) {
+    console.error('Signup error:', error);
+    return {
+      success: false,
+      error: 'Network error. Please try again.',
+    };
+  }
 }
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>) {
@@ -26,14 +59,24 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('email', email);
-    formData.append('password', password);
 
-    const result = await signUp(formData);
+    // Basic validation
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setError('All fields are required');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
+    const result = await signUp({ name, email, password });
 
     if (result.success) {
+      toast.success('Account created successfully!', {
+        description: 'Signing you in...',
+      });
       // Automatically sign in after sign up
       const signInResult = await signIn('credentials', {
         email,
@@ -43,10 +86,17 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>
       if (signInResult?.ok) {
         router.push('/');
       } else {
+        toast.error('Account created but login failed', {
+          description: 'Please try logging in manually.',
+        });
         router.push('/login');
       }
     } else {
-      setError(result.error || 'Something went wrong');
+      const errorMessage = result.error || 'Something went wrong';
+      setError(errorMessage);
+      toast.error('Signup failed', {
+        description: errorMessage,
+      });
     }
   };
 
