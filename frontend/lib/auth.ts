@@ -1,27 +1,33 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import type { NextAuthOptions } from 'next-auth';
+import type { NextAuthOptions, User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 interface DecodedToken {
   sub: string;
+  name: string;
+  email: string;
   exp: number;
+  iat: number;
 }
 
-async function auth(payload: { email: string; password: string }) {
+async function authenticateUser(payload: {
+  email: string;
+  password: string;
+}): Promise<User | null> {
   try {
     const url = `${process.env.BASE_BACKEND_URL}/api/auth/token`;
-    console.log('Auth URL:', url);
-    console.log('Auth Payload:', payload);
 
     const res = await axios.post(url, payload);
     const data = await res.data;
 
     if (res.status === 200 && data.access_token) {
-      const { sub } = jwtDecode<DecodedToken>(data.access_token);
+      const decoded = jwtDecode<DecodedToken>(data.access_token);
       return {
-        id: sub,
-        email: payload.email,
+        id: decoded.sub,
+        name: decoded.name,
+        email: decoded.email,
+        accessToken: data.access_token,
       };
     }
     return null;
@@ -43,11 +49,42 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-        return auth(credentials);
+        const userData = await authenticateUser(credentials);
+        if (!userData) {
+          return null;
+        }
+        // Return user object with accessToken in account
+        return {
+          id: userData.id,
+          name: userData.name,
+          email: userData.email,
+          accessToken: userData.accessToken,
+        };
       },
     }),
   ],
-  callbacks: {},
+  callbacks: {
+    async jwt({ token, user, account }) {
+      // Initial sign in - store the access token and user data
+      if (user && account) {
+        token.accessToken = user.accessToken;
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Send properties to the client
+      if (token && session.user) {
+        session.user.id = token.id ?? '';
+        session.user.name = token.name ?? '';
+        session.user.email = token.email ?? '';
+        session.accessToken = token.accessToken;
+      }
+      return session;
+    },
+  },
 
   pages: {
     signIn: '/login',

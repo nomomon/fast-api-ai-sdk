@@ -118,7 +118,7 @@ async def login(
         )
 
     # Create and return access token
-    access_token = create_access_token(user.id)
+    access_token = create_access_token(user)
     return TokenResponse(access_token=access_token, token_type="bearer")
 
 

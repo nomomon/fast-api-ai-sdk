@@ -1,8 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from app.models.user import User
 from app.providers import ProviderFactory
+from app.utils.auth import get_current_user
 from app.utils.prompt import ClientMessage
 from app.utils.stream import patch_response_with_headers
 
@@ -15,7 +17,10 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/chat")
-async def handle_chat_data(request: ChatRequest):
+async def handle_chat_data(
+    request: ChatRequest,
+    current_user: User = Depends(get_current_user),
+):
     """
     Chat endpoint compatible with Vercel AI SDK.
     Handles streaming chat completions with tool support through provider abstraction.

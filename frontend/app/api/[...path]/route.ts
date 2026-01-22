@@ -1,8 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 /**
  * Catch-all API route that proxies requests to the backend.
  * Reads BASE_BACKEND_URL from environment variables at runtime.
+ * Automatically adds JWT token from NextAuth session to requests.
  */
 
 // Route segment config for streaming support
@@ -61,17 +64,15 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
     url.searchParams.append(key, value);
   });
 
+  // Get session and extract JWT token
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
   // Prepare headers to forward
   const headers = new Headers();
 
   // Forward relevant headers
-  const headersToForward = [
-    'content-type',
-    'authorization',
-    'accept',
-    'accept-language',
-    'user-agent',
-  ];
+  const headersToForward = ['content-type', 'accept', 'accept-language', 'user-agent'];
 
   headersToForward.forEach((headerName) => {
     const value = request.headers.get(headerName);
@@ -79,6 +80,16 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
       headers.set(headerName, value);
     }
   });
+
+  // Add authorization header with JWT token if available
+  // Only add if not already present (allows manual override if needed)
+  const existingAuth = request.headers.get('authorization');
+  if (token && !existingAuth) {
+    headers.set('Authorization', `Bearer ${token}`);
+  } else if (existingAuth) {
+    // Forward existing authorization header if present
+    headers.set('Authorization', existingAuth);
+  }
 
   try {
     // Get request body if present
@@ -100,6 +111,14 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
       headers,
       body,
     });
+
+    // Handle 401 Unauthorized - token may be invalid or expired
+    if (response.status === 401) {
+      return NextResponse.json(
+        { error: 'Unauthorized', detail: 'Invalid or expired token' },
+        { status: 401 }
+      );
+    }
 
     // Check if this is a streaming response (for chat endpoint)
     const contentType = response.headers.get('content-type');
