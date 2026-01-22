@@ -1,25 +1,46 @@
-import { randomUUID } from 'node:crypto';
-import { compare, hash } from 'bcryptjs';
-import { getServerSession, type NextAuthOptions } from 'next-auth';
+import { jwtDecode } from 'jwt-decode';
+import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GithubProvider from 'next-auth/providers/github';
-import type { User } from './interfaces/user';
 
-async function addUser(_user: Omit<User, 'id'>) {
-  // TODO: Implement user addition logic (e.g., database insertion)
-  return null;
+interface DecodedToken {
+  sub: string;
+  id: string;
+  role: string;
+  exp: number;
 }
-async function getUserByEmail(_email: string): Promise<User | null> {
-  // TODO: Implement user retrieval logic (e.g., database query)
-  return null;
+
+async function auth(email: string, password: string) {
+  const formData = new URLSearchParams();
+  formData.append('email', email);
+  formData.append('password', password);
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/token`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+    const accessToken = data.access_token;
+
+    if (res.ok && accessToken) {
+      // We return the token and username to be used in the JWT callback
+      const { id } = jwtDecode<DecodedToken>(accessToken);
+      return {
+        id,
+        email,
+        accessToken,
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Login error:', error);
+    return null;
+  }
 }
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    GithubProvider({
-      clientId: process.env.GITHUB_ID as string,
-      clientSecret: process.env.GITHUB_SECRET as string,
-    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -30,71 +51,30 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-
-        const user = await getUserByEmail(credentials.email);
-
-        if (!user) {
-          return null;
-        }
-
-        const isPasswordValid = await compare(credentials.password, user.password);
-
-        if (!isPasswordValid) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        };
+        return auth(credentials.email, credentials.password);
       },
     }),
   ],
+  callbacks: {
+    // TODO: idk what this is doing, gonna fix a bit later
+    async jwt({ token, user }) {
+      // "user" is only available on the first time the JWT is created (on login)
+      if (user) {
+        token.accessToken = user.accessToken;
+        token.email = user.email;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Pass the token from the JWT to the client-side session
+      session.user.role = token.role;
+      session.accessToken = token.accessToken;
+      session.user.email = token.email;
+      return session;
+    },
+  },
+
   pages: {
     signIn: '/login',
   },
-  callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account?.provider !== 'github') {
-        return true;
-      }
-
-      const email = user.email || (profile as { email?: string } | null)?.email;
-      if (!email) {
-        return false;
-      }
-
-      const existing = await getUserByEmail(email);
-
-      if (existing) {
-        return true;
-      }
-
-      const placeholderPassword = await hash(randomUUID(), 10);
-
-      try {
-        await addUser({
-          name: user.name || (profile as { name?: string } | null)?.name || 'GitHub User',
-          email,
-          password: placeholderPassword,
-        });
-      } catch (error) {
-        // Ignore unique constraint races; sign-in can still continue if another request just created the row.
-        console.error('GitHub sign-in user create error', error);
-      }
-
-      return true;
-    },
-  },
 };
-
-export async function getAuthenticatedUser() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return null;
-  }
-
-  const user = await getUserByEmail(session.user.email);
-  return user || null;
-}

@@ -29,6 +29,7 @@
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.562.0",
     "motion": "^12.26.2",
     "next": "16.1.3",
