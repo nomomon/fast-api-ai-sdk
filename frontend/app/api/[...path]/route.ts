@@ -83,11 +83,12 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
 
   // Add authorization header with JWT token if available
   // Only add if not already present (allows manual override if needed)
-  if (token && !request.headers.get('authorization')) {
+  const existingAuth = request.headers.get('authorization');
+  if (token && !existingAuth) {
     headers.set('Authorization', `Bearer ${token}`);
-  } else if (request.headers.get('authorization')) {
+  } else if (existingAuth) {
     // Forward existing authorization header if present
-    headers.set('Authorization', request.headers.get('authorization')!);
+    headers.set('Authorization', existingAuth);
   }
 
   try {
