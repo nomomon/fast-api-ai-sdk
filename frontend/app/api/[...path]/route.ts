@@ -66,7 +66,7 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
 
   // Get session and extract JWT token
   const session = await getServerSession(authOptions);
-  const token = (session as any)?.accessToken;
+  const token = session?.accessToken;
 
   // Prepare headers to forward
   const headers = new Headers();

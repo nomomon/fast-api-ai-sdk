@@ -30,7 +30,7 @@ export function Chat() {
   };
 
   const { data: session } = useSession();
-  const token = (session as any)?.accessToken;
+  const token = session?.accessToken;
 
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat({
     api: '/api/chat',

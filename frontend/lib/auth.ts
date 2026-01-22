@@ -74,7 +74,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       // Initial sign in - store the access token and user data
       if (user && account) {
-        token.accessToken = (user as any).accessToken;
+        token.accessToken = user.accessToken;
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
@@ -84,10 +84,10 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       // Send properties to the client
       if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.name = token.name as string;
-        session.user.email = token.email as string;
-        (session as any).accessToken = token.accessToken as string;
+        session.user.id = token.id ?? '';
+        session.user.name = token.name ?? '';
+        session.user.email = token.email ?? '';
+        session.accessToken = token.accessToken;
       }
       return session;
     },
