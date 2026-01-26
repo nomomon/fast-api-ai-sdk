@@ -26,6 +26,6 @@ export const config = {
      * - manifest.json / manifest.webmanifest (PWA manifest)
      * - public files (images, etc.)
      */
-    '/((?!api/auth|login|signup|_next/static|_next/image|favicon.ico|manifest\\.(json|webmanifest)|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api/auth|login|signup|_next/static|_next/image|favicon.ico|manifest.json|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
