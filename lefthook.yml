@@ -1,5 +1,9 @@
 pre-commit:
   commands:
+    generate-icons:
+      glob: "frontend/public/icons/app-icon.svg"
+      run: cd frontend && pnpm run generate-icons
+      stage_fixed: true
     frontend-format-and-lint:
       glob: "frontend/**/*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
       run: npx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}

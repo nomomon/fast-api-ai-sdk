@@ -20,7 +20,7 @@ export default async function AuthLayout({
         <div className="flex justify-center gap-2 md:justify-start">
           <div className="flex items-center gap-2 font-medium">
             <Image
-              src="/app-icon.svg"
+              src="/icons/app-icon.svg"
               alt="AI Chatbot"
               className="h-6 w-6 border-2 border-gray-200 rounded-sm"
               width={40}

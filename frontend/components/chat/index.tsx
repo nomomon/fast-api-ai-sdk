@@ -79,7 +79,7 @@ export function Chat() {
             <div className="flex flex-col gap-6 animate-slide-up">
               <div className="flex flex-row items-center gap-3">
                 <Image
-                  src="/app-icon.svg"
+                  src="/icons/app-icon.svg"
                   alt="AI Chatbot"
                   className="h-8 w-8 md:h-10 md:w-10 border-2 border-gray-200 rounded-md"
                   width={40}

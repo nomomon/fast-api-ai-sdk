@@ -14,7 +14,8 @@
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "check:ci": "biome ci .",
-    "clean": "rm -rf .next node_modules"
+    "clean": "rm -rf .next node_modules",
+    "generate-icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@ai-sdk/react": "3.0.41",
@@ -53,6 +54,7 @@
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "lefthook": "2.0.15",
+    "sharp": "^0.33.5",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3"
   },
