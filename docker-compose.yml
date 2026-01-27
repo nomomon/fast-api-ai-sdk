@@ -24,12 +24,13 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: fastapi-backend
-    # Port not exposed externally - accessed through nginx
+    ports:
+      - "8000:8000"
     environment:
       - ENVIRONMENT=production
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
       - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/fastapi_ai_sdk}
     depends_on:
       postgres:
@@ -55,30 +56,16 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: nextjs-frontend
-    # Port not exposed externally - accessed through nginx
+    ports:
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       - BASE_BACKEND_URL=http://backend:8000
-      - NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL:-http://localhost/api}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
     depends_on:
       backend:
         condition: service_healthy
-    restart: always
-    networks:
-      - app-network
-
-  nginx:
-    build:
-      context: .
-      dockerfile: nginx/Dockerfile
-    container_name: nginx-proxy
-    ports:
-      - "80:80"
-    depends_on:
-      - frontend
-      - backend
     restart: always
     networks:
       - app-network

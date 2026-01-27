@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
 import { UserDropdownButton } from '../user/user-dropdown';
 import { DefaultChatTransport } from 'ai';
-import { BACKEND_URL } from '@/lib/constants/backend';
 
 export function Chat() {
   const [input, setInput] = useState('');
@@ -33,7 +32,7 @@ export function Chat() {
 
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat({
     transport: new DefaultChatTransport({
-      api: `${BACKEND_URL}/api/chat`,
+      api: '/api/chat',
     }),
   });
 

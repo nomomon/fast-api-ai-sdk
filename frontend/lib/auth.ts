@@ -16,7 +16,9 @@ async function authenticateUser(payload: {
   password: string;
 }): Promise<User | null> {
   try {
-    const url = `${process.env.BASE_BACKEND_URL}/api/auth/token`;
+    // Use Next.js API proxy - construct absolute URL for server-side request
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const url = `${baseUrl}/api/auth/token`;
 
     const res = await axios.post(url, payload);
     const data = await res.data;

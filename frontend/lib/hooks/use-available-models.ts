@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { authenticatedFetch } from '@/lib/api-client';
-import { BACKEND_URL } from '@/lib/constants/backend';
 import type { DisplayModel } from '@/lib/interfaces/display-model';
 
 interface ModelEntry {
@@ -17,7 +16,7 @@ export function useAvailableModels() {
   useEffect(() => {
     const fetchModels = async () => {
       try {
-        const response = await authenticatedFetch(`${BACKEND_URL}/api/models`);
+        const response = await authenticatedFetch('/api/models');
         if (!response.ok) {
           throw new Error('Failed to fetch models');
         }
