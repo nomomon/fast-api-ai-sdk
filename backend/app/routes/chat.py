@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from app.agent.litellm import LiteLLMAgent
 from app.models.user import User
-from app.providers.litellm import LiteLLMProvider
 from app.utils.auth import get_current_user
 from app.utils.prompt import ClientMessage
 from app.utils.stream import SSEFormatter, patch_response_with_headers
@@ -30,10 +30,10 @@ async def handle_chat_data(
 
     provider_name, model_id = model.split("/", 1)
 
-    provider = LiteLLMProvider(provider_name.lower())
+    agent = LiteLLMAgent(provider_name.lower(), model_id)
 
     # Get provider stream and format it as SSE
-    provider_stream = provider.stream_chat(messages, model_id)
+    provider_stream = agent.stream_chat(messages)
     formatted_stream = SSEFormatter.format_stream(provider_stream)
 
     # Create streaming response

@@ -5,9 +5,9 @@ from typing import Any
 
 import litellm
 
+from app.agent.base import ChunkProcessor, StreamStateData
+from app.agent.state import REASONING_STREAM_ID, TEXT_STREAM_ID, StreamState
 from app.config import settings
-from app.providers.base import ChunkProcessor, StreamStateData
-from app.providers.state import REASONING_STREAM_ID, TEXT_STREAM_ID, StreamState
 from app.utils.prompt import ClientMessage, convert_to_openai_messages
 from app.utils.stream import StreamEvent
 from app.utils.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
@@ -15,16 +15,21 @@ from app.utils.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
 logger = logging.getLogger(__name__)
 
 
-class LiteLLMProvider(ChunkProcessor):
-    """LiteLLM provider implementation with state machine for stream processing."""
+class LiteLLMAgent(ChunkProcessor):
+    """LiteLLM agent implementation with state machine for stream processing."""
 
-    def __init__(self, provider_name: str):
-        """Initialize the LiteLLM provider.
+    def __init__(
+        self,
+        provider_name: str,
+        model_name: str,
+    ):
+        """Initialize the LiteLLM agent.
 
         Args:
             provider_name: The name of the provider (e.g., 'openai', 'gemini')
         """
         self.provider_name = provider_name
+        self.model_name = model_name
         self._setup_environment()
 
     def _setup_environment(self) -> None:
@@ -151,7 +156,6 @@ class LiteLLMProvider(ChunkProcessor):
     async def stream_chat(
         self,
         messages: Sequence[ClientMessage],
-        model: str,
     ) -> AsyncGenerator[StreamEvent, None]:
         """Stream chat responses as structured events.
 
@@ -185,7 +189,7 @@ class LiteLLMProvider(ChunkProcessor):
             state_machine = StreamState.STREAMING
 
             # Construct the model string expected by LiteLLM
-            full_model_name = f"{self.provider_name}/{model}"
+            full_model_name = f"{self.provider_name}/{self.model_name}"
 
             reasoning_effort = self._build_reasoning_effort(full_model_name)
 
