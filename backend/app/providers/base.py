@@ -2,9 +2,35 @@ import json
 import uuid
 from collections.abc import AsyncGenerator
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Protocol
 
 from app.utils.stream import StreamEvent
+
+
+class DeltaContent(Protocol):
+    """Protocol for delta content objects from LLM streams."""
+
+    content: str | None
+    reasoning_content: str | None
+
+
+class ToolCallDelta(Protocol):
+    """Protocol for tool call delta objects from LLM streams."""
+
+    index: int
+    id: str | None
+
+    @property
+    def function(self) -> "ToolCallFunctionDelta | None":
+        """Get the function delta object."""
+        ...
+
+
+class ToolCallFunctionDelta(Protocol):
+    """Protocol for tool call function delta objects."""
+
+    name: str | None
+    arguments: str | None
 
 
 @dataclass
@@ -35,7 +61,7 @@ class ChunkProcessor:
 
     async def _process_reasoning_chunk(
         self,
-        delta: Any,
+        delta: DeltaContent,
         state: StreamStateData,
         reasoning_stream_id: str,
     ) -> AsyncGenerator[StreamEvent, None]:
@@ -62,7 +88,7 @@ class ChunkProcessor:
 
     async def _process_text_chunk(
         self,
-        delta: Any,
+        delta: DeltaContent,
         state: StreamStateData,
         text_stream_id: str,
     ) -> AsyncGenerator[StreamEvent, None]:
@@ -85,7 +111,7 @@ class ChunkProcessor:
 
     async def _process_tool_call_chunk(
         self,
-        tool_call_delta: Any,
+        tool_call_delta: ToolCallDelta,
         tool_calls_state: dict[int, dict[str, Any]],
     ) -> AsyncGenerator[StreamEvent, None]:
         """Process a tool call delta from a chunk.
