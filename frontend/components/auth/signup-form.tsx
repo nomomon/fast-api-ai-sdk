@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { signUp } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { signUp } from '@/lib/auth';
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>) {
   const router = useRouter();

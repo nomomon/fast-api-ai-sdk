@@ -1,6 +1,13 @@
+'use server';
+
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import type { User } from 'next-auth';
+
+interface SignInPayload {
+  email: string;
+  password: string;
+}
 
 interface DecodedToken {
   sub: string;
@@ -10,8 +17,7 @@ interface DecodedToken {
   iat: number;
 }
 
-export async function signIn(payload: { email: string; password: string }): Promise<User | null> {
-  // Ran on server side
+export async function signIn(payload: SignInPayload): Promise<User | null> {
   try {
     const url = `${process.env.BASE_BACKEND_URL}/api/auth/token`;
 
