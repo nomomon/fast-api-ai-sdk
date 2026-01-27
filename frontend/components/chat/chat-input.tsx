@@ -49,7 +49,7 @@ export function ChatInput({ input, setInput, onSubmit, isLoading, children }: Ch
           rows={1}
         />
         <div className="flex justify-between items-center mt-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {children}
             <Button
               type="button"
