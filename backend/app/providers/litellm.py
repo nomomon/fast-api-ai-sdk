@@ -35,7 +35,7 @@ class LiteLLMProvider(BaseProvider):
             message_id = self.generate_id()
             text_stream_id = "text-1"
             reasoning_stream_id = "reasoning-1"
-            yield self.format_sse({"type": "start", "messageId": message_id})
+            yield {"type": "start", "messageId": message_id}
 
             # Construct the model string expected by LiteLLM
             full_model_name = f"{self.provider_name}/{model}"
@@ -79,26 +79,20 @@ class LiteLLMProvider(BaseProvider):
                     reasoning_content = getattr(delta, "reasoning_content", None)
                     if reasoning_content is not None:
                         if not reasoning_started:
-                            yield self.format_sse(
-                                {"type": "reasoning-start", "id": reasoning_stream_id}
-                            )
+                            yield {"type": "reasoning-start", "id": reasoning_stream_id}
                             reasoning_started = True
-                        yield self.format_sse(
-                            {
-                                "type": "reasoning-delta",
-                                "id": reasoning_stream_id,
-                                "delta": reasoning_content,
-                            }
-                        )
+                        yield {
+                            "type": "reasoning-delta",
+                            "id": reasoning_stream_id,
+                            "delta": reasoning_content,
+                        }
 
                     if delta.content is not None:
                         current_text_content += delta.content
                         if not text_started:
-                            yield self.format_sse({"type": "text-start", "id": text_stream_id})
+                            yield {"type": "text-start", "id": text_stream_id}
                             text_started = True
-                        yield self.format_sse(
-                            {"type": "text-delta", "id": text_stream_id, "delta": delta.content}
-                        )
+                        yield {"type": "text-delta", "id": text_stream_id, "delta": delta.content}
 
                     if delta.tool_calls:
                         for tool_call_delta in delta.tool_calls:
@@ -128,13 +122,11 @@ class LiteLLMProvider(BaseProvider):
                                 and state["name"] is not None
                                 and not state["started"]
                             ):
-                                yield self.format_sse(
-                                    {
-                                        "type": "tool-input-start",
-                                        "toolCallId": state["id"],
-                                        "toolName": state["name"],
-                                    }
-                                )
+                                yield {
+                                    "type": "tool-input-start",
+                                    "toolCallId": state["id"],
+                                    "toolName": state["name"],
+                                }
                                 state["started"] = True
 
                             if (
@@ -142,13 +134,11 @@ class LiteLLMProvider(BaseProvider):
                                 and tool_call_delta.function
                                 and tool_call_delta.function.arguments
                             ):
-                                yield self.format_sse(
-                                    {
-                                        "type": "tool-input-delta",
-                                        "toolCallId": state["id"],
-                                        "inputTextDelta": tool_call_delta.function.arguments,
-                                    }
-                                )
+                                yield {
+                                    "type": "tool-input-delta",
+                                    "toolCallId": state["id"],
+                                    "inputTextDelta": tool_call_delta.function.arguments,
+                                }
 
                 # If no tool calls were collected, we are done
                 if not tool_calls_state:
@@ -175,36 +165,30 @@ class LiteLLMProvider(BaseProvider):
                             }
                         )
 
-                        yield self.format_sse(
-                            {
-                                "type": "tool-input-available",
-                                "toolCallId": tool_call_id,
-                                "toolName": tool_name,
-                                "input": arguments,
-                            }
-                        )
+                        yield {
+                            "type": "tool-input-available",
+                            "toolCallId": tool_call_id,
+                            "toolName": tool_name,
+                            "input": arguments,
+                        }
 
                         tool_func = available_tools.get(tool_name)
                         tool_result = None
 
                         if tool_func:
                             tool_result = tool_func(**arguments)
-                            yield self.format_sse(
-                                {
-                                    "type": "tool-output-available",
-                                    "toolCallId": tool_call_id,
-                                    "output": tool_result,
-                                }
-                            )
+                            yield {
+                                "type": "tool-output-available",
+                                "toolCallId": tool_call_id,
+                                "output": tool_result,
+                            }
                         else:
                             tool_result = {"error": f"Tool {tool_name} not found"}
-                            yield self.format_sse(
-                                {
-                                    "type": "tool-output-available",
-                                    "toolCallId": tool_call_id,
-                                    "output": tool_result,
-                                }
-                            )
+                            yield {
+                                "type": "tool-output-available",
+                                "toolCallId": tool_call_id,
+                                "output": tool_result,
+                            }
 
                         tool_results_messages.append(
                             {
@@ -218,13 +202,11 @@ class LiteLLMProvider(BaseProvider):
                         )
 
                     except json.JSONDecodeError:
-                        yield self.format_sse(
-                            {
-                                "type": "tool-output-available",
-                                "toolCallId": tool_call_id,
-                                "output": {"error": "Failed to parse arguments"},
-                            }
-                        )
+                        yield {
+                            "type": "tool-output-available",
+                            "toolCallId": tool_call_id,
+                            "output": {"error": "Failed to parse arguments"},
+                        }
 
                 # Append assistant message with ALL tool calls
                 openai_messages.append(
@@ -238,8 +220,8 @@ class LiteLLMProvider(BaseProvider):
                 # Append tool results
                 openai_messages.extend(tool_results_messages)
 
-            yield self.format_sse({"type": "finish", "finishReason": finish_reason})
+            yield {"type": "finish", "finishReason": finish_reason}
 
         except Exception as e:
             print(f"Error in stream_chat: {e}")
-            yield self.format_sse({"type": "error", "error": str(e)})
+            yield {"type": "error", "error": str(e)}

@@ -1,9 +1,9 @@
-import json
 import uuid
 from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator, Sequence
 
 from app.utils.prompt import ClientMessage
+from app.utils.stream import StreamEvent
 
 
 class BaseProvider(ABC):
@@ -12,13 +12,13 @@ class BaseProvider(ABC):
         self,
         messages: Sequence[ClientMessage],
         model: str,
-    ) -> AsyncGenerator[str, None]:
-        """Stream chat responses in Vercel AI SDK format."""
-        pass
+    ) -> AsyncGenerator[StreamEvent, None]:
+        """Stream chat responses as structured events (dicts).
 
-    @staticmethod
-    def format_sse(payload: dict) -> str:
-        return f"data: {json.dumps(payload, separators=(',', ':'))}\n\n"
+        Providers should yield dictionaries representing stream events.
+        The SSE formatting is handled by the API layer.
+        """
+        pass
 
     @staticmethod
     def generate_id(prefix: str = "msg") -> str:
