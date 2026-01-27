@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { authenticatedFetch } from '@/lib/api-client';
-import type { DisplayModel } from '@/lib/interfaces/display-model';
 import { BACKEND_URL } from '@/lib/constants/backend';
+import type { DisplayModel } from '@/lib/interfaces/display-model';
 
 interface ModelEntry {
   id: string;
