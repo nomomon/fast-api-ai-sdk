@@ -4,6 +4,10 @@ router = APIRouter(tags=["prompts"])
 
 PROMPTS_DATA = [
     {
+        "id": None,
+        "name": "None",
+    },
+    {
         "id": "general",
         "name": "General",
         "content": "You are a helpful, knowledgeable, and friendly AI assistant. Be extremely concise. Sacrifice grammar for the sake of concision. Provide clear, accurate, and thoughtful responses to user questions.",
