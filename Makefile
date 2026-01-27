@@ -25,9 +25,10 @@ help:
 	@echo "  type-check     - Type check both frontend and backend"
 	@echo "  clean          - Clean build artifacts"
 
-# Setup backend virtual environment
+# Setup backend virtual environment & Frontend dependencies
 setup:
 	@make -C backend setup
+	@cd frontend && pnpm install
 
 # Database management
 db:
