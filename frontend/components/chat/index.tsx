@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
 import { ModelSelector } from '@/components/chat/model-selector';
+import { SuggestionCard } from '@/components/chat/suggestion-card';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -43,6 +44,19 @@ export function Chat() {
     e.preventDefault();
     sendMessage({ text: input }, { body: { modelId: currentModelId } });
     setInput('');
+  };
+
+  const suggestions = [
+    {
+      id: 'alamty-weather-think',
+      summary: 'What should I wear at Almaty today? Think',
+      prompt:
+        'Be extremely concise. Sacrifice grammar for the sake of concision. But think deeply: plan your steps, and execute them.\n\nWhat should I wear at Almaty today?',
+    },
+  ];
+
+  const handleSuggestionClick = (prompt: string) => {
+    setInput(prompt);
   };
 
   return (
@@ -107,6 +121,18 @@ export function Chat() {
                 />
               </ChatInput>
             </div>
+            {suggestions.length > 0 && (
+              <div className="w-1/3 space-y-2 animate-slide-up" style={{ animationDelay: '150ms' }}>
+                {suggestions.map((suggestion) => (
+                  <SuggestionCard
+                    key={suggestion.id}
+                    summary={suggestion.summary}
+                    prompt={suggestion.prompt}
+                    onClick={handleSuggestionClick}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
