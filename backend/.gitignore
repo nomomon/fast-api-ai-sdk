@@ -53,9 +53,6 @@ htmlcov/
 # TypeScript
 *.tsbuildinfo
 
-# Turborepo
-.turbo/
-
 # Ruff
 .ruff_cache/
 

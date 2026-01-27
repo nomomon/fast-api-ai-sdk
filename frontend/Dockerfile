@@ -1,34 +1,23 @@
-# Due to monorepo structure, this assumes 
-# the Docker context is the ROOT of your repo, 
-# not the frontend/ folder.
-
-
 FROM node:20-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
-FROM base AS pruner
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-RUN npm install -g turbo
-COPY . .
-RUN turbo prune fast-api-ai-sdk-frontend --docker
-
 FROM base AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=pruner /app/turbo.json ./turbo.json
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
 
-RUN pnpm install --frozen-lockfile --ignore-scripts
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
-COPY --from=pruner /app/out/full/ .
+# Copy source code
+COPY . .
 
-
-RUN pnpm run build
+# Build frontend
+RUN pnpm build
 
 FROM base AS runner
 WORKDIR /app
@@ -38,9 +27,9 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/frontend/public ./frontend/public
-COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/static ./frontend/.next/static
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
@@ -48,4 +37,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "frontend/server.js"]
+CMD ["node", "server.js"]
