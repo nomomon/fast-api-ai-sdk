@@ -100,8 +100,8 @@ Ensure you have the following installed on your system:
     
     Then edit `.env` and update the following required variables:
     - `OPENAI_API_KEY` - Your OpenAI API key (required)
-    - `NEXTAUTH_SECRET` - A random secret key for NextAuth (generate with: `openssl rand -base64 32`)
-    - `SECRET_KEY` - A random secret key for JWT tokens (generate with: `openssl rand -base64 32`)
+    - `NEXTAUTH_SECRET` - Signs NextAuth session cookies (generate with: `openssl rand -base64 32`)
+    - `SECRET_KEY` - Signs backend JWT tokens for API authentication (generate with: `openssl rand -base64 32`)
     
     Optional variables (have sensible defaults):
     - `GEMINI_API_KEY` - Your Google Gemini API key
