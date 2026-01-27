@@ -1,4 +1,22 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
+
+
+def find_env_file() -> str | None:
+    """Find .env file in current directory or root directory."""
+    # Check current directory (backend/)
+    current_env = Path(".env")
+    if current_env.exists():
+        return str(current_env)
+    
+    # Check parent directory (root)
+    # __file__ is backend/app/config.py, so parent.parent.parent is the root
+    root_env = Path(__file__).parent.parent.parent / ".env"
+    if root_env.exists():
+        return str(root_env)
+    
+    return None
 
 
 class Settings(BaseSettings):
@@ -35,7 +53,7 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.cors_origins.split(",")]
 
     class Config:
-        env_file = ".env"
+        env_file = find_env_file() or ".env"
         case_sensitive = False
         extra = "ignore"
 
