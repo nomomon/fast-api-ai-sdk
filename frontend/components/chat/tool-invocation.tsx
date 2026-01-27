@@ -6,8 +6,12 @@ const toolIcons: Record<string, React.ReactNode> = {
   get_current_weather: <GlobeIcon className="h-4 w-4" />,
 };
 
+/**
+ * Short, consistent gerund action labels (present participle),
+ * 2-4 words, describing what the tool does in plain language.
+ */
 const toolDisplayNames: Record<string, string> = {
-  get_current_weather: 'Getting weather',
+  get_current_weather: 'Checking the weather',
 };
 
 export function ToolInvocation({
