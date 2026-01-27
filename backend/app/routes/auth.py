@@ -67,7 +67,7 @@ async def signup(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create user: {str(e)}",
-        )
+        ) from e
 
 
 @router.post("/token", response_model=TokenResponse)
@@ -108,7 +108,7 @@ async def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from None
 
     if not password_valid:
         raise HTTPException(

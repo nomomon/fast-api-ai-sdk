@@ -13,7 +13,10 @@ select = [
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
 ]
-ignore = []
+ignore = [
+    "B008",  # Do not warn about function calls in default arguments
+]
+
 
 [lint.isort]
 known-first-party = ["app"]
@@ -23,4 +26,3 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
-
