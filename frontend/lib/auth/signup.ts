@@ -2,20 +2,23 @@
 
 import axios, { AxiosError } from 'axios';
 
+interface SignUpPayload {
+  name: string;
+  email: string;
+  password: string;
+}
+
 interface SignUpResponse {
   success: boolean;
   error?: string;
 }
 
-export async function signUp(data: {
-  name: string;
-  email: string;
-  password: string;
-}): Promise<SignUpResponse> {
+export async function signUp(payload: SignUpPayload): Promise<SignUpResponse> {
   try {
-    const url = `${process.env.BASE_BACKEND_URL}/api/auth/signup`;
+    const baseUrl = process.env.BASE_BACKEND_URL;
+    const url = `${baseUrl}/api/auth/signup`;
 
-    const res = await axios.post(url, data);
+    const res = await axios.post(url, payload);
     const result = await res.data;
 
     return {

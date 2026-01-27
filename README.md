@@ -98,20 +98,25 @@ Ensure you have the following installed on your system:
 
 3.  **Environment Setup**
     
-    Create a `.env` file in the root directory (or separate `.env` files in `backend/` and `frontend/`).
+    Copy the `.env.example` file to `.env` in the root directory and fill in your actual values:
+    ```sh
+    cp .env.example .env
+    ```
     
-    **Backend (`backend/.env`):**
-    ```env
-    OPENAI_API_KEY=sk-...
-    # Optional
-    GEMINI_API_KEY=...
-    CORS_ORIGINS=http://localhost:3000
-    ```
-
-    **Frontend (`frontend/.env`):**
-    ```env
-    BASE_BACKEND_URL=http://localhost:8000
-    ```
+    Then edit `.env` and update the following required variables:
+    - `OPENAI_API_KEY` - Your OpenAI API key (required)
+    - `NEXTAUTH_SECRET` - A random secret key for NextAuth (generate with: `openssl rand -base64 32`)
+    - `SECRET_KEY` - A random secret key for JWT tokens (generate with: `openssl rand -base64 32`)
+    
+    Optional variables (have sensible defaults):
+    - `GEMINI_API_KEY` - Your Google Gemini API key
+    - `DATABASE_URL` - PostgreSQL connection string
+    - `CORS_ORIGINS` - Comma-separated list of allowed origins
+    - `BASE_BACKEND_URL` - Your backend URL (used by Next.js API proxy, defaults to `http://localhost:8000`)
+    - `NEXTAUTH_URL` - Your frontend URL (defaults to `http://localhost:3000`)
+    - `NEXT_PUBLIC_BASE_URL` - Public base URL for SEO metadata
+    
+    **Note:** The root `.env` file is automatically used by both the backend and frontend via `env-cmd` (frontend uses `env-cmd -f ../.env next dev`). You don't need separate `.env` files in each directory. The frontend uses a Next.js API proxy route (`/api/[...path]`) that automatically forwards requests to the backend with authentication, so client-side code uses relative paths like `/api/chat` instead of direct backend URLs.
 
 4.  **Run the application**
     Start both the frontend and backend development servers:

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
@@ -64,12 +64,14 @@ export const metadata: Metadata = {
     apple: [{ url: ICON_PATHS.appleTouchIcon, sizes: '180x180', type: 'image/png' }],
   },
   manifest: '/manifest.json',
+};
+
+export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: THEME_COLOR_LIGHT },
     { media: '(prefers-color-scheme: dark)', color: THEME_COLOR_DARK },
   ],
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{

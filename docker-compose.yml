@@ -56,13 +56,13 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: nextjs-frontend
-    # ports:
-    #   - "3000:3000"
+    ports:
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       - BASE_BACKEND_URL=http://backend:8000
-      - AUTH_SECRET=${AUTH_SECRET}
-      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
     depends_on:
       backend:
         condition: service_healthy
