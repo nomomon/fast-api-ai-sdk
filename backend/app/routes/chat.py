@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from app.agent.litellm import LiteLLMAgent
 from app.models.user import User
+from app.routes.prompts import get_prompt_by_id
 from app.utils.auth import get_current_user
 from app.utils.prompt import ClientMessage
 from app.utils.stream import SSEFormatter, patch_response_with_headers
@@ -14,6 +15,7 @@ router = APIRouter(tags=["chat"])
 class ChatRequest(BaseModel):
     messages: list[ClientMessage]
     modelId: str | None = None
+    promptId: str | None = None
 
 
 @router.post("/chat")
@@ -27,6 +29,14 @@ async def handle_chat_data(
     """
     messages = request.messages
     model = request.modelId
+    prompt_id = request.promptId
+
+    # Inject system prompt if promptId is provided
+    if prompt_id:
+        prompt_content = get_prompt_by_id(prompt_id)
+        if prompt_content:
+            system_message = ClientMessage(role="system", content=prompt_content)
+            messages = [system_message] + messages
 
     provider_name, model_id = model.split("/", 1)
 
