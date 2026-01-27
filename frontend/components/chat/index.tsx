@@ -1,7 +1,6 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport } from 'ai';
 import { AlertCircle, Github, PlusIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
