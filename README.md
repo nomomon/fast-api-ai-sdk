@@ -56,7 +56,7 @@ Building LLM chat wrappers is becoming a common task, but setting up a robust, ~
 This template bridges that gap. It combines the power of **Next.js** for a responsive, modern frontend with **FastAPI** for a high-performance Python backend. It handles the complexity of integrating the **Vercel AI SDK** with a custom Python backend, ensuring seamless streaming and state management without the mental overhead of switching contexts or dealing with cluttered "full-stack" Node.js monorepos.
 
 **Key Features:**
-*   **Monorepo Structure:** Managed efficiently with [Turborepo](https://turbo.build/).
+*   **Monorepo Structure:** Clean frontend/backend separation with Makefile for script orchestration.
 *   **Frontend:** Next.js 14+ (App Router), Tailwind CSS, Radix UI.
 *   **Backend:** FastAPI, Pydantic, Python 3.11+.
 *   **AI Integration:** Custom streaming implementation using Vercel AI SDK protocols.
@@ -86,9 +86,14 @@ Ensure you have the following installed on your system:
     ```
 
 2.  **Install dependencies**
-    Run this command in the root directory. It will install dependencies for both the frontend and backend.
+    Install frontend dependencies:
     ```sh
-    pnpm install
+    cd frontend && pnpm install
+    ```
+    
+    Setup backend virtual environment:
+    ```sh
+    make setup
     ```
 
 3.  **Environment Setup**
@@ -109,9 +114,9 @@ Ensure you have the following installed on your system:
     ```
 
 4.  **Run the application**
-    Start both the frontend and backend development servers using Turbo:
+    Start both the frontend and backend development servers:
     ```sh
-    pnpm dev
+    make dev
     ```
     *   Frontend: [http://localhost:3000](http://localhost:3000)
     *   Backend API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
@@ -169,5 +174,3 @@ Project Link: [https://github.com/nomomon/fast-api-ai-sdk](https://github.com/no
 [TypeScript-url]: https://www.typescriptlang.org/
 [TailwindCSS]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
 [TailwindCSS-url]: https://tailwindcss.com/
-[Turborepo]: https://img.shields.io/badge/Turborepo-EF4444?style=for-the-badge&logo=turborepo&logoColor=white
-[Turborepo-url]: https://turbo.build/

@@ -53,8 +53,8 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: nextjs-frontend
     # ports:
     #   - "3000:3000"
