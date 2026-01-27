@@ -8,7 +8,7 @@ import litellm
 from app.agent.base import ChunkProcessor, StreamStateData
 from app.agent.state import REASONING_STREAM_ID, TEXT_STREAM_ID, StreamState
 from app.config import settings
-from app.utils.prompt import ClientMessage, convert_to_openai_messages
+from app.utils.messages import ClientMessage, convert_to_openai_messages
 from app.utils.stream import StreamEvent
 from app.utils.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
 

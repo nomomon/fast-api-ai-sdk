@@ -6,7 +6,7 @@ from app.agent.litellm import LiteLLMAgent
 from app.models.user import User
 from app.routes.prompts import get_prompt_by_id
 from app.utils.auth import get_current_user
-from app.utils.prompt import ClientMessage
+from app.utils.messages import ClientMessage
 from app.utils.stream import SSEFormatter, patch_response_with_headers
 
 router = APIRouter(tags=["chat"])
