@@ -53,7 +53,7 @@ export async function PATCH(
 
 async function proxyRequest(request: NextRequest, pathSegments: string[], method: string) {
   // Get backend URL from environment variable (set at runtime)
-  const backendUrl = process.env.BASE_BACKEND_URL || 'http://localhost:8000';
+  const backendUrl = process.env.BASE_BACKEND_URL;
 
   // Reconstruct the path
   const path = pathSegments.join('/');
