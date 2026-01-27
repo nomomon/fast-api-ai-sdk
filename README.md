@@ -86,12 +86,7 @@ Ensure you have the following installed on your system:
     ```
 
 2.  **Install dependencies**
-    Install frontend dependencies:
-    ```sh
-    cd frontend && pnpm install
-    ```
-    
-    Setup backend virtual environment:
+    Install frontend dependencies and setup backend virtual environment:
     ```sh
     make setup
     ```
