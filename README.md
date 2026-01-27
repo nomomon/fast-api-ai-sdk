@@ -105,7 +105,7 @@ Ensure you have the following installed on your system:
     
     Then edit `.env` and update the following required variables:
     - `OPENAI_API_KEY` - Your OpenAI API key (required)
-    - `AUTH_SECRET` - A random secret key for NextAuth (generate with: `openssl rand -base64 32`)
+    - `NEXTAUTH_SECRET` - A random secret key for NextAuth (generate with: `openssl rand -base64 32`)
     - `SECRET_KEY` - A random secret key for JWT tokens (generate with: `openssl rand -base64 32`)
     
     Optional variables (have sensible defaults):
@@ -116,7 +116,7 @@ Ensure you have the following installed on your system:
     - `NEXTAUTH_URL` - Your frontend URL
     - `NEXT_PUBLIC_BASE_URL` - Public base URL for SEO metadata
     
-    **Note:** The root `.env` file is automatically used by both the backend and frontend. You don't need separate `.env` files in each directory.
+    **Note:** The root `.env` file is automatically used by both the backend and frontend via `env-cmd` (frontend uses `env-cmd -f ../.env next dev`). You don't need separate `.env` files in each directory. For local development, ensure `NEXTAUTH_URL` matches your frontend URL (e.g., `http://localhost:3000`).
 
 4.  **Run the application**
     Start both the frontend and backend development servers:
