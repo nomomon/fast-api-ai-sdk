@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "env-cmd -f ../.env next dev",
-    "build": "env-cmd -f ../.env next build",
+    "build": "next build",
     "start": "next start",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
