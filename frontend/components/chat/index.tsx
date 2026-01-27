@@ -1,6 +1,7 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { AlertCircle, Github, PlusIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -13,7 +14,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
 import { UserDropdownButton } from '../user/user-dropdown';
-import { DefaultChatTransport } from 'ai';
 
 export function Chat() {
   const [input, setInput] = useState('');
@@ -30,11 +30,7 @@ export function Chat() {
     setCurrentModelId(newModelId);
   };
 
-  const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat({
-    transport: new DefaultChatTransport({
-      api: '/api/chat',
-    }),
-  });
+  const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat();
 
   const hasMessages = messages.length > 0;
   const isLoading = status === 'streaming';

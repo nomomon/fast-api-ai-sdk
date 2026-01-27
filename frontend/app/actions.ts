@@ -14,7 +14,7 @@ export async function signUp(data: {
 }): Promise<SignUpResponse> {
   try {
     // Use Next.js API proxy - construct absolute URL for server-side request
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.BASE_BACKEND_URL;
     const url = `${baseUrl}/api/auth/signup`;
 
     const res = await axios.post(url, data);
