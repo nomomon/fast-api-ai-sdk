@@ -7,11 +7,13 @@ import { useState } from 'react';
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
 import { ModelSelector } from '@/components/chat/model-selector';
+import { PromptSelector } from '@/components/chat/prompt-selector';
 import { SuggestionCard } from '@/components/chat/suggestion-card';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
+import { useDefaultPrompt } from '@/lib/hooks/use-default-prompt';
 import { UserDropdownButton } from '../user/user-dropdown';
 
 export function Chat() {
@@ -25,8 +27,20 @@ export function Chat() {
     error: modelError,
   } = useDefaultModel();
 
+  const {
+    promptId: currentPromptId,
+    setPromptId: setCurrentPromptId,
+    prompts,
+    isLoading: isPromptLoading,
+    error: promptError,
+  } = useDefaultPrompt();
+
   const handleModelChange = (newModelId: string) => {
     setCurrentModelId(newModelId);
+  };
+
+  const handlePromptChange = (newPromptId: string) => {
+    setCurrentPromptId(newPromptId);
   };
 
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat();
@@ -42,7 +56,7 @@ export function Chat() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    sendMessage({ text: input }, { body: { modelId: currentModelId } });
+    sendMessage({ text: input }, { body: { modelId: currentModelId, promptId: currentPromptId } });
     setInput('');
   };
 
@@ -119,6 +133,13 @@ export function Chat() {
                   isLoading={isModelLoading}
                   error={modelError}
                 />
+                <PromptSelector
+                  promptId={currentPromptId}
+                  prompts={prompts}
+                  onPromptChange={handlePromptChange}
+                  isLoading={isPromptLoading}
+                  error={promptError}
+                />
               </ChatInput>
             </div>
             {suggestions.length > 0 && (
@@ -178,6 +199,13 @@ export function Chat() {
               onModelChange={handleModelChange}
               isLoading={isModelLoading}
               error={modelError}
+            />
+            <PromptSelector
+              promptId={currentPromptId}
+              prompts={prompts}
+              onPromptChange={handlePromptChange}
+              isLoading={isPromptLoading}
+              error={promptError}
             />
           </ChatInput>
         </div>
