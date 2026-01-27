@@ -63,14 +63,13 @@ export function Chat() {
   const suggestions = [
     {
       id: 'alamty-weather-think',
-      summary: 'What should I wear at Almaty today? Think',
-      prompt:
-        'Be extremely concise. Sacrifice grammar for the sake of concision. But think deeply: plan your steps, and execute them.\n\nWhat should I wear at Almaty today?',
+      summary: 'What should I wear at Almaty today?',
+      prompt: 'What should I wear at Almaty today?',
     },
   ];
 
   const handleSuggestionClick = (prompt: string) => {
-    setInput(prompt);
+    sendMessage({ text: prompt }, { body: { modelId: currentModelId, promptId: currentPromptId } });
   };
 
   return (

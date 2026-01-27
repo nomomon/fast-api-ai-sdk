@@ -6,7 +6,7 @@ PROMPTS_DATA = [
     {
         "id": "general",
         "name": "General",
-        "content": "You are a helpful, knowledgeable, and friendly AI assistant. Provide clear, accurate, and thoughtful responses to user questions.",
+        "content": "You are a helpful, knowledgeable, and friendly AI assistant. Be extremely concise. Sacrifice grammar for the sake of concision. Provide clear, accurate, and thoughtful responses to user questions.",
     },
     {
         "id": "expert",
