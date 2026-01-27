@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from app.models.user import User
-from app.providers import ProviderFactory
+from app.providers.litellm import LiteLLMProvider
 from app.utils.auth import get_current_user
 from app.utils.prompt import ClientMessage
 from app.utils.stream import SSEFormatter, patch_response_with_headers
@@ -30,7 +30,7 @@ async def handle_chat_data(
 
     provider_name, model_id = model.split("/", 1)
 
-    provider = ProviderFactory.get_provider(provider_name)
+    provider = LiteLLMProvider(provider_name.lower())
 
     # Get provider stream and format it as SSE
     provider_stream = provider.stream_chat(messages, model_id)

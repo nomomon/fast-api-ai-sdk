@@ -1,5 +1,6 @@
 import json
 import os
+import uuid
 from collections.abc import AsyncGenerator, Sequence
 from dataclasses import dataclass, field
 from enum import Enum, auto
@@ -8,7 +9,6 @@ from typing import Any
 import litellm
 
 from app.config import settings
-from app.providers.base import BaseProvider
 from app.utils.prompt import ClientMessage, convert_to_openai_messages
 from app.utils.stream import StreamEvent
 from app.utils.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
@@ -35,43 +35,20 @@ class StreamStateData:
     tool_calls_state: dict[int, dict[str, Any]] = field(default_factory=dict)
 
 
-class LiteLLMProvider(BaseProvider):
-    """LiteLLM provider implementation with state machine for stream processing."""
+class ChunkProcessor:
+    """Base class for processing streaming chunks from LLM responses."""
 
-    # Constants for stream IDs
-    TEXT_STREAM_ID = "text-1"
-    REASONING_STREAM_ID = "reasoning-1"
-
-    def __init__(self, provider_name: str):
-        """Initialize the LiteLLM provider.
+    @staticmethod
+    def generate_id(prefix: str = "msg") -> str:
+        """Generate a unique ID with optional prefix.
 
         Args:
-            provider_name: The name of the provider (e.g., 'openai', 'gemini')
-        """
-        self.provider_name = provider_name
-
-        # Ensure environment variables are set for LiteLLM
-        if settings.openai_api_key:
-            os.environ["OPENAI_API_KEY"] = settings.openai_api_key
-        if settings.gemini_api_key:
-            os.environ["GEMINI_API_KEY"] = settings.gemini_api_key
-        # Add other providers here as needed
-
-    def _build_reasoning_effort(self, full_model_name: str) -> dict[str, str] | str | None:
-        """Build the reasoning effort configuration for the model.
-
-        Args:
-            full_model_name: The full model name including provider prefix
+            prefix: Prefix for the ID (default: "msg")
 
         Returns:
-            Reasoning effort configuration dict, string, or None
+            Unique ID string
         """
-        if not litellm.supports_reasoning(model=full_model_name):
-            return None
-
-        if "/responses/" in full_model_name:
-            return {"effort": "low", "summary": "detailed"}
-        return "low"
+        return f"{prefix}-{uuid.uuid4().hex}"
 
     async def _process_reasoning_chunk(
         self,
@@ -254,6 +231,45 @@ class LiteLLMProvider(BaseProvider):
                     "toolCallId": tool_call_id,
                     "output": {"error": "Failed to parse arguments"},
                 }
+
+
+class LiteLLMProvider(ChunkProcessor):
+    """LiteLLM provider implementation with state machine for stream processing."""
+
+    # Constants for stream IDs
+    TEXT_STREAM_ID = "text-1"
+    REASONING_STREAM_ID = "reasoning-1"
+
+    def __init__(self, provider_name: str):
+        """Initialize the LiteLLM provider.
+
+        Args:
+            provider_name: The name of the provider (e.g., 'openai', 'gemini')
+        """
+        self.provider_name = provider_name
+
+        # Ensure environment variables are set for LiteLLM
+        if settings.openai_api_key:
+            os.environ["OPENAI_API_KEY"] = settings.openai_api_key
+        if settings.gemini_api_key:
+            os.environ["GEMINI_API_KEY"] = settings.gemini_api_key
+        # Add other providers here as needed
+
+    def _build_reasoning_effort(self, full_model_name: str) -> dict[str, str] | str | None:
+        """Build the reasoning effort configuration for the model.
+
+        Args:
+            full_model_name: The full model name including provider prefix
+
+        Returns:
+            Reasoning effort configuration dict, string, or None
+        """
+        if not litellm.supports_reasoning(model=full_model_name):
+            return None
+
+        if "/responses/" in full_model_name:
+            return {"effort": "low", "summary": "detailed"}
+        return "low"
 
     async def stream_chat(
         self,
