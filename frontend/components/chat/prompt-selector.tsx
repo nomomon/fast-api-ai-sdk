@@ -34,7 +34,7 @@ export const PromptSelector = memo(function PromptSelector({
       onValueChange={onPromptChange}
       disabled={isLoading || !!error || !prompts.length}
     >
-      <SelectTrigger className="w-fit border-0 bg-transparent focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:outline-none focus:border-0 focus-visible:border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-xl font-medium text-xs px-2 md:px-3 shadow-none">
+      <SelectTrigger className="w-fit border-0 bg-transparent focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:outline-none focus:border-0 focus-visible:border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-xl font-medium text-xs px-2 shadow-none gap-1!">
         <div className="flex items-center gap-2 w-full">
           {isLoading ? (
             <>
