@@ -5,7 +5,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/nomomon/fast-api-ai-sdk">
-    <img src="assets/icon.png" alt="Logo" width="80" height="80">
+    <img src="frontend/public/icons/app-icon.svg" alt="Logo" width="80" height="80">
   </a>
 
 <h3 align="center">Fast API & AI SDK Template</h3>
