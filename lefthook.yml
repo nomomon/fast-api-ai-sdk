@@ -6,35 +6,21 @@ pre-commit:
       stage_fixed: true
     frontend-format-and-lint:
       glob: "frontend/**/*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
-      run: npx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+      run: cd frontend && pnpm run check:fix
       stage_fixed: true
     backend-format-and-lint:
       glob: "backend/**/*.py"
-      run: |
-        if [ -d backend/.venv ]; then
-          backend/.venv/bin/ruff check --fix {staged_files}
-          backend/.venv/bin/ruff format {staged_files}
-        else
-          echo "Backend virtual environment not found. Run 'pnpm setup' first."
-          exit 1
-        fi
+      run: make -C backend check-fix
       stage_fixed: true
     check-lockfile:
-      glob: "**/package.json"
-      run: pnpm install --lockfile-only
+      glob: "frontend/package.json"
+      run: cd frontend && pnpm install --lockfile-only
 
 pre-push:
   commands:
     frontend-check:
       glob: "frontend/**/*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
-      run: npx @biomejs/biome check --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {push_files}
+      run: cd frontend && pnpm run check
     backend-check:
       glob: "backend/**/*.py"
-      run: |
-        if [ -d backend/.venv ]; then
-          backend/.venv/bin/ruff check {push_files}
-          backend/.venv/bin/ruff format --check {push_files}
-        else
-          echo "Backend virtual environment not found. Run 'pnpm setup' first."
-          exit 1
-        fi
+      run: make -C backend check
