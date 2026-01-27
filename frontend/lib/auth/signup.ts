@@ -1,0 +1,42 @@
+import axios, { AxiosError } from 'axios';
+
+interface SignUpResponse {
+  success: boolean;
+  error?: string;
+}
+
+export async function signUp(data: {
+  name: string;
+  email: string;
+  password: string;
+}): Promise<SignUpResponse> {
+  // Ran on server side
+  try {
+    const baseUrl = process.env.BASE_BACKEND_URL;
+    const url = `${baseUrl}/api/auth/signup`;
+
+    const res = await axios.post(url, data);
+    const result = await res.data;
+
+    return {
+      success: result.success || true,
+    };
+  } catch (error: unknown) {
+    console.error('Signup error:', error);
+    if (!(error instanceof AxiosError)) {
+      return {
+        success: false,
+        error: 'An unexpected error occurred. Please try again.',
+      };
+    }
+
+    const errorMessage =
+      error.response?.data?.detail ||
+      error.response?.data?.error ||
+      'Network error. Please try again.';
+    return {
+      success: false,
+      error: errorMessage,
+    };
+  }
+}

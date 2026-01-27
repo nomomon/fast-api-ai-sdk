@@ -1,43 +1,6 @@
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
-import type { NextAuthOptions, User } from 'next-auth';
+import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-
-interface DecodedToken {
-  sub: string;
-  name: string;
-  email: string;
-  exp: number;
-  iat: number;
-}
-
-async function authenticateUser(payload: {
-  email: string;
-  password: string;
-}): Promise<User | null> {
-  try {
-    // Use Next.js API proxy - construct absolute URL for server-side request
-    const baseUrl = process.env.BASE_BACKEND_URL;
-    const url = `${baseUrl}/api/auth/token`;
-
-    const res = await axios.post(url, payload);
-    const data = await res.data;
-
-    if (res.status === 200 && data.access_token) {
-      const decoded = jwtDecode<DecodedToken>(data.access_token);
-      return {
-        id: decoded.sub,
-        name: decoded.name,
-        email: decoded.email,
-        accessToken: data.access_token,
-      };
-    }
-    return null;
-  } catch (error) {
-    console.error('Login error:', error);
-    return null;
-  }
-}
+import { signIn } from './signin';
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -52,7 +15,7 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-        const userData = await authenticateUser(credentials);
+        const userData = await signIn(credentials);
         if (!userData) {
           return null;
         }
