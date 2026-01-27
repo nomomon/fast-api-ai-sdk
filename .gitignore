@@ -16,3 +16,5 @@ node_modules/
 # VsCode Copilot
 .github/instructions/
 .github/agents/
+
+.env
