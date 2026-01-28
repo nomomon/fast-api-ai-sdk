@@ -5,12 +5,12 @@ from typing import Any
 
 import litellm
 
-from app.agent.base import ChunkProcessor, StreamStateData
-from app.agent.state import REASONING_STREAM_ID, TEXT_STREAM_ID, StreamState
-from app.config import settings
-from app.utils.messages import ClientMessage, convert_to_openai_messages
-from app.utils.stream import StreamEvent
-from app.utils.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
+from app.adapters.messages import ClientMessage, convert_to_openai_messages
+from app.adapters.streaming import StreamEvent
+from app.core.config import settings
+from app.services.ai.processor import ChunkProcessor, StreamStateData
+from app.services.ai.state import REASONING_STREAM_ID, TEXT_STREAM_ID, StreamState
+from app.services.ai.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
 
 logger = logging.getLogger(__name__)
 
@@ -20,16 +20,15 @@ class LiteLLMAgent(ChunkProcessor):
 
     def __init__(
         self,
-        provider_name: str,
-        model_name: str,
+        model_id: str,
     ):
         """Initialize the LiteLLM agent.
 
         Args:
             provider_name: The name of the provider (e.g., 'openai', 'gemini')
+            model_name: The model name
         """
-        self.provider_name = provider_name
-        self.model_name = model_name
+        self.model_id = model_id
         self._setup_environment()
 
     def _setup_environment(self) -> None:
@@ -168,7 +167,6 @@ class LiteLLMAgent(ChunkProcessor):
 
         Args:
             messages: Sequence of client messages
-            model: Model name to use
 
         Yields:
             Stream events (dicts) representing the conversation flow
@@ -189,9 +187,9 @@ class LiteLLMAgent(ChunkProcessor):
             state_machine = StreamState.STREAMING
 
             # Construct the model string expected by LiteLLM
-            full_model_name = f"{self.provider_name}/{self.model_name}"
+            
 
-            reasoning_effort = self._build_reasoning_effort(full_model_name)
+            reasoning_effort = self._build_reasoning_effort(self.model_id)
 
             while state_machine == StreamState.STREAMING:
                 # Initialize state for this iteration
@@ -199,7 +197,7 @@ class LiteLLMAgent(ChunkProcessor):
                 tool_calls_state = stream_state.tool_calls_state
 
                 stream = await litellm.acompletion(
-                    model=full_model_name,
+                    model=self.model_id,
                     messages=openai_messages,
                     stream=True,
                     tools=tool_definitions if tool_definitions else None,

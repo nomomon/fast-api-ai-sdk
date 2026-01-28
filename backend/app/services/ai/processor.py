@@ -4,7 +4,7 @@ from collections.abc import AsyncGenerator
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from app.utils.stream import StreamEvent
+from app.adapters.streaming import StreamEvent
 
 
 class DeltaContent(Protocol):

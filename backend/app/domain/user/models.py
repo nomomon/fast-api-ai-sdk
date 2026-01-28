@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
 
-from app.database.base import Base
+from app.core.database import Base
 
 
 class User(Base):

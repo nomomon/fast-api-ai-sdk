@@ -3,11 +3,9 @@ from contextlib import asynccontextmanager
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
-from app.database.base import Base, engine
-from app.models import User  # noqa: F401 - Import to register model
-from app.routes import auth, chat, models, prompts
-
+from app.api.v1 import auth, chat, models, prompts
+from app.core import Base, engine, settings
+import app.domain # TODO: begin using migrations (e.g., Alembic) for database schema management
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):

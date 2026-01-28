@@ -11,8 +11,8 @@ def find_env_file() -> str | None:
         return str(current_env)
 
     # Check parent directory (root)
-    # __file__ is backend/app/config.py, so parent.parent.parent is the root
-    root_env = Path(__file__).parent.parent.parent / ".env"
+    # __file__ is backend/app/core/config.py, so parent.parent.parent.parent is the root
+    root_env = Path(__file__).parent.parent.parent.parent / ".env"
     if root_env.exists():
         return str(root_env)
 

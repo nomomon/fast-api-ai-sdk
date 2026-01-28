@@ -1,40 +1,30 @@
-"""Authentication utilities for JWT token handling."""
-
-from datetime import datetime, timedelta
-from uuid import UUID
+"""Shared FastAPI dependencies."""
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
+from uuid import UUID
 
-from app.config import settings
-from app.database.session import get_db
-from app.models.user import User
+from app.core.config import settings
+from app.core.database import SessionLocal
+from app.domain.user.repository import UserRepository
 
 security = HTTPBearer()
 
 
-def create_access_token(user: User) -> str:
+def get_db() -> Session:
     """
-    Create a JWT access token for a user.
+    Dependency function that provides a database session.
 
-    Args:
-        user: User object containing user information
-
-    Returns:
-        str: Encoded JWT token
+    Yields:
+        Session: SQLAlchemy database session
     """
-    expire = datetime.utcnow() + timedelta(days=7)  # Token expires in 7 days
-    to_encode = {
-        "sub": str(user.id),
-        "name": user.name,
-        "email": user.email,
-        "exp": expire,
-        "iat": datetime.utcnow(),
-    }
-    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
-    return encoded_jwt
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 def verify_token(token: str) -> UUID | None:
@@ -60,7 +50,7 @@ def verify_token(token: str) -> UUID | None:
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
-) -> User:
+):
     """
     Dependency function to get the current authenticated user from JWT token.
 
@@ -84,7 +74,8 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    user = db.query(User).filter(User.id == user_id).first()
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(user_id)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

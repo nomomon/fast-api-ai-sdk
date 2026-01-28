@@ -5,8 +5,6 @@ from typing import Any
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from pydantic import BaseModel, ConfigDict
 
-from .attachment import ClientAttachment
-
 
 class ToolInvocationState(str, Enum):
     CALL = "call"
@@ -20,6 +18,14 @@ class ToolInvocation(BaseModel):
     toolName: str
     args: Any
     result: Any
+
+
+class ClientAttachment(BaseModel):
+    """Client attachment schema."""
+
+    name: str
+    contentType: str
+    url: str
 
 
 class ClientMessagePart(BaseModel):
@@ -47,6 +53,14 @@ class ClientMessage(BaseModel):
 
 
 def convert_to_openai_messages(messages: list[ClientMessage]) -> list[ChatCompletionMessageParam]:
+    """Convert ClientMessage list to OpenAI format messages.
+
+    Args:
+        messages: List of ClientMessage objects
+
+    Returns:
+        List of OpenAI-formatted message dictionaries
+    """
     openai_messages = []
 
     for message in messages:

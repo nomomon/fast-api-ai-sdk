@@ -1,18 +1,22 @@
+"""Chat API endpoints."""
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from app.agent.litellm import LiteLLMAgent
-from app.models.user import User
-from app.routes.prompts import get_prompt_by_id
-from app.utils.auth import get_current_user
-from app.utils.messages import ClientMessage
-from app.utils.stream import SSEFormatter, patch_response_with_headers
+from app.adapters.messages import ClientMessage
+from app.adapters.streaming import SSEFormatter, patch_response_with_headers
+from app.core.dependencies import get_current_user
+from app.domain.prompt.service import PromptService
+from app.domain.user import User
+from app.services.ai.litellm_agent import LiteLLMAgent
 
 router = APIRouter(tags=["chat"])
 
 
 class ChatRequest(BaseModel):
+    """Chat request schema."""
+
     messages: list[ClientMessage]
     modelId: str | None = None
     promptId: str | None = None
@@ -28,19 +32,18 @@ async def handle_chat_data(
     Handles streaming chat completions with tool support through provider abstraction.
     """
     messages = request.messages
-    model = request.modelId
+    model_id = request.modelId
     prompt_id = request.promptId
 
     # Inject system prompt if promptId is provided
     if prompt_id:
-        prompt_content = get_prompt_by_id(prompt_id)
+        prompt_service = PromptService()
+        prompt_content = prompt_service.get_by_id(prompt_id)
         if prompt_content:
             system_message = ClientMessage(role="system", content=prompt_content)
             messages = [system_message] + messages
 
-    provider_name, model_id = model.split("/", 1)
-
-    agent = LiteLLMAgent(provider_name.lower(), model_id)
+    agent = LiteLLMAgent(model_id)
 
     # Get provider stream and format it as SSE
     provider_stream = agent.stream_chat(messages)
