@@ -2,15 +2,15 @@ from contextlib import asynccontextmanager
 
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.config import settings
-from app.database.base import Base, engine
-from app.models import User  # noqa: F401 - Import to register model
-from app.routes import auth, chat, models, prompts
+from app.api.v1 import auth, chat, models, prompts
+from app.core import Base, engine, settings
 
 
+# TODO: use alembic migrations
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    from app.domain.user.models import User  # noqa: F401 Ensure domain models are registered
+    
     # Initialize the database
     Base.metadata.create_all(bind=engine)
     yield
@@ -19,8 +19,8 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(
-    title=settings.api_title,
-    version=settings.api_version,
+    title="AI Chatbot API",
+    version="1.0.0",
     description="AI Chatbot API with FastAPI",
     lifespan=lifespan,
 )
@@ -47,7 +47,7 @@ app.include_router(api)
 @app.get("/")
 async def root():
     """Root endpoint."""
-    return {"message": "AI Chatbot API", "version": settings.api_version}
+    return {"message": "AI Chatbot API", "version": "1.0.0"}
 
 
 @app.get("/health")

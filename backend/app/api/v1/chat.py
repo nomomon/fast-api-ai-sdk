@@ -1,0 +1,57 @@
+"""Chat API endpoints."""
+
+from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+
+from app.adapters.messages import ClientMessage
+from app.adapters.streaming import SSEFormatter, patch_response_with_headers
+from app.core.dependencies import get_current_user
+from app.domain.prompt.service import PromptService
+from app.domain.user import User
+from app.services.ai.agents.chat_agent import ChatAgent
+
+router = APIRouter(tags=["chat"])
+
+
+class ChatRequest(BaseModel):
+    """Chat request schema."""
+
+    messages: list[ClientMessage]
+    modelId: str | None = None
+    promptId: str | None = None
+
+
+@router.post("/chat")
+async def handle_chat_data(
+    request: ChatRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Chat endpoint compatible with Vercel AI SDK.
+    Handles streaming chat completions with tool support through provider abstraction.
+    """
+    messages = request.messages
+    model_id = request.modelId
+    prompt_id = request.promptId
+
+    # Inject system prompt if promptId is provided
+    if prompt_id:
+        prompt_service = PromptService()
+        prompt_content = prompt_service.get_by_id(prompt_id)
+        if prompt_content:
+            system_message = ClientMessage(role="system", content=prompt_content)
+            messages = [system_message] + messages
+
+    agent = ChatAgent(model_id)
+
+    # Get provider stream and format it as SSE
+    provider_stream = agent.stream_chat(messages)
+    formatted_stream = SSEFormatter.format_stream(provider_stream)
+
+    # Create streaming response
+    response = StreamingResponse(
+        formatted_stream,
+        media_type="text/event-stream",
+    )
+    return patch_response_with_headers(response)
