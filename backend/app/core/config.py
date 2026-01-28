@@ -30,12 +30,6 @@ class Settings(BaseSettings):
 
     # Application Configuration
     environment: str = "development"
-    api_title: str = "AI Chatbot API"
-    api_version: str = "1.0.0"
-
-    # Server Configuration
-    host: str = "0.0.0.0"
-    port: int = 8000
 
     # CORS Configuration
     cors_origins: str = "http://localhost:3000,http://localhost:3001"

@@ -187,7 +187,6 @@ class LiteLLMAgent(ChunkProcessor):
             state_machine = StreamState.STREAMING
 
             # Construct the model string expected by LiteLLM
-            
 
             reasoning_effort = self._build_reasoning_effort(self.model_id)
 
