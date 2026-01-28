@@ -3,11 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# TODO: use alembic migrations
+import app.domain  # noqa: F401 Ensure domain models are registered
 from app.api.v1 import auth, chat, models, prompts
 from app.core import Base, engine, settings
-
-# TODO: begin using migrations (e.g., Alembic) for database schema management
-import app.domain
 
 
 @asynccontextmanager

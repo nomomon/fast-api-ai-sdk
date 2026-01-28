@@ -1,3 +1,5 @@
+"""Chat completion agent implementation."""
+
 import logging
 import os
 from collections.abc import AsyncGenerator, Sequence
@@ -8,27 +10,34 @@ import litellm
 from app.adapters.messages import ClientMessage, convert_to_openai_messages
 from app.adapters.streaming import StreamEvent
 from app.core.config import settings
-from app.services.ai.processor import ChunkProcessor, StreamStateData
-from app.services.ai.state import REASONING_STREAM_ID, TEXT_STREAM_ID, StreamState
-from app.services.ai.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
+from app.services.ai.agents.base import BaseAgent
+from app.services.ai.streaming.processor import StreamChunkProcessor
+from app.services.ai.streaming.state import (
+    REASONING_STREAM_ID,
+    TEXT_STREAM_ID,
+    StreamState,
+    StreamStateData,
+)
+from app.services.ai.tools.definitions import TOOL_DEFINITIONS
+from app.services.ai.tools.implementations import AVAILABLE_TOOLS
 
 logger = logging.getLogger(__name__)
 
 
-class LiteLLMAgent(ChunkProcessor):
-    """LiteLLM agent implementation with state machine for stream processing."""
+class ChatAgent(BaseAgent):
+    """Chat completion agent with state machine for stream processing."""
 
     def __init__(
         self,
         model_id: str,
     ):
-        """Initialize the LiteLLM agent.
+        """Initialize the chat agent.
 
         Args:
-            provider_name: The name of the provider (e.g., 'openai', 'gemini')
-            model_name: The model name
+            model_id: The model identifier (e.g., 'openai/gpt-4', 'gemini/gemini-pro')
         """
         self.model_id = model_id
+        self._processor = StreamChunkProcessor()
         self._setup_environment()
 
     def _setup_environment(self) -> None:
@@ -93,19 +102,21 @@ class LiteLLMAgent(ChunkProcessor):
                 continue
 
             # Process reasoning content
-            async for event in self._process_reasoning_chunk(
+            async for event in self._processor._process_reasoning_chunk(
                 delta, stream_state, reasoning_stream_id
             ):
                 yield event
 
             # Process text content
-            async for event in self._process_text_chunk(delta, stream_state, text_stream_id):
+            async for event in self._processor._process_text_chunk(
+                delta, stream_state, text_stream_id
+            ):
                 yield event
 
             # Process tool calls
             if delta.tool_calls:
                 for tool_call_delta in delta.tool_calls:
-                    async for event in self._process_tool_call_chunk(
+                    async for event in self._processor._process_tool_call_chunk(
                         tool_call_delta, tool_calls_state
                     ):
                         yield event
@@ -130,7 +141,7 @@ class LiteLLMAgent(ChunkProcessor):
         assistant_message_tool_calls = []
         tool_results_messages = []
 
-        async for event in self._process_tool_calls(
+        async for event in self._processor._process_tool_calls(
             tool_calls_state,
             available_tools,
             assistant_message_tool_calls,
@@ -152,11 +163,8 @@ class LiteLLMAgent(ChunkProcessor):
         # Append tool results
         openai_messages.extend(tool_results_messages)
 
-    async def stream_chat(
-        self,
-        messages: Sequence[ClientMessage],
-    ) -> AsyncGenerator[StreamEvent, None]:
-        """Stream chat responses as structured events.
+    async def execute(self, messages: Sequence[ClientMessage]) -> AsyncGenerator[StreamEvent, None]:
+        """Execute the chat agent workflow.
 
         Uses a state machine to manage the conversation flow:
         - INITIAL -> STREAMING (after start event)
@@ -179,14 +187,12 @@ class LiteLLMAgent(ChunkProcessor):
         stream_state: StreamStateData | None = None
 
         try:
-            message_id = self.generate_id()
+            message_id = self._processor.generate_id()
             text_stream_id = TEXT_STREAM_ID
             reasoning_stream_id = REASONING_STREAM_ID
 
             yield {"type": "start", "messageId": message_id}
             state_machine = StreamState.STREAMING
-
-            # Construct the model string expected by LiteLLM
 
             reasoning_effort = self._build_reasoning_effort(self.model_id)
 
@@ -230,5 +236,22 @@ class LiteLLMAgent(ChunkProcessor):
 
         except Exception as e:
             state_machine = StreamState.ERROR
-            logger.error(f"Error in stream_chat: {e}", exc_info=True)
+            logger.error(f"Error in chat agent execution: {e}", exc_info=True)
             yield {"type": "error", "error": str(e)}
+
+    async def stream_chat(
+        self, messages: Sequence[ClientMessage]
+    ) -> AsyncGenerator[StreamEvent, None]:
+        """Stream chat responses as structured events.
+
+        This method is kept for backward compatibility.
+        It delegates to execute().
+
+        Args:
+            messages: Sequence of client messages
+
+        Yields:
+            Stream events (dicts) representing the conversation flow
+        """
+        async for event in self.execute(messages):
+            yield event

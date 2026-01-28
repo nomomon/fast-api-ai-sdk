@@ -9,7 +9,7 @@ from app.adapters.streaming import SSEFormatter, patch_response_with_headers
 from app.core.dependencies import get_current_user
 from app.domain.prompt.service import PromptService
 from app.domain.user import User
-from app.services.ai.litellm_agent import LiteLLMAgent
+from app.services.ai.agents.chat_agent import ChatAgent
 
 router = APIRouter(tags=["chat"])
 
@@ -43,7 +43,7 @@ async def handle_chat_data(
             system_message = ClientMessage(role="system", content=prompt_content)
             messages = [system_message] + messages
 
-    agent = LiteLLMAgent(model_id)
+    agent = ChatAgent(model_id)
 
     # Get provider stream and format it as SSE
     provider_stream = agent.stream_chat(messages)

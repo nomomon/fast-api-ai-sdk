@@ -1,50 +1,16 @@
+"""Stream chunk processor for LLM responses."""
+
 import json
 import uuid
 from collections.abc import AsyncGenerator
-from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import Any
 
 from app.adapters.streaming import StreamEvent
+from app.services.ai.streaming.protocols import DeltaContent, ToolCallDelta
+from app.services.ai.streaming.state import StreamStateData
 
 
-class DeltaContent(Protocol):
-    """Protocol for delta content objects from LLM streams."""
-
-    content: str | None
-    reasoning_content: str | None
-
-
-class ToolCallDelta(Protocol):
-    """Protocol for tool call delta objects from LLM streams."""
-
-    index: int
-    id: str | None
-
-    @property
-    def function(self) -> "ToolCallFunctionDelta | None":
-        """Get the function delta object."""
-        ...
-
-
-class ToolCallFunctionDelta(Protocol):
-    """Protocol for tool call function delta objects."""
-
-    name: str | None
-    arguments: str | None
-
-
-@dataclass
-class StreamStateData:
-    """Data class for tracking stream state during processing."""
-
-    text_started: bool = False
-    reasoning_started: bool = False
-    finish_reason: str | None = None
-    current_text_content: str = ""
-    tool_calls_state: dict[int, dict[str, Any]] = field(default_factory=dict)
-
-
-class ChunkProcessor:
+class StreamChunkProcessor:
     """Base class for processing streaming chunks from LLM responses."""
 
     @staticmethod
