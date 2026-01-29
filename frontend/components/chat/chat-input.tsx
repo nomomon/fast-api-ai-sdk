@@ -55,7 +55,7 @@ export function ChatInput({ input, setInput, onSubmit, isLoading, children }: Ch
               type="button"
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              className="h-8 w-8 text-muted-foreground rounded-2xl hover:text-foreground"
               aria-label="Attach file"
             >
               <PaperclipIcon className="h-4 w-4" />
