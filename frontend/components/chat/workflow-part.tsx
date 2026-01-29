@@ -1,6 +1,15 @@
+'use client';
+
 import type { DataUIPart } from 'ai';
-import { SearchIcon } from 'lucide-react';
-import type { ChatDataParts } from '@/types/chat';
+import {
+  CheckCircle2Icon,
+  FileTextIcon,
+  GlobeIcon,
+  Loader2Icon,
+  type LucideIcon,
+  SearchIcon,
+} from 'lucide-react';
+import type { ChatDataParts, WorkflowSearchData, WorkflowStatusData } from '@/types/chat';
 import {
   ChainOfThought,
   ChainOfThoughtContent,
@@ -10,47 +19,100 @@ import {
   ChainOfThoughtStep,
 } from '../ai-elements/chain-of-thought';
 
+/** Maps workflow data types and phases to Lucide icons */
+const WORKFLOW_ICONS: Record<string, LucideIcon> = {
+  search: SearchIcon,
+  status: FileTextIcon,
+  'status:generating': Loader2Icon,
+  'status:synthesizing': GlobeIcon,
+  'status:analyzing': SearchIcon,
+  'status:complete': CheckCircle2Icon,
+};
+
+type WorkflowIconResult = { icon: LucideIcon; iconClassName?: string };
+
+function getWorkflowIcon(
+  part: DataUIPart<ChatDataParts>,
+  isStreaming?: boolean
+): WorkflowIconResult {
+  const type = part.type.replace('data-', '');
+  if (type === 'status' && 'phase' in part.data) {
+    const data = part.data as WorkflowStatusData;
+    const icon = WORKFLOW_ICONS[`status:${data.phase}`] ?? WORKFLOW_ICONS.status;
+    const iconClassName = data.phase === 'generating' && isStreaming ? 'animate-spin' : undefined;
+    return { icon, iconClassName };
+  }
+  return { icon: WORKFLOW_ICONS[type] ?? WORKFLOW_ICONS.search };
+}
+
+function parseWebsiteHostname(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+}
+
 interface WorkflowPartProps {
   isStreaming: boolean;
   parts: Array<DataUIPart<ChatDataParts>>;
 }
 
-// biome-ignore lint/correctness/noUnusedFunctionParameters: parts typed for future use when replacing placeholder UI
 export function WorkflowPart({ isStreaming, parts }: WorkflowPartProps) {
+  if (parts.length === 0) return null;
+
   return (
     <ChainOfThought defaultOpen>
       <ChainOfThoughtHeader />
       <ChainOfThoughtContent>
-        <ChainOfThoughtStep
-          icon={SearchIcon}
-          label="Searching for profiles for Hayden Bleasel"
-          status="complete"
-        >
-          <ChainOfThoughtSearchResults>
-            {['https://www.x.com', 'https://www.instagram.com', 'https://www.github.com'].map(
-              (website) => (
-                <ChainOfThoughtSearchResult key={website}>
-                  {new URL(website).hostname}
-                </ChainOfThoughtSearchResult>
-              )
-            )}
-          </ChainOfThoughtSearchResults>
-        </ChainOfThoughtStep>
+        {parts.map((part, index) => {
+          const { icon: Icon, iconClassName } = getWorkflowIcon(part, isStreaming);
 
-        <ChainOfThoughtStep
-          label="Hayden Bleasel is an Australian product designer, software engineer, and founder. He is currently based in the United States working for Vercel, an American cloud application company."
-          status="complete"
-        />
+          if (part.type === 'data-search') {
+            const data = part.data as WorkflowSearchData;
+            const label = data.query
+              ? `Search round ${data.round}: ${data.query}`
+              : `Search round ${data.round}`;
+            const status = data.status === 'active' ? 'active' : 'complete';
 
-        <ChainOfThoughtStep icon={SearchIcon} label="Searching for recent work..." status="active">
-          <ChainOfThoughtSearchResults>
-            {['https://www.github.com', 'https://www.dribbble.com'].map((website) => (
-              <ChainOfThoughtSearchResult key={website}>
-                {new URL(website).hostname}
-              </ChainOfThoughtSearchResult>
-            ))}
-          </ChainOfThoughtSearchResults>
-        </ChainOfThoughtStep>
+            return (
+              <ChainOfThoughtStep
+                key={`${part.type}-${data.round}-${index}`}
+                icon={Icon}
+                iconClassName={iconClassName}
+                label={label}
+                status={status}
+              >
+                {data.websites?.length ? (
+                  <ChainOfThoughtSearchResults>
+                    {data.websites.map((website) => (
+                      <ChainOfThoughtSearchResult key={website}>
+                        {parseWebsiteHostname(website)}
+                      </ChainOfThoughtSearchResult>
+                    ))}
+                  </ChainOfThoughtSearchResults>
+                ) : null}
+              </ChainOfThoughtStep>
+            );
+          }
+
+          if (part.type === 'data-status') {
+            const data = part.data as WorkflowStatusData;
+            const isGenerating = data.phase === 'generating' && isStreaming;
+
+            return (
+              <ChainOfThoughtStep
+                key={`${part.type}-${index}`}
+                icon={Icon}
+                iconClassName={iconClassName}
+                label={data.message}
+                status={isGenerating ? 'active' : 'complete'}
+              />
+            );
+          }
+
+          return null;
+        })}
       </ChainOfThoughtContent>
     </ChainOfThought>
   );

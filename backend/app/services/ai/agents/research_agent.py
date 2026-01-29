@@ -1,7 +1,7 @@
 """Research agent implementation.
 
-Emits 5 process data part events (simulating searched files), then streams
-a text response via litellm acompletion. No tools, no reasoning effort.
+Fictional workflow: search X websites → search more → more searches →
+status "generating concise response" → LLM streams text.
 """
 
 import asyncio
@@ -22,13 +22,25 @@ from app.services.ai.streaming.state import TEXT_STREAM_ID, StreamStateData
 
 logger = logging.getLogger(__name__)
 
-_FILE_EXTENSIONS = (".pdf", ".txt", ".md", ".json", ".csv", ".html", ".xml")
+_SAMPLE_DOMAINS = (
+    "example.com",
+    "wikipedia.org",
+    "github.com",
+    "stackoverflow.com",
+    "arxiv.org",
+    "nature.com",
+    "pubmed.ncbi.nlm.nih.gov",
+    "scholar.google.com",
+    "medium.com",
+    "substack.com",
+)
 
 
-def _generate_searched_files() -> list[str]:
-    """Generate a random list of file paths for process data events."""
-    count = random.randint(1, 15)
-    return [f"doc_{i}{random.choice(_FILE_EXTENSIONS)}" for i in range(1, count + 1)]
+def _generate_websites(count: int | None = None) -> list[str]:
+    """Generate a random list of website URLs for search data events."""
+    n = count or random.randint(2, 8)
+    domains = random.sample(_SAMPLE_DOMAINS, min(n, len(_SAMPLE_DOMAINS)))
+    return [f"https://www.{d}" for d in domains]
 
 
 class ResearchAgent(BaseAgent):
@@ -79,8 +91,8 @@ class ResearchAgent(BaseAgent):
     async def execute(self, messages: Sequence[ClientMessage]) -> AsyncGenerator[StreamEvent, None]:
         """Execute the research agent workflow.
 
-        Flow: start -> 5 data-process events -> stream text -> finish.
-        No tools, no reasoning effort.
+        Flow: start -> N search rounds (websites) -> status "generating" ->
+        stream text -> finish. No tools, no reasoning effort.
 
         Args:
             messages: Sequence of client messages
@@ -97,18 +109,34 @@ class ResearchAgent(BaseAgent):
 
             yield {"type": "start", "messageId": message_id}
 
-            # 1. Emit 5 search data part events (searched files)
-            for _ in range(5):
-                files = _generate_searched_files()
+            # 1. Emit multiple search rounds (websites found per round)
+            num_rounds = random.randint(3, 6)
+            for round_num in range(1, num_rounds + 1):
+                websites = _generate_websites()
                 async for event in self._processor._process_data_part(
                     type_suffix="search",
-                    data={"files": files},
+                    data={
+                        "websites": websites,
+                        "round": round_num,
+                        "query": f"research round {round_num}" if round_num <= 2 else None,
+                        "status": "complete",
+                    },
                 ):
                     yield event
-                # Sleep for a random duration
-                await asyncio.sleep(random.uniform(0.5, 3))
+                await asyncio.sleep(random.uniform(0.5, 2))
 
-            # 2. Stream LLM text response (no tools, no reasoning_effort)
+            # 2. Emit status: generating concise response
+            async for event in self._processor._process_data_part(
+                type_suffix="status",
+                data={
+                    "message": "Generating concise response...",
+                    "phase": "generating",
+                },
+            ):
+                yield event
+            await asyncio.sleep(0.3)
+
+            # 3. Stream LLM text response (no tools, no reasoning_effort)
             stream = await litellm.acompletion(
                 model=self.model_id,
                 messages=openai_messages,
