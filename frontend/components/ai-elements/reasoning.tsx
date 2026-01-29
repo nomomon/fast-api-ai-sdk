@@ -116,6 +116,9 @@ const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number) => {
   if (duration === undefined) {
     return <p>Thought for a few seconds</p>;
   }
+  if (duration === 1) {
+    return <p>Thought for 1 second</p>;
+  }
   return <p>Thought for {duration} seconds</p>;
 };
 
