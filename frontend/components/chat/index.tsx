@@ -84,7 +84,7 @@ export function Chat() {
 
   const suggestions = [
     {
-      id: 'alamty-weather-think',
+      id: 'almaty-weather-think',
       summary: 'What should I wear at Almaty today?',
       prompt: 'What should I wear at Almaty today?',
     },
@@ -101,6 +101,32 @@ export function Chat() {
   const handleEdit = (messageId: string, newText: string) => {
     sendMessage({ text: newText, messageId }, { body: chatBody });
   };
+
+  const EnhancedChatInput = (
+    <ChatInput input={input} setInput={setInput} onSubmit={handleSubmit} isLoading={isLoading}>
+      <ModelSelector
+        modelId={currentModelId}
+        models={models}
+        onModelChange={handleModelChange}
+        isLoading={isModelLoading}
+        error={modelError}
+      />
+      <AgentSelector
+        agentId={currentAgentId}
+        agents={agents}
+        onAgentChange={handleAgentChange}
+        isLoading={isAgentLoading}
+        error={agentError}
+      />
+      <PromptSelector
+        promptId={currentPromptId}
+        prompts={prompts}
+        onPromptChange={handlePromptChange}
+        isLoading={isPromptLoading}
+        error={promptError}
+      />
+    </ChatInput>
+  );
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -149,34 +175,7 @@ export function Chat() {
               </p>
             </div>
             <div className="w-full animate-slide-up" style={{ animationDelay: '100ms' }}>
-              <ChatInput
-                input={input}
-                setInput={setInput}
-                onSubmit={handleSubmit}
-                isLoading={isLoading}
-              >
-                <ModelSelector
-                  modelId={currentModelId}
-                  models={models}
-                  onModelChange={handleModelChange}
-                  isLoading={isModelLoading}
-                  error={modelError}
-                />
-                <AgentSelector
-                  agentId={currentAgentId}
-                  agents={agents}
-                  onAgentChange={handleAgentChange}
-                  isLoading={isAgentLoading}
-                  error={agentError}
-                />
-                <PromptSelector
-                  promptId={currentPromptId}
-                  prompts={prompts}
-                  onPromptChange={handlePromptChange}
-                  isLoading={isPromptLoading}
-                  error={promptError}
-                />
-              </ChatInput>
+              {EnhancedChatInput}
             </div>
             {suggestions.length > 0 && (
               <div className="w-1/3 space-y-2 animate-slide-up" style={{ animationDelay: '150ms' }}>
@@ -228,34 +227,7 @@ export function Chat() {
 
       {hasMessages && (
         <div className="w-full max-w-4xl mx-auto px-4 md:px-8 pb-6 md:pb-8">
-          <ChatInput
-            input={input}
-            setInput={setInput}
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-          >
-            <AgentSelector
-              agentId={currentAgentId}
-              agents={agents}
-              onAgentChange={handleAgentChange}
-              isLoading={isAgentLoading}
-              error={agentError}
-            />
-            <ModelSelector
-              modelId={currentModelId}
-              models={models}
-              onModelChange={handleModelChange}
-              isLoading={isModelLoading}
-              error={modelError}
-            />
-            <PromptSelector
-              promptId={currentPromptId}
-              prompts={prompts}
-              onPromptChange={handlePromptChange}
-              isLoading={isPromptLoading}
-              error={promptError}
-            />
-          </ChatInput>
+          {EnhancedChatInput}
         </div>
       )}
 
