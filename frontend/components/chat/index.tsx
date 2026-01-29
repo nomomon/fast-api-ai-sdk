@@ -234,19 +234,19 @@ export function Chat() {
             onSubmit={handleSubmit}
             isLoading={isLoading}
           >
-            <AgentSelector
-              agentId={currentAgentId}
-              agents={agents}
-              onAgentChange={handleAgentChange}
-              isLoading={isAgentLoading}
-              error={agentError}
-            />
             <ModelSelector
               modelId={currentModelId}
               models={models}
               onModelChange={handleModelChange}
               isLoading={isModelLoading}
               error={modelError}
+            />
+            <AgentSelector
+              agentId={currentAgentId}
+              agents={agents}
+              onAgentChange={handleAgentChange}
+              isLoading={isAgentLoading}
+              error={agentError}
             />
             <PromptSelector
               promptId={currentPromptId}
