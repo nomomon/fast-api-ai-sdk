@@ -2,12 +2,6 @@
 
 import type { DataUIPart } from 'ai';
 import { FileTextIcon, Loader2Icon, type LucideIcon, SearchIcon } from 'lucide-react';
-import type {
-  ChatDataParts,
-  WorkflowEndLabelData,
-  WorkflowStartLabelData,
-  WorkflowStepData,
-} from '@/types/chat';
 import {
   ChainOfThought,
   ChainOfThoughtContent,
@@ -15,8 +9,14 @@ import {
   ChainOfThoughtSearchResult,
   ChainOfThoughtSearchResults,
   ChainOfThoughtStep,
-} from '../ai-elements/chain-of-thought';
-import { Shimmer } from '../ai-elements/shimmer';
+} from '@/components/ai-elements/chain-of-thought';
+import { Shimmer } from '@/components/ai-elements/shimmer';
+import type {
+  ChatDataParts,
+  WorkflowEndLabelData,
+  WorkflowStartLabelData,
+  WorkflowStepData,
+} from '@/types/chat';
 
 /** Icons for workflow step types. Only reachable: search, status. */
 const STEP_ICONS: Record<string, LucideIcon> = {
