@@ -72,6 +72,20 @@ export function Chat() {
     sendMessage({ text: prompt }, { body: { modelId: currentModelId, promptId: currentPromptId } });
   };
 
+  const handleRegenerate = (messageId: string) => {
+    regenerate({
+      messageId,
+      body: { modelId: currentModelId, promptId: currentPromptId },
+    });
+  };
+
+  const handleEdit = (messageId: string, newText: string) => {
+    sendMessage(
+      { text: newText, messageId },
+      { body: { modelId: currentModelId, promptId: currentPromptId } }
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <div className="absolute top-3 left-3 md:top-4 md:left-4 z-10 flex gap-2 animate-fade-in">
@@ -159,7 +173,12 @@ export function Chat() {
 
       {hasMessages && (
         <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full animate-fade-in overflow-hidden">
-          <MessageList messages={messages} isLoading={isLoading} />
+          <MessageList
+            messages={messages}
+            isLoading={isLoading}
+            onRegenerate={handleRegenerate}
+            onEdit={handleEdit}
+          />
         </div>
       )}
 

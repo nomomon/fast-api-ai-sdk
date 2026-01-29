@@ -7,8 +7,8 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 import { signUp } from '@/lib/auth';
+import { cn } from '@/lib/utils';
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>) {
   const router = useRouter();

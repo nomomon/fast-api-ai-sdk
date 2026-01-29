@@ -7,9 +7,11 @@ import { MessageItem } from './message-item';
 interface MessageListProps {
   messages: UIMessage[];
   isLoading: boolean;
+  onRegenerate: (messageId: string) => void;
+  onEdit: (messageId: string, newText: string) => void;
 }
 
-export function MessageList({ messages, isLoading }: MessageListProps) {
+export function MessageList({ messages, isLoading, onRegenerate, onEdit }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -30,6 +32,8 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
             key={m.id}
             message={m}
             isStreaming={isLoading && index === messages.length - 1}
+            onRegenerate={onRegenerate}
+            onEdit={onEdit}
           />
         ))}
         <div ref={messagesEndRef} />

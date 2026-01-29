@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.api.v1 import auth, chat, models, prompts
 from app.core import Base, engine, settings
 
@@ -10,7 +11,7 @@ from app.core import Base, engine, settings
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     from app.domain.user.models import User  # noqa: F401 Ensure domain models are registered
-    
+
     # Initialize the database
     Base.metadata.create_all(bind=engine)
     yield

@@ -48,7 +48,7 @@ class PromptRepository:
                 "2. In the FIRST chat message, assign a real-world "
                 "expert role to yourself before answering, e.g., "
                 "\"I'll answer as a world-famous <role> PhD <detailed "
-                "topic> with <most prestigious LOCAL topic REAL award>\"\n"
+                'topic> with <most prestigious LOCAL topic REAL award>"\n'
                 "3. Act as a role assigned\n"
                 "4. Answer the question in a natural, human-like "
                 "manner\n"
