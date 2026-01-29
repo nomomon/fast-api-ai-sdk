@@ -1,13 +1,7 @@
 'use client';
 
 import type { DataUIPart } from 'ai';
-import {
-  CheckCircle2Icon,
-  FileTextIcon,
-  Loader2Icon,
-  type LucideIcon,
-  SearchIcon,
-} from 'lucide-react';
+import { FileTextIcon, Loader2Icon, type LucideIcon, SearchIcon } from 'lucide-react';
 import type {
   ChatDataParts,
   WorkflowEndLabelData,
@@ -24,11 +18,10 @@ import {
 } from '../ai-elements/chain-of-thought';
 import { Shimmer } from '../ai-elements/shimmer';
 
-/** Icons for workflow step types. Only reachable: search, status, complete. */
+/** Icons for workflow step types. Only reachable: search, status. */
 const STEP_ICONS: Record<string, LucideIcon> = {
   search: SearchIcon,
   status: FileTextIcon,
-  complete: CheckCircle2Icon,
 };
 
 function getStepIcon(type?: string): LucideIcon {
@@ -77,7 +70,7 @@ export function WorkflowPart({ isStreaming, parts }: WorkflowPartProps) {
 
           const Icon = isLoading ? Loader2Icon : getStepIcon(data.type);
           const iconClassName = isLoading ? 'animate-spin' : undefined;
-          const type = isLoading ? 'active' : 'complete';
+          const status = isLoading ? 'active' : 'complete';
 
           return (
             <ChainOfThoughtStep
@@ -85,7 +78,7 @@ export function WorkflowPart({ isStreaming, parts }: WorkflowPartProps) {
               icon={Icon}
               iconClassName={iconClassName}
               label={data.label}
-              status={type}
+              status={status}
             >
               {data.details?.length ? (
                 <ChainOfThoughtSearchResults>
