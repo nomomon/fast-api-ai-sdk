@@ -102,7 +102,7 @@ export function Chat() {
     sendMessage({ text: newText, messageId }, { body: chatBody });
   };
 
-  const EnhancedChatInput = () => (
+  const EnhancedChatInput = (
     <ChatInput input={input} setInput={setInput} onSubmit={handleSubmit} isLoading={isLoading}>
       <ModelSelector
         modelId={currentModelId}
@@ -175,7 +175,7 @@ export function Chat() {
               </p>
             </div>
             <div className="w-full animate-slide-up" style={{ animationDelay: '100ms' }}>
-              <EnhancedChatInput />
+              {EnhancedChatInput}
             </div>
             {suggestions.length > 0 && (
               <div className="w-1/3 space-y-2 animate-slide-up" style={{ animationDelay: '150ms' }}>
@@ -227,7 +227,7 @@ export function Chat() {
 
       {hasMessages && (
         <div className="w-full max-w-4xl mx-auto px-4 md:px-8 pb-6 md:pb-8">
-          <EnhancedChatInput />
+          {EnhancedChatInput}
         </div>
       )}
 
