@@ -5,8 +5,8 @@ import { useState } from 'react';
 import { Streamdown } from 'streamdown';
 import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/ai-elements/reasoning';
 import { AgentMessageActions } from '@/components/chat/message-actions-agent';
-import { ToolInvocation } from '@/components/chat/tool-invocation';
 import { UserMessageActions } from '@/components/chat/message-actions-user';
+import { ToolInvocation } from '@/components/chat/tool-invocation';
 import { getMessageMarkdown, getUserMessageText } from '@/components/chat/utils';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -48,7 +48,7 @@ export function MessageItem({ message, isStreaming, onRegenerate, onEdit }: Mess
     const isEditing = editingMessageId === message.id;
 
     return (
-      <div className="flex items-center gap-2 ml-auto max-w-[95%] md:max-w-[85%] group">
+      <div className="flex items-end gap-2 ml-auto max-w-[95%] md:max-w-[85%] group">
         <UserMessageActions onEditClick={handleStartEdit} />
         {isEditing ? (
           <div className="flex flex-col gap-2 flex-1 min-w-0">
