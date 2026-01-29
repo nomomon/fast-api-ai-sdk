@@ -3,7 +3,7 @@
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
 import { BrainIcon, ChevronDownIcon, DotIcon, type LucideIcon } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
-import { createContext, memo, useContext, useMemo } from 'react';
+import { createContext, memo, useContext, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 type ChainOfThoughtContextValue = {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  isStreaming: boolean;
 };
 
 const ChainOfThoughtContext = createContext<ChainOfThoughtContextValue | null>(null);
@@ -23,10 +24,13 @@ const useChainOfThought = () => {
   return context;
 };
 
+const AUTO_CLOSE_DELAY = 1000;
+
 export type ChainOfThoughtProps = ComponentProps<'div'> & {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  isStreaming?: boolean;
 };
 
 export const ChainOfThought = memo(
@@ -35,6 +39,7 @@ export const ChainOfThought = memo(
     open,
     defaultOpen = false,
     onOpenChange,
+    isStreaming = false,
     children,
     ...props
   }: ChainOfThoughtProps) => {
@@ -43,12 +48,27 @@ export const ChainOfThought = memo(
       defaultProp: defaultOpen,
       onChange: onOpenChange,
     });
+    const [hasAutoClosed, setHasAutoClosed] = useState(false);
 
-    const chainOfThoughtContext = useMemo(() => ({ isOpen, setIsOpen }), [isOpen, setIsOpen]);
+    // Auto-close when streaming ends (once only)
+    useEffect(() => {
+      if (defaultOpen && !isStreaming && isOpen && !hasAutoClosed) {
+        const timer = setTimeout(() => {
+          setIsOpen(false);
+          setHasAutoClosed(true);
+        }, AUTO_CLOSE_DELAY);
+        return () => clearTimeout(timer);
+      }
+    }, [isStreaming, isOpen, defaultOpen, setIsOpen, hasAutoClosed]);
+
+    const chainOfThoughtContext = useMemo(
+      () => ({ isOpen, setIsOpen, isStreaming }),
+      [isOpen, setIsOpen, isStreaming]
+    );
 
     return (
       <ChainOfThoughtContext.Provider value={chainOfThoughtContext}>
-        <div className={cn('not-prose max-w-prose space-y-4', className)} {...props}>
+        <div className={cn('not-prose mb-4 max-w-prose space-y-4', className)} {...props}>
           {children}
         </div>
       </ChainOfThoughtContext.Provider>
@@ -56,11 +76,16 @@ export const ChainOfThought = memo(
   }
 );
 
-export type ChainOfThoughtHeaderProps = ComponentProps<typeof CollapsibleTrigger>;
+export type ChainOfThoughtHeaderProps = ComponentProps<typeof CollapsibleTrigger> & {
+  getHeaderMessage?: (isStreaming: boolean) => ReactNode;
+};
 
 export const ChainOfThoughtHeader = memo(
-  ({ className, children, ...props }: ChainOfThoughtHeaderProps) => {
-    const { isOpen, setIsOpen } = useChainOfThought();
+  ({ className, children, getHeaderMessage, ...props }: ChainOfThoughtHeaderProps) => {
+    const { isOpen, setIsOpen, isStreaming } = useChainOfThought();
+
+    const headerContent =
+      children ?? (getHeaderMessage ? getHeaderMessage(isStreaming) : 'Chain of Thought');
 
     return (
       <Collapsible onOpenChange={setIsOpen} open={isOpen}>
@@ -72,7 +97,7 @@ export const ChainOfThoughtHeader = memo(
           {...props}
         >
           <BrainIcon className="size-4" />
-          <span className="flex-1 text-left">{children ?? 'Chain of Thought'}</span>
+          <span className="flex-1 text-left">{headerContent}</span>
           <ChevronDownIcon
             className={cn('size-4 transition-transform', isOpen ? 'rotate-180' : 'rotate-0')}
           />
