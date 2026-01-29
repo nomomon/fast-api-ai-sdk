@@ -63,7 +63,7 @@ const defaultGetWorkflowHeaderMessage = (isStreaming: boolean) => {
   if (isStreaming) {
     return <Shimmer duration={1}>Researching...</Shimmer>;
   }
-  return 'Research workflow';
+  return 'Research completed';
 };
 
 export function WorkflowPart({ isStreaming, parts }: WorkflowPartProps) {
