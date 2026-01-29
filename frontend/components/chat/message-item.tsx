@@ -11,6 +11,7 @@ import { getMessageMarkdown, getUserMessageText } from '@/components/chat/utils'
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { WorkflowProcess } from './workflow-process';
 
 interface MessageItemProps {
   message: UIMessage;
@@ -82,8 +83,8 @@ function UserMessageItem({ message, onEdit }: MessageItemProps) {
 
 function AssistantMessageItem({ message, isStreaming, onRegenerate }: MessageItemProps) {
   const isReasoning = message.parts.some((part) => part.type === 'reasoning');
-  const statusParts = message.parts.filter((p) => p.type === 'data-status');
-  console.log('AssistantMessageItem statusParts:', statusParts);
+  const isWorkflow = message.parts.some((part) => part.type.startsWith('data-'));
+
   return (
     <div className="max-w-[95%] md:max-w-[85%]">
       <div className="text-foreground/90 leading-relaxed text-sm md:text-base">
@@ -97,6 +98,15 @@ function AssistantMessageItem({ message, isStreaming, onRegenerate }: MessageIte
                 .join('')}
             </ReasoningContent>
           </Reasoning>
+        )}
+
+        {isWorkflow && (
+          <WorkflowProcess
+            isStreaming={isStreaming}
+            parts={message.parts
+              .filter((part) => part.type.startsWith('data-'))
+              .map((part) => part)}
+          />
         )}
 
         {message.parts.map((part, i) => {
