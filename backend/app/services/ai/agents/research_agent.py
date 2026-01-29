@@ -35,6 +35,17 @@ _SAMPLE_DOMAINS = (
     "substack.com",
 )
 
+# Funny sample labels about searching the web
+_SAMPLE_LABELS = (
+    "Looking up on the web...",
+    "Digging deeper...",
+    "I'm not sure if this is a good idea, but I'm gonna do it anyway...",
+    "Brainstorming...",
+    "Lemme look up some memes while I'm at it...",
+    "Doing some research...",
+    "I'm really not sure about this one...",
+)
+
 
 def _generate_websites(count: int | None = None) -> list[str]:
     """Generate a random list of website URLs for search data events."""
@@ -109,34 +120,45 @@ class ResearchAgent(BaseAgent):
 
             yield {"type": "start", "messageId": message_id}
 
-            # 1. Emit multiple search rounds (websites found per round)
+            # 1. Start
+            async for event in self._processor._process_data_part(
+                type_suffix="start-label",
+                data={"label": "Researching..."},
+            ):
+                yield event
+
+            # 2. Search rounds
             num_rounds = random.randint(3, 6)
-            for round_num in range(1, num_rounds + 1):
+            for _ in range(1, num_rounds + 1):
                 websites = _generate_websites()
+                details = [u.split("//")[-1].split("/")[0] for u in websites]
                 async for event in self._processor._process_data_part(
-                    type_suffix="search",
+                    type_suffix="step",
                     data={
-                        "websites": websites,
-                        "round": round_num,
-                        "query": f"research round {round_num}" if round_num <= 2 else None,
-                        "status": "complete",
+                        "label": random.choice(_SAMPLE_LABELS),
+                        "details": details,
+                        "type": "search",
                     },
                 ):
                     yield event
                 await asyncio.sleep(random.uniform(0.5, 2))
 
-            # 2. Emit status: generating concise response
+            # 3. Generating status
             async for event in self._processor._process_data_part(
-                type_suffix="status",
-                data={
-                    "message": "Generating concise response...",
-                    "phase": "generating",
-                },
+                type_suffix="step",
+                data={"label": "Summarizing the information...", "type": "status"},
             ):
                 yield event
             await asyncio.sleep(0.3)
 
-            # 3. Stream LLM text response (no tools, no reasoning_effort)
+            # 4. Research completed
+            async for event in self._processor._process_data_part(
+                type_suffix="end-label",
+                data={"label": "Research completed. Here is my conclusion:"},
+            ):
+                yield event
+
+            # 5. Stream text
             stream = await litellm.acompletion(
                 model=self.model_id,
                 messages=openai_messages,
