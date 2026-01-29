@@ -1,11 +1,11 @@
 'use client';
 
-import type { UIMessage } from 'ai';
 import { useCallback, useEffect, useRef } from 'react';
+import type { ChatMessage } from '@/types/chat';
 import { MessageItem } from './message-item';
 
 interface MessageListProps {
-  messages: UIMessage[];
+  messages: ChatMessage[];
   isLoading: boolean;
   onRegenerate: (messageId: string) => void;
   onEdit: (messageId: string, newText: string) => void;

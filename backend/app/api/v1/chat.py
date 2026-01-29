@@ -1,15 +1,16 @@
 """Chat API endpoints."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from app.adapters.messages import ClientMessage
-from app.adapters.streaming import SSEFormatter, patch_response_with_headers
 from app.core.dependencies import get_current_user
 from app.domain.prompt.service import PromptService
 from app.domain.user import User
+from app.services.ai.adapters.messages import ClientMessage
+from app.services.ai.adapters.streaming import SSEFormatter, patch_response_with_headers
 from app.services.ai.agents.chat_agent import ChatAgent
+from app.services.ai.agents.research_agent import ResearchAgent
 
 router = APIRouter(tags=["chat"])
 
@@ -20,22 +21,23 @@ class ChatRequest(BaseModel):
     messages: list[ClientMessage]
     modelId: str | None = None
     promptId: str | None = None
+    agentId: str = "chat"
 
 
 @router.post("/chat")
-async def handle_chat_data(
+async def handle_chat(
     request: ChatRequest,
     current_user: User = Depends(get_current_user),
 ):
     """
     Chat endpoint compatible with Vercel AI SDK.
-    Handles streaming chat completions with tool support through provider abstraction.
+    Dispatches to ChatAgent or ResearchAgent based on agentId.
     """
     messages = request.messages
     model_id = request.modelId
     prompt_id = request.promptId
+    agent_id = request.agentId
 
-    # Inject system prompt if promptId is provided
     if prompt_id:
         prompt_service = PromptService()
         prompt_content = prompt_service.get_by_id(prompt_id)
@@ -43,13 +45,20 @@ async def handle_chat_data(
             system_message = ClientMessage(role="system", content=prompt_content)
             messages = [system_message] + messages
 
-    agent = ChatAgent(model_id)
+    if agent_id == "chat":
+        agent = ChatAgent(model_id)
+        provider_stream = agent.stream_chat(messages)
+    elif agent_id == "research":
+        agent = ResearchAgent(model_id)
+        provider_stream = agent.execute(messages)
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown agentId: {agent_id}. Supported: chat, research",
+        )
 
-    # Get provider stream and format it as SSE
-    provider_stream = agent.stream_chat(messages)
     formatted_stream = SSEFormatter.format_stream(provider_stream)
 
-    # Create streaming response
     response = StreamingResponse(
         formatted_stream,
         media_type="text/event-stream",

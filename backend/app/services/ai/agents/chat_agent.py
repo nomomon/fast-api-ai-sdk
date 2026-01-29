@@ -7,9 +7,9 @@ from typing import Any
 
 import litellm
 
-from app.adapters.messages import ClientMessage, convert_to_openai_messages
-from app.adapters.streaming import StreamEvent
 from app.core.config import settings
+from app.services.ai.adapters.messages import ClientMessage, convert_to_openai_messages
+from app.services.ai.adapters.streaming import StreamEvent
 from app.services.ai.agents.base import BaseAgent
 from app.services.ai.streaming.processor import StreamChunkProcessor
 from app.services.ai.streaming.state import (
@@ -111,6 +111,10 @@ class ChatAgent(BaseAgent):
             async for event in self._processor._process_text_chunk(
                 delta, stream_state, text_stream_id
             ):
+                yield event
+
+            # Process content parts (file references from multimodal streams)
+            async for event in self._processor._process_content_parts(delta):
                 yield event
 
             # Process tool calls

@@ -5,7 +5,7 @@ import uuid
 from collections.abc import AsyncGenerator
 from typing import Any
 
-from app.adapters.streaming import StreamEvent
+from app.services.ai.adapters.streaming import StreamEvent
 from app.services.ai.streaming.protocols import DeltaContent, ToolCallDelta
 from app.services.ai.streaming.state import StreamStateData
 
@@ -74,6 +74,83 @@ class StreamChunkProcessor:
                 yield {"type": "text-start", "id": text_stream_id}
                 state.text_started = True
             yield {"type": "text-delta", "id": text_stream_id, "delta": delta.content}
+
+    async def _process_file_part(
+        self,
+        url: str,
+        media_type: str,
+    ) -> AsyncGenerator[StreamEvent, None]:
+        """Emit a file part event.
+
+        File parts contain references to files with their media type.
+        Format: {"type":"file","url":"...","mediaType":"..."}
+
+        Args:
+            url: URL of the file (e.g. https://example.com/file.png)
+            media_type: MIME type (e.g. image/png)
+
+        Yields:
+            Stream event for file part
+        """
+        yield {"type": "file", "url": url, "mediaType": media_type}
+
+    async def _process_data_part(
+        self,
+        type_suffix: str,
+        data: dict[str, Any],
+    ) -> AsyncGenerator[StreamEvent, None]:
+        """Emit a custom data part event.
+
+        Data parts allow streaming arbitrary structured data with type-specific handling.
+        Format: {"type":"data-{type_suffix}","data":{...}}
+        The data-* type pattern lets the frontend handle custom types specifically.
+
+        Args:
+            type_suffix: Suffix for the type (e.g. "weather" -> type "data-weather")
+            data: Structured data payload (must be JSON-serializable)
+
+        Yields:
+            Stream event for data part
+        """
+        yield {"type": f"data-{type_suffix}", "data": data}
+
+    async def _process_content_parts(
+        self,
+        delta: DeltaContent,
+    ) -> AsyncGenerator[StreamEvent, None]:
+        """Process content parts from delta (multimodal streams with file references).
+
+        Handles content_parts array when present, e.g. from OpenAI Responses API.
+        Emits file parts for image_url type parts.
+
+        Args:
+            delta: The delta object from the chunk
+
+        Yields:
+            Stream events for file parts found in content_parts
+        """
+        content_parts = getattr(delta, "content_parts", None)
+        if not content_parts:
+            return
+
+        for part in content_parts:
+            if not isinstance(part, dict):
+                continue
+            part_type = part.get("type")
+            if part_type == "image_url":
+                image_url = part.get("image_url") or {}
+                url = image_url.get("url") if isinstance(image_url, dict) else None
+                if url:
+                    # Infer media type from URL or default to image
+                    media_type = "image/png"
+                    if ".jpg" in url or ".jpeg" in url:
+                        media_type = "image/jpeg"
+                    elif ".gif" in url:
+                        media_type = "image/gif"
+                    elif ".webp" in url:
+                        media_type = "image/webp"
+                    async for event in self._process_file_part(url, media_type):
+                        yield event
 
     async def _process_tool_call_chunk(
         self,
@@ -188,6 +265,14 @@ class StreamChunkProcessor:
                         "toolCallId": tool_call_id,
                         "output": tool_result,
                     }
+
+                # Emit file part if tool result contains file reference (e.g. image generation)
+                if isinstance(tool_result, dict):
+                    url = tool_result.get("url")
+                    media_type = tool_result.get("mediaType") or tool_result.get("media_type")
+                    if url and media_type:
+                        async for event in self._process_file_part(url, media_type):
+                            yield event
 
                 tool_results_messages.append(
                     {
