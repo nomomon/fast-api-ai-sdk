@@ -113,6 +113,10 @@ class ChatAgent(BaseAgent):
             ):
                 yield event
 
+            # Process content parts (file references from multimodal streams)
+            async for event in self._processor._process_content_parts(delta):
+                yield event
+
             # Process tool calls
             if delta.tool_calls:
                 for tool_call_delta in delta.tool_calls:
