@@ -1,6 +1,6 @@
 """Chat API endpoints."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -21,56 +21,22 @@ class ChatRequest(BaseModel):
     messages: list[ClientMessage]
     modelId: str | None = None
     promptId: str | None = None
+    agentId: str = "chat"
 
 
-@router.post("/legacy/chat", deprecated=True)
-async def handle_chat_data(
+@router.post("/chat")
+async def handle_chat(
     request: ChatRequest,
     current_user: User = Depends(get_current_user),
 ):
     """
     Chat endpoint compatible with Vercel AI SDK.
-    Handles streaming chat completions with tool support through provider abstraction.
+    Dispatches to ChatAgent or ResearchAgent based on agentId.
     """
     messages = request.messages
     model_id = request.modelId
     prompt_id = request.promptId
-
-    # Inject system prompt if promptId is provided
-    if prompt_id:
-        prompt_service = PromptService()
-        prompt_content = prompt_service.get_by_id(prompt_id)
-        if prompt_content:
-            system_message = ClientMessage(role="system", content=prompt_content)
-            messages = [system_message] + messages
-
-    agent = ChatAgent(model_id)
-
-    # Get provider stream and format it as SSE
-    provider_stream = agent.stream_chat(messages)
-    formatted_stream = SSEFormatter.format_stream(provider_stream)
-
-    # Create streaming response
-    response = StreamingResponse(
-        formatted_stream,
-        media_type="text/event-stream",
-    )
-    return patch_response_with_headers(response)
-
-
-@router.post("/chat")
-async def handle_research_data(
-    request: ChatRequest,
-    current_user: User = Depends(get_current_user),
-):
-    """
-    Research endpoint compatible with Vercel AI SDK.
-    Emits 5 process data part events (searched files), then streams LLM text.
-    No tools, no reasoning effort.
-    """
-    messages = request.messages
-    model_id = request.modelId
-    prompt_id = request.promptId
+    agent_id = request.agentId
 
     if prompt_id:
         prompt_service = PromptService()
@@ -79,8 +45,18 @@ async def handle_research_data(
             system_message = ClientMessage(role="system", content=prompt_content)
             messages = [system_message] + messages
 
-    agent = ResearchAgent(model_id)
-    provider_stream = agent.execute(messages)
+    if agent_id == "chat":
+        agent = ChatAgent(model_id)
+        provider_stream = agent.stream_chat(messages)
+    elif agent_id == "research":
+        agent = ResearchAgent(model_id)
+        provider_stream = agent.execute(messages)
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown agentId: {agent_id}. Supported: chat, research",
+        )
+
     formatted_stream = SSEFormatter.format_stream(provider_stream)
 
     response = StreamingResponse(

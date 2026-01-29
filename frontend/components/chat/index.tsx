@@ -4,6 +4,7 @@ import { useChat } from '@ai-sdk/react';
 import { AlertCircle, Github, PlusIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import { AgentSelector } from '@/components/chat/agent-selector';
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
 import { ModelSelector } from '@/components/chat/model-selector';
@@ -12,6 +13,7 @@ import { SuggestionCard } from '@/components/chat/suggestion-card';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { useDefaultAgent } from '@/lib/hooks/use-default-agent';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
 import { useDefaultPrompt } from '@/lib/hooks/use-default-prompt';
 import type { ChatMessage } from '@/types/chat';
@@ -36,12 +38,24 @@ export function Chat() {
     error: promptError,
   } = useDefaultPrompt();
 
+  const {
+    agentId: currentAgentId,
+    setAgentId: setCurrentAgentId,
+    agents,
+    isLoading: isAgentLoading,
+    error: agentError,
+  } = useDefaultAgent();
+
   const handleModelChange = (newModelId: string) => {
     setCurrentModelId(newModelId);
   };
 
   const handlePromptChange = (newPromptId: string) => {
     setCurrentPromptId(newPromptId);
+  };
+
+  const handleAgentChange = (newAgentId: string) => {
+    setCurrentAgentId(newAgentId);
   };
 
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } =
@@ -56,9 +70,15 @@ export function Chat() {
     setInput('');
   };
 
+  const chatBody = {
+    modelId: currentModelId,
+    promptId: currentPromptId,
+    agentId: currentAgentId || 'chat',
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    sendMessage({ text: input }, { body: { modelId: currentModelId, promptId: currentPromptId } });
+    sendMessage({ text: input }, { body: chatBody });
     setInput('');
   };
 
@@ -71,21 +91,15 @@ export function Chat() {
   ];
 
   const handleSuggestionClick = (prompt: string) => {
-    sendMessage({ text: prompt }, { body: { modelId: currentModelId, promptId: currentPromptId } });
+    sendMessage({ text: prompt }, { body: chatBody });
   };
 
   const handleRegenerate = (messageId: string) => {
-    regenerate({
-      messageId,
-      body: { modelId: currentModelId, promptId: currentPromptId },
-    });
+    regenerate({ messageId, body: chatBody });
   };
 
   const handleEdit = (messageId: string, newText: string) => {
-    sendMessage(
-      { text: newText, messageId },
-      { body: { modelId: currentModelId, promptId: currentPromptId } }
-    );
+    sendMessage({ text: newText, messageId }, { body: chatBody });
   };
 
   return (
@@ -148,6 +162,13 @@ export function Chat() {
                   isLoading={isModelLoading}
                   error={modelError}
                 />
+                <AgentSelector
+                  agentId={currentAgentId}
+                  agents={agents}
+                  onAgentChange={handleAgentChange}
+                  isLoading={isAgentLoading}
+                  error={agentError}
+                />
                 <PromptSelector
                   promptId={currentPromptId}
                   prompts={prompts}
@@ -197,7 +218,7 @@ export function Chat() {
               variant="outline"
               size="sm"
               className="ml-auto transition-all duration-150 ease-out hover:scale-105"
-              onClick={() => regenerate()}
+              onClick={() => regenerate({ body: chatBody })}
             >
               Retry
             </Button>
@@ -213,6 +234,13 @@ export function Chat() {
             onSubmit={handleSubmit}
             isLoading={isLoading}
           >
+            <AgentSelector
+              agentId={currentAgentId}
+              agents={agents}
+              onAgentChange={handleAgentChange}
+              isLoading={isAgentLoading}
+              error={agentError}
+            />
             <ModelSelector
               modelId={currentModelId}
               models={models}
