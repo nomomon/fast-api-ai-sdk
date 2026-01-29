@@ -1,6 +1,6 @@
 'use client';
 
-import type { DynamicToolUIPart, UIMessage } from 'ai';
+import { type DataUIPart, type DynamicToolUIPart, isDataUIPart } from 'ai';
 import { useState } from 'react';
 import { Streamdown } from 'streamdown';
 import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/ai-elements/reasoning';
@@ -11,10 +11,11 @@ import { getMessageMarkdown, getUserMessageText } from '@/components/chat/utils'
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { WorkflowProcess } from './workflow-process';
+import type { ChatDataParts, ChatMessage } from '@/types/chat';
+import { WorkflowPart } from './workflow-part';
 
 interface MessageItemProps {
-  message: UIMessage;
+  message: ChatMessage;
   isStreaming: boolean;
   onRegenerate: (messageId: string) => void;
   onEdit: (messageId: string, newText: string) => void;
@@ -101,11 +102,11 @@ function AssistantMessageItem({ message, isStreaming, onRegenerate }: MessageIte
         )}
 
         {isWorkflow && (
-          <WorkflowProcess
+          <WorkflowPart
             isStreaming={isStreaming}
-            parts={message.parts
-              .filter((part) => part.type.startsWith('data-'))
-              .map((part) => part)}
+            parts={message.parts.filter((part): part is DataUIPart<ChatDataParts> =>
+              isDataUIPart(part)
+            )}
           />
         )}
 

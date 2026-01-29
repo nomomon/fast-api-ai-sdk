@@ -1,5 +1,6 @@
-import type { DataUIPart, UIDataTypes } from 'ai';
+import type { DataUIPart } from 'ai';
 import { SearchIcon } from 'lucide-react';
+import type { ChatDataParts } from '@/types/chat';
 import {
   ChainOfThought,
   ChainOfThoughtContent,
@@ -9,12 +10,13 @@ import {
   ChainOfThoughtStep,
 } from '../ai-elements/chain-of-thought';
 
-interface WorkflowProcessProps {
+interface WorkflowPartProps {
   isStreaming: boolean;
-  parts: unknown[];
+  parts: Array<DataUIPart<ChatDataParts>>;
 }
 
-export function WorkflowProcess({ isStreaming, parts }: WorkflowProcessProps) {
+// biome-ignore lint/correctness/noUnusedFunctionParameters: parts typed for future use when replacing placeholder UI
+export function WorkflowPart({ isStreaming, parts }: WorkflowPartProps) {
   return (
     <ChainOfThought defaultOpen>
       <ChainOfThoughtHeader />

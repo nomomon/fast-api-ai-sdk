@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
 import { useDefaultPrompt } from '@/lib/hooks/use-default-prompt';
+import type { ChatMessage } from '@/types/chat';
 import { UserDropdownButton } from '../user/user-dropdown';
 
 export function Chat() {
@@ -43,7 +44,8 @@ export function Chat() {
     setCurrentPromptId(newPromptId);
   };
 
-  const { messages, error, sendMessage, regenerate, setMessages, stop, status } = useChat();
+  const { messages, error, sendMessage, regenerate, setMessages, stop, status } =
+    useChat<ChatMessage>();
 
   const hasMessages = messages.length > 0;
   const isLoading = status === 'streaming';
