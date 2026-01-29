@@ -82,6 +82,8 @@ function UserMessageItem({ message, onEdit }: MessageItemProps) {
 
 function AssistantMessageItem({ message, isStreaming, onRegenerate }: MessageItemProps) {
   const isReasoning = message.parts.some((part) => part.type === 'reasoning');
+  const statusParts = message.parts.filter((p) => p.type === 'data-status');
+  console.log('AssistantMessageItem statusParts:', statusParts);
   return (
     <div className="max-w-[95%] md:max-w-[85%]">
       <div className="text-foreground/90 leading-relaxed text-sm md:text-base">

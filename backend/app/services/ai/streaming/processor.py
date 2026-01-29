@@ -5,7 +5,7 @@ import uuid
 from collections.abc import AsyncGenerator
 from typing import Any
 
-from app.adapters.streaming import StreamEvent
+from app.services.ai.adapters.streaming import StreamEvent
 from app.services.ai.streaming.protocols import DeltaContent, ToolCallDelta
 from app.services.ai.streaming.state import StreamStateData
 

@@ -3,8 +3,8 @@
 from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator, Sequence
 
-from app.adapters.messages import ClientMessage
-from app.adapters.streaming import StreamEvent
+from app.services.ai.adapters.messages import ClientMessage
+from app.services.ai.adapters.streaming import StreamEvent
 
 
 class BaseAgent(ABC):
