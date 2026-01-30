@@ -84,7 +84,7 @@ function UserMessageItem({ message, onEdit }: MessageItemProps) {
 
 function AssistantMessageItem({ message, isStreaming, onRegenerate }: MessageItemProps) {
   const isReasoning = message.parts.some((part) => part.type === 'reasoning');
-  const isWorkflow = message.parts.some((part) => part.type.startsWith('data-'));
+  const isWorkflow = message.parts.some((part) => isDataUIPart(part));
 
   return (
     <div className="max-w-[95%] md:max-w-[85%]">
