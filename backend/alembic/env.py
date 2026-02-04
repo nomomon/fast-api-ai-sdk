@@ -7,6 +7,10 @@ from sqlalchemy import create_engine, pool
 
 from alembic import context
 from app.core.database import Base
+# IMPORTANT: Alembic's autogenerate only "sees" models that are imported here.
+# When adding new SQLAlchemy models in other domain modules (e.g.,
+# app.domain.prompt.models), make sure to import those modules here so that
+# their models are registered with Base.metadata.
 from app.domain.user import models  # noqa: F401 - register User with Base.metadata
 
 # Load .env from backend/ or project root so DATABASE_URL is available without app Settings.
