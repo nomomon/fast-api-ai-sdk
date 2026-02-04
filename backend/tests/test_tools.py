@@ -62,7 +62,7 @@ class TestRegistry(unittest.TestCase):
         self.assertIn("get_current_weather", by_name)
         fn = by_name["get_current_weather"]["function"]
         self.assertEqual(fn["name"], "get_current_weather")
-        self.assertTrue(len(fn["description"]) > 0)
+        self.assertGreater(len(fn["description"]), 0)
         params = fn["parameters"]
         self.assertEqual(params["type"], "object")
         self.assertIn("latitude", params["properties"])
