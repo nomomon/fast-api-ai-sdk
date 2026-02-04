@@ -48,4 +48,4 @@ alembic downgrade -1
 
 ## Configuration
 
-The database URL is read from app config (`DATABASE_URL` / `app.core.config.settings`). Ensure `.env` or the environment is set before running Alembic.
+The database URL is read from the environment (`DATABASE_URL`). Alembic loads `.env` from the backend or project root in `alembic/env.py`, so ensure `.env` or the environment is set before running Alembic.

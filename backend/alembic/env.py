@@ -1,18 +1,32 @@
+import os
 from logging.config import fileConfig
+from pathlib import Path
 
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, pool
 
 from alembic import context
-from app.core.config import settings
 from app.core.database import Base
 from app.domain.user import models  # noqa: F401 - register User with Base.metadata
+
+# Load .env from backend/ or project root so DATABASE_URL is available without app Settings.
+_backend_env = Path(__file__).resolve().parent.parent / ".env"
+_root_env = Path(__file__).resolve().parent.parent.parent / ".env"
+if _backend_env.exists():
+    load_dotenv(_backend_env)
+elif _root_env.exists():
+    load_dotenv(_root_env)
+
+# Read DATABASE_URL from env so migrations do not depend on OpenAI or other app settings.
+_database_url_default = "postgresql://postgres:postgres@localhost:5432/fastapi_ai_sdk"
+database_url = os.environ.get("DATABASE_URL", _database_url_default)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-# Set database URL from app config so Alembic uses the same DATABASE_URL as the app.
-config.set_main_option("sqlalchemy.url", settings.database_url)
+# Set database URL for Alembic. Escape % for ConfigParser interpolation.
+config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -40,7 +54,8 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url_from_config = config.get_main_option("sqlalchemy.url") or database_url
+    url = url_from_config.replace("%%", "%")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -60,7 +75,7 @@ def run_migrations_online() -> None:
 
     """
     connectable = create_engine(
-        settings.database_url,
+        database_url,
         poolclass=pool.NullPool,
     )
 

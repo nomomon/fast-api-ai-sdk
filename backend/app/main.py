@@ -11,7 +11,6 @@ from app.core import settings
 async def lifespan(_app: FastAPI):
     yield
     # Cleanup actions on shutdown
-    pass
 
 
 app = FastAPI(
