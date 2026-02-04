@@ -3,20 +3,21 @@
 # Default target
 help:
 	@echo "Backend Makefile - Available targets:"
-	@echo "  setup             - Setup virtual environment and install dependencies"
-	@echo "  dev               - Run development server"
-	@echo "  build             - Build backend (placeholder)"
+	@echo "  setup          - Setup virtual environment and install dependencies"
+	@echo "  dev            - Run development server"
+	@echo "  build          - Build backend (placeholder)"
 	@echo "  migrate           - Run database migrations (alembic upgrade head)"
 	@echo "  migration         - Create new migration (use MSG=\"description\")"
 	@echo "  migrate-downgrade - Roll back one migration (alembic downgrade -1)"
-	@echo "  lint              - Lint code with ruff"
-	@echo "  lint-fix          - Lint and fix code with ruff"
-	@echo "  format            - Format code with ruff"
-	@echo "  format-check      - Check code formatting"
-	@echo "  check             - Run lint and format checks"
-	@echo "  check-fix         - Run lint and format checks with fixes"
-	@echo "  type-check        - Type check with mypy"
-	@echo "  clean             - Clean build artifacts and virtual environment"
+	@echo "  lint           - Lint code with ruff"
+	@echo "  lint-fix       - Lint and fix code with ruff"
+	@echo "  format         - Format code with ruff"
+	@echo "  format-check   - Check code formatting"
+	@echo "  check          - Run lint and format checks"
+	@echo "  check-fix      - Run lint and format checks with fixes"
+	@echo "  type-check     - Type check with mypy"
+	@echo "  test           - Run tests"
+	@echo "  clean          - Clean build artifacts and virtual environment"
 
 # Setup virtual environment
 setup:
@@ -80,6 +81,11 @@ check-fix:
 type-check:
 	@if [ ! -d .venv ]; then echo 'Error: Virtual environment not found. Run "make setup" first.'; exit 1; fi
 	@.venv/bin/mypy app || true
+
+# Tests
+test:
+	@if [ ! -d .venv ]; then echo 'Error: Virtual environment not found. Run "make setup" first.'; exit 1; fi
+	@PYTHONPATH=. .venv/bin/python -m unittest discover -s tests -p 'test_*.py' -v
 
 # Clean
 clean:
