@@ -19,8 +19,12 @@ def _load_tools() -> tuple[list[dict[str, Any]], dict[str, Any]]:
     for module_name in _TOOL_MODULES:
         mod = importlib.import_module(f"app.services.ai.tools.{module_name}")
         fn = getattr(mod, module_name, None)
-        if fn is None or not callable(fn):
-            continue
+        if fn is None:
+            raise AttributeError(
+                f"Tool module '{module_name}' does not define expected function '{module_name}'"
+            )
+        if not callable(fn):
+            raise TypeError(f"Attribute '{module_name}' in module '{module_name}' is not callable")
         definitions.append(function_to_openai_tool(module_name, fn))
         implementations[module_name] = fn
 
