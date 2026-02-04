@@ -78,8 +78,6 @@ def _python_type_to_json_schema(annotation: Any) -> dict[str, Any]:
         return {"type": "string"}  # fallback
 
     # Optional[X] -> Union[X, None]
-    if origin is type(None) or (hasattr(annotation, "__origin__") and annotation is not None):
-        pass
     if str(annotation).startswith("typing.Optional") or (origin is type(None)):
         # Optional: get the inner type
         for a in args or (annotation,):
