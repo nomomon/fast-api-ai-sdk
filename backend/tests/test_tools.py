@@ -20,6 +20,29 @@ def _sample_tool(lat: float, lon: float) -> str:
     return f"{lat},{lon}"
 
 
+def _tool_with_default(a: int, b: int = 1) -> str:
+    """Tool with a default parameter."""
+    return f"{a},{b}"
+
+
+def _tool_with_optional(x: str | None) -> str:
+    """Tool with optional parameter (pipe syntax)."""
+    return x or ""
+
+
+def _tool_complex_types(
+    ids: list[int],
+    counts: dict[str, int],
+    value: str | int,
+) -> str:
+    """Tool with list, dict, and union type args."""
+    return str(ids) + str(counts) + str(value)
+
+
+def _tool_no_docstring(a: int, b: str) -> bool:
+    return True
+
+
 class TestSchemaExtractor(unittest.TestCase):
     """Tests for function_to_openai_tool."""
 
@@ -45,6 +68,44 @@ class TestSchemaExtractor(unittest.TestCase):
         self.assertEqual(props["lat"]["description"], "Latitude of the location")
         self.assertEqual(props["lon"]["description"], "Longitude of the location")
         self.assertCountEqual(result["function"]["parameters"]["required"], ["lat", "lon"])
+
+    def test_default_parameter_not_required(self) -> None:
+        """Parameters with default values are not in required."""
+        result = function_to_openai_tool("_tool_with_default", _tool_with_default)
+        required = result["function"]["parameters"]["required"]
+        self.assertIn("a", required)
+        self.assertNotIn("b", required)
+        props = result["function"]["parameters"]["properties"]
+        self.assertEqual(props["b"]["type"], "integer")
+
+    def test_optional_parameter_not_required(self) -> None:
+        """Optional (str | None) parameter is not in required."""
+        result = function_to_openai_tool("_tool_with_optional", _tool_with_optional)
+        required = result["function"]["parameters"]["required"]
+        self.assertNotIn("x", required)
+        props = result["function"]["parameters"]["properties"]
+        self.assertEqual(props["x"]["type"], "string")
+
+    def test_complex_type_annotations(self) -> None:
+        """list[int], dict[str, int], and str | int get correct schema."""
+        result = function_to_openai_tool("_tool_complex_types", _tool_complex_types)
+        props = result["function"]["parameters"]["properties"]
+        self.assertEqual(props["ids"]["type"], "array")
+        self.assertIn("items", props["ids"])
+        self.assertEqual(props["ids"]["items"]["type"], "integer")
+        self.assertEqual(props["counts"]["type"], "object")
+        self.assertIn("additionalProperties", props["counts"])
+        self.assertEqual(props["counts"]["additionalProperties"]["type"], "integer")
+        self.assertEqual(props["value"]["type"], "string")
+
+    def test_function_without_docstring(self) -> None:
+        """Function without docstring gets empty description and types from annotations."""
+        result = function_to_openai_tool("_tool_no_docstring", _tool_no_docstring)
+        fn = result["function"]
+        self.assertEqual(fn["description"], "")
+        props = fn["parameters"]["properties"]
+        self.assertEqual(props["a"]["type"], "integer")
+        self.assertEqual(props["b"]["type"], "string")
 
 
 class TestRegistry(unittest.TestCase):
