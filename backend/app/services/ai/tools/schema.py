@@ -154,7 +154,7 @@ def function_to_openai_tool(name: str, fn: Callable[..., Any]) -> dict[str, Any]
         if param_descriptions.get(param_name):
             prop["description"] = param_descriptions[param_name]
         properties[param_name] = prop
-        if not _is_optional(annotation):
+        if param.default is inspect.Parameter.empty and not _is_optional(annotation):
             required.append(param_name)
 
     parameters: dict[str, Any] = {
