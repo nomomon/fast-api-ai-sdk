@@ -1,19 +1,22 @@
-.PHONY: help setup dev build lint lint-fix format format-check check check-fix type-check clean
+.PHONY: help setup dev build lint lint-fix format format-check check check-fix type-check migrate migration migrate-downgrade clean
 
 # Default target
 help:
 	@echo "Backend Makefile - Available targets:"
-	@echo "  setup          - Setup virtual environment and install dependencies"
-	@echo "  dev            - Run development server"
-	@echo "  build          - Build backend (placeholder)"
-	@echo "  lint           - Lint code with ruff"
-	@echo "  lint-fix       - Lint and fix code with ruff"
-	@echo "  format         - Format code with ruff"
-	@echo "  format-check   - Check code formatting"
-	@echo "  check          - Run lint and format checks"
-	@echo "  check-fix      - Run lint and format checks with fixes"
-	@echo "  type-check     - Type check with mypy"
-	@echo "  clean          - Clean build artifacts and virtual environment"
+	@echo "  setup             - Setup virtual environment and install dependencies"
+	@echo "  dev               - Run development server"
+	@echo "  build             - Build backend (placeholder)"
+	@echo "  migrate           - Run database migrations (alembic upgrade head)"
+	@echo "  migration         - Create new migration (use MSG=\"description\")"
+	@echo "  migrate-downgrade - Roll back one migration (alembic downgrade -1)"
+	@echo "  lint              - Lint code with ruff"
+	@echo "  lint-fix          - Lint and fix code with ruff"
+	@echo "  format            - Format code with ruff"
+	@echo "  format-check      - Check code formatting"
+	@echo "  check             - Run lint and format checks"
+	@echo "  check-fix         - Run lint and format checks with fixes"
+	@echo "  type-check        - Type check with mypy"
+	@echo "  clean             - Clean build artifacts and virtual environment"
 
 # Setup virtual environment
 setup:
@@ -29,6 +32,20 @@ dev:
 # Build (placeholder)
 build:
 	@echo 'Backend build complete'
+
+# Database migrations (Alembic)
+migrate:
+	@if [ ! -d .venv ]; then echo 'Error: Virtual environment not found. Run "make setup" first.'; exit 1; fi
+	@.venv/bin/alembic upgrade head
+
+migration:
+	@if [ ! -d .venv ]; then echo 'Error: Virtual environment not found. Run "make setup" first.'; exit 1; fi
+	@if [ -z "$$MSG" ]; then echo 'Error: Pass migration message, e.g. make migration MSG="add foo column"'; exit 1; fi
+	@.venv/bin/alembic revision --autogenerate -m "$$MSG"
+
+migrate-downgrade:
+	@if [ ! -d .venv ]; then echo 'Error: Virtual environment not found. Run "make setup" first.'; exit 1; fi
+	@.venv/bin/alembic downgrade -1
 
 # Linting
 lint:
