@@ -2,8 +2,9 @@
 
 import inspect
 import re
+import types
 from collections.abc import Callable
-from typing import Any, get_args, get_origin
+from typing import Any, Union, get_args, get_origin
 
 # Python type to JSON Schema type mapping
 _TYPE_MAP = {
@@ -77,10 +78,10 @@ def _python_type_to_json_schema(annotation: Any) -> dict[str, Any]:
     if origin is type(None) or annotation is type(None):
         return {"type": "string"}  # fallback
 
-    # Optional[X] -> Union[X, None]
-    if str(annotation).startswith("typing.Optional") or (origin is type(None)):
-        # Optional: get the inner type
-        for a in args or (annotation,):
+    # Union / UnionType (Optional[X], X|Y, Union[A,B]) - single path for typing.Union and 3.10+ X|Y
+    union_origin = getattr(types, "UnionType", None)
+    if origin is not None and args and (origin is Union or origin is union_origin):
+        for a in args:
             if a is not type(None):
                 return _python_type_to_json_schema(a)
         return {"type": "string"}
@@ -101,14 +102,6 @@ def _python_type_to_json_schema(annotation: Any) -> dict[str, Any]:
 
     if annotation in _TYPE_MAP:
         return {"type": _TYPE_MAP[annotation]}
-
-    # Handle Union (e.g. Optional) by taking first non-None
-    if hasattr(annotation, "__origin__"):
-        if origin is type(None):
-            return {"type": "string"}
-        for a in args or ():
-            if a is not type(None):
-                return _python_type_to_json_schema(a)
 
     return {"type": "string"}
 
