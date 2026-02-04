@@ -46,7 +46,7 @@ def upgrade() -> None:
             sa.DateTime(),
             nullable=False,
             server_default=sa.func.now(),
-        ),  # ORM onupdate handles app updates; raw SQL updates won't auto-set this
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=True)
