@@ -2,6 +2,24 @@
 
 Schema changes are managed with [Alembic](https://alembic.sqlalchemy.org/). The application **does not** create tables on startup; you must run migrations in each environment.
 
+## First-time setup
+
+**IMPORTANT**: Before starting the application for the first time, you must run migrations to create the database schema. The application will fail to start without the necessary tables.
+
+From the backend directory:
+
+```bash
+make migrate
+```
+
+Or directly:
+
+```bash
+alembic upgrade head
+```
+
+This applies all pending migrations and creates the required database tables.
+
 ## Apply migrations
 
 From the backend directory:

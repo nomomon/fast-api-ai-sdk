@@ -1,12 +1,12 @@
 """create users table
 
-Revision ID: a1b2c3d4e5f6
+Revision ID: 636153b4e8a1
 Revises:
 Create Date: 2025-02-04
 
 """
 
-from collections.abc import Sequence
+from typing import Sequence, Union
 
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
@@ -14,14 +14,20 @@ from sqlalchemy.dialects import postgresql
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "a1b2c3d4e5f6"
-down_revision: str | Sequence[str] | None = None
-branch_labels: str | Sequence[str] | None = None
-depends_on: str | Sequence[str] | None = None
+revision: str = "636153b4e8a1"
+down_revision: Union[str, Sequence[str], None] = None
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """Upgrade schema."""
+    """Upgrade schema.
+    
+    Note: The updated_at column has a server default but will NOT automatically
+    update on row modifications. It only updates via SQLAlchemy ORM operations
+    that specify onupdate=datetime.utcnow. For automatic updates via database
+    triggers, you would need to add a PostgreSQL trigger separately.
+    """
     op.create_table(
         "users",
         sa.Column(
