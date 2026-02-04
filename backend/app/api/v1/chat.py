@@ -5,6 +5,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from app.core.dependencies import get_current_user
+from app.domain.model.service import ModelService
 from app.domain.prompt.service import PromptService
 from app.domain.user import User
 from app.services.ai.adapters.messages import ClientMessage
@@ -37,6 +38,15 @@ async def handle_chat(
     model_id = request.modelId
     prompt_id = request.promptId
     agent_id = request.agentId
+
+    model_service = ModelService()
+    if model_id is None:
+        model_id = model_service.get_default_model_id()
+    elif not model_service.is_valid_model_id(model_id):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid modelId: {model_id}. Use GET /api/v1/models for allowed models.",
+        )
 
     if prompt_id:
         prompt_service = PromptService()
