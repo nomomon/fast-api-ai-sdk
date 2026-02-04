@@ -1,4 +1,4 @@
-.PHONY: help setup dev build lint lint-fix format format-check check check-fix type-check clean
+.PHONY: help setup dev build lint lint-fix format format-check check check-fix type-check test clean
 
 # Default target
 help:
@@ -13,6 +13,7 @@ help:
 	@echo "  check          - Run lint and format checks"
 	@echo "  check-fix      - Run lint and format checks with fixes"
 	@echo "  type-check     - Type check with mypy"
+	@echo "  test           - Run tests"
 	@echo "  clean          - Clean build artifacts and virtual environment"
 
 # Setup virtual environment
@@ -63,6 +64,11 @@ check-fix:
 type-check:
 	@if [ ! -d .venv ]; then echo 'Error: Virtual environment not found. Run "make setup" first.'; exit 1; fi
 	@.venv/bin/mypy app || true
+
+# Tests
+test:
+	@if [ ! -d .venv ]; then echo 'Error: Virtual environment not found. Run "make setup" first.'; exit 1; fi
+	@PYTHONPATH=. .venv/bin/python -m unittest discover -s tests -p 'test_*.py' -v
 
 # Clean
 clean:

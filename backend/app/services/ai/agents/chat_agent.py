@@ -18,8 +18,7 @@ from app.services.ai.streaming.state import (
     StreamState,
     StreamStateData,
 )
-from app.services.ai.tools.definitions import TOOL_DEFINITIONS
-from app.services.ai.tools.implementations import AVAILABLE_TOOLS
+from app.services.ai.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
 
 logger = logging.getLogger(__name__)
 
