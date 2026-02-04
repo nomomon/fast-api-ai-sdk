@@ -5,6 +5,8 @@ Revises:
 Create Date: 2025-02-04
 
 """
+# Revision ID is intentional for this initial migration; future migrations
+# use autogenerate (e.g. alembic revision --autogenerate).
 
 from collections.abc import Sequence
 
@@ -28,12 +30,23 @@ def upgrade() -> None:
             "id",
             postgresql.UUID(as_uuid=True),
             nullable=False,
+            server_default=sa.text("gen_random_uuid()"),
         ),
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("email", sa.String(), nullable=False),
         sa.Column("password", sa.String(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(),
+            nullable=False,
+            server_default=sa.func.now(),
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(),
+            nullable=False,
+            server_default=sa.func.now(),
+        ),  # ORM onupdate handles app updates; raw SQL updates won't auto-set this
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=True)
