@@ -127,7 +127,6 @@ function AssistantMessageItem({ message, isStreaming, onRegenerate }: MessageIte
                   <ToolInvocation
                     key={`${message.id}-${i}`}
                     toolType={toolPart.type}
-                    toolName={toolPart.toolName}
                     state={toolPart.state}
                     input={toolPart.input}
                   />

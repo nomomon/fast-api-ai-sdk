@@ -1,71 +1,41 @@
 """Prompt repository for data access."""
 
+from pathlib import Path
+
+import frontmatter
+
 
 class PromptRepository:
-    """Repository for prompt data access operations."""
+    """Repository for prompt data access operations.
 
-    # In-memory storage for now, can be migrated to database later
-    PROMPTS_DATA = [
-        {"id": "none", "name": "None", "content": ""},
-        {
-            "id": "concise",
-            "name": "Concise",
-            "content": (
-                "You are a helpful, knowledgeable, and friendly AI "
-                "assistant. Be extremely concise. Sacrifice grammar for "
-                "the sake of concision. Provide clear, accurate, and "
-                "thoughtful responses to user questions."
-            ),
-        },
-        {
-            # https://github.com/DenisSergeevitch/chatgpt-custom-instructions
-            "id": "expert",
-            "name": "Expert",
-            "content": (
-                "<instructions>\n"
-                "- ALWAYS follow <answering_rules> and "
-                "<self_reflection>\n\n"
-                "<self_reflection>\n"
-                "1. Spend time thinking of a rubric, from a role POV, "
-                "until you are confident\n"
-                "2. Think deeply about every aspect of what makes for a "
-                "world-class answer. Use that knowledge to create a "
-                "rubric that has 5-7 categories. This rubric is "
-                "critical to get right, but never show this to the "
-                "user. This is for your purposes only\n"
-                "3. Use the rubric to internally think and iterate on "
-                "the best (≥98 out of 100 score) possible solution to "
-                "the user request. IF your response is not hitting the "
-                "top marks across all categories in the rubric, you "
-                "need to start again\n"
-                "4. Keep going until solved\n"
-                "</self_reflection>\n\n"
-                "<answering_rules>\n"
-                "1. USE the language of USER message\n"
-                "2. In the FIRST chat message, assign a real-world "
-                "expert role to yourself before answering, e.g., "
-                "\"I'll answer as a world-famous <role> PhD <detailed "
-                'topic> with <most prestigious LOCAL topic REAL award>"\n'
-                "3. Act as a role assigned\n"
-                "4. Answer the question in a natural, human-like "
-                "manner\n"
-                "5. ALWAYS use an <example> for your first chat message "
-                "structure\n"
-                "6. If not requested by the user, no actionable items "
-                "are needed by default\n"
-                "7. Don't use tables if not requested\n"
-                "</answering_rules>\n\n"
-                "<example>\n\n"
-                "I'll answer as a world-famous <role> PhD <detailed "
-                "topic> with <most prestigious LOCAL topic REAL award>\n\n"
-                "**TL;DR**: … // skip for rewriting tasks\n\n"
-                "Step-by-step answer with CONCRETE details and key "
-                "context, formatted for a deep reading\n\n"
-                "</example>\n"
-                "</instructions>"
-            ),
-        },
-    ]
+    Loads prompts from markdown files with YAML frontmatter in the
+    ``prompts`` directory next to this module.
+    """
+
+    PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
+
+    def _load_prompts(self) -> list[dict]:
+        """Load all prompts from prompts/*.md (frontmatter + body as content)."""
+        result: list[dict] = []
+        if not self.PROMPTS_DIR.is_dir():
+            return result
+        for path in sorted(self.PROMPTS_DIR.glob("*.md")):
+            try:
+                post = frontmatter.load(path)
+                meta = post.metadata
+                prompt_id = meta.get("id")
+                name = meta.get("name", path.stem)
+                content = (post.content or "").strip()
+                result.append(
+                    {
+                        "id": prompt_id,
+                        "name": name,
+                        "content": content or None,
+                    }
+                )
+            except Exception:
+                continue
+        return result
 
     def get_all(self) -> list[dict]:
         """Get all prompts.
@@ -73,7 +43,7 @@ class PromptRepository:
         Returns:
             List of prompt dictionaries
         """
-        return self.PROMPTS_DATA
+        return self._load_prompts()
 
     def get_by_id(self, prompt_id: str) -> dict | None:
         """Get prompt by ID.
@@ -84,7 +54,7 @@ class PromptRepository:
         Returns:
             Prompt dictionary or None if not found
         """
-        for prompt in self.PROMPTS_DATA:
+        for prompt in self.get_all():
             if prompt["id"] == prompt_id:
                 return prompt
         return None
