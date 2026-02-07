@@ -13,6 +13,8 @@ WORKDIR /app
 
 COPY --from=builder /install /usr/local
 COPY ./app ./app
+COPY alembic.ini .
+COPY alembic ./alembic
 
 RUN useradd -m appuser && chown -R appuser /app
 USER appuser
