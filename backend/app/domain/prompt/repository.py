@@ -6,10 +6,7 @@ class PromptRepository:
 
     # In-memory storage for now, can be migrated to database later
     PROMPTS_DATA = [
-        {
-            "id": None,
-            "name": "None",
-        },
+        {"id": "none", "name": "None", "content": ""},
         {
             "id": "concise",
             "name": "Concise",
