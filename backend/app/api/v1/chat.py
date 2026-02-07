@@ -49,7 +49,7 @@ async def handle_chat(
             detail=f"Invalid modelId: {model_id}. Use GET /api/v1/models for allowed models.",
         )
 
-    skills_xml = SkillService().get_available_skills_xml(include_location=False)
+    skills_xml = SkillService().get_available_skills_xml()
     if prompt_id:
         prompt_service = PromptService()
         prompt_content = prompt_service.get_by_id(prompt_id)
