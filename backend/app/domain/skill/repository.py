@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 
 import frontmatter
+import yaml
 
 
 class SkillRepository:
@@ -115,9 +116,10 @@ class SkillRepository:
             skill_dir = self.SKILLS_DIR / name
             skill_dir.mkdir(parents=True, exist_ok=True)
             skill_file = skill_dir / "SKILL.md"
-            post = frontmatter.Post(body or "", name=name, description=description or "")
-            with open(skill_file, "w", encoding="utf-8") as f:
-                frontmatter.dump(post, f)
+            meta = {"name": name, "description": description or ""}
+            fm = yaml.dump(meta, default_flow_style=False, allow_unicode=True).strip()
+            content = "---\n" + fm + "\n---\n\n" + (body or "")
+            skill_file.write_text(content, encoding="utf-8")
             return True
         except Exception:
             return False
