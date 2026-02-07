@@ -80,8 +80,24 @@ async def handle_chat(
 
         formatted_stream = SSEFormatter.format_stream(provider_stream)
 
+        # Capture context for the stream; the stream may run in a different task
+        # after the handler returns, so we re-set context when the stream runs.
+        _user_id = current_user.id
+        _db = db
+
+        async def stream_with_context_cleanup():
+            """Consume the stream with request context set so tools see user and db."""
+            set_current_user_id(_user_id)
+            set_current_db(_db)
+            try:
+                async for event in formatted_stream:
+                    yield event
+            finally:
+                set_current_user_id(None)
+                set_current_db(None)
+
         response = StreamingResponse(
-            formatted_stream,
+            stream_with_context_cleanup(),
             media_type="text/event-stream",
         )
         return patch_response_with_headers(response)

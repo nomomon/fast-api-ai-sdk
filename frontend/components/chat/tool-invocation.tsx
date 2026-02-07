@@ -38,7 +38,7 @@ export function ToolInvocation({
 
   // Get query/path from input for context
   const inputObj = input as Record<string, unknown> | undefined;
-  const rawContext = inputObj?.query || inputObj?.path || inputObj?.pattern;
+  const rawContext = inputObj?.query || inputObj?.path || inputObj?.pattern || inputObj?.skill_name;
   const inputContext = rawContext ? String(rawContext) : null;
 
   if (state === 'output-available' || state === 'result') {
