@@ -114,10 +114,7 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
 
     // Handle 401 Unauthorized - token may be invalid or expired
     if (response.status === 401) {
-      return NextResponse.json(
-        { error: 'Unauthorized', detail: 'Invalid or expired token' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if this is a streaming response (for chat endpoint)

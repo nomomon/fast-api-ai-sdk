@@ -3,6 +3,7 @@
 import { useChat } from '@ai-sdk/react';
 import { AlertCircle, Github, PlusIcon } from 'lucide-react';
 import Image from 'next/image';
+import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 import { AgentSelector } from '@/components/chat/agent-selector';
 import { ChatInput } from '@/components/chat/chat-input';
@@ -59,7 +60,14 @@ export function Chat() {
   };
 
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } =
-    useChat<ChatMessage>();
+    useChat<ChatMessage>({
+      onError: (err) => {
+        // TODO: this looks quite hacky
+        if (JSON.parse(err.message).error === 'Unauthorized') {
+          signOut({ callbackUrl: '/login' });
+        }
+      },
+    });
 
   const hasMessages = messages.length > 0;
   const isLoading = status === 'streaming';
