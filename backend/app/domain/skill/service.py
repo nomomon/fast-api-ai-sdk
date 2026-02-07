@@ -1,26 +1,44 @@
 """Skill service for business logic."""
 
+from uuid import UUID
 from xml.sax.saxutils import escape
 
-from app.domain.skill.repository import SkillRepository
+from sqlalchemy.orm import Session
+
+from app.domain.skill.repository import SkillRepository, UserSkillRepository
 from app.domain.skill.schemas import Skill, SkillListResponse, SkillMetadata
 
 
 class SkillService:
-    """Service for skill business logic."""
+    """Service for skill business logic.
 
-    def __init__(self):
-        """Initialize service with repository."""
-        self.repository = SkillRepository()
+    Default skills are read from files (skills/<name>/SKILL.md).
+    User skills are stored in the database. When db is provided and user_id
+    is set, listing and loading merge both (user skill shadows default by name).
+    """
 
-    def get_metadata_list(self) -> list[SkillMetadata]:
-        """Return list of skill metadata (name, description, path)."""
-        data = self.repository.get_all_metadata()
-        return [SkillMetadata(**d) for d in data]
+    def __init__(self, db: Session | None = None):
+        """Initialize service with repositories.
 
-    def get_available_skills_xml(self) -> str:
-        """Return available_skills XML for system prompt."""
-        skills = self.repository.get_all_metadata()
+        Args:
+            db: Optional database session for user-skill operations.
+        """
+        self._default_repo = SkillRepository()
+        self._user_repo = UserSkillRepository(db) if db else None
+
+    def get_metadata_list(self, user_id: UUID | None = None) -> list[SkillMetadata]:
+        """Return list of skill metadata (default + user). User skills shadow defaults by name."""
+        by_name: dict[str, dict] = {}
+        for d in self._default_repo.get_all_metadata():
+            by_name[d["name"]] = d
+        if user_id and self._user_repo:
+            for d in self._user_repo.get_all_metadata(user_id):
+                by_name[d["name"]] = d
+        return [SkillMetadata(**v) for v in by_name.values()]
+
+    def get_available_skills_xml(self, user_id: UUID | None = None) -> str:
+        """Return available_skills XML for system prompt (default + user skills)."""
+        skills = self._metadata_list_for_xml(user_id)
         parts: list[str] = []
         for s in skills:
             name_esc = escape(s["name"])
@@ -34,28 +52,53 @@ class SkillService:
             parts.append(buf)
         return "<available_skills>\n" + "\n".join(parts) + "\n</available_skills>"
 
-    def get_all(self) -> SkillListResponse:
-        """Get all skills (metadata + content)."""
-        skills_data = self.repository.get_all()
-        skills = [Skill(**s) for s in skills_data]
+    def _metadata_list_for_xml(self, user_id: UUID | None = None) -> list[dict]:
+        """Merge default + user metadata; user shadows default by name."""
+        by_name: dict[str, dict] = {}
+        for d in self._default_repo.get_all_metadata():
+            by_name[d["name"]] = d
+        if user_id and self._user_repo:
+            for d in self._user_repo.get_all_metadata(user_id):
+                by_name[d["name"]] = d
+        return list(by_name.values())
+
+    def get_all(self, user_id: UUID | None = None) -> SkillListResponse:
+        """Get all skills (default + user; user shadows by name)."""
+        by_name: dict[str, dict] = {}
+        for d in self._default_repo.get_all():
+            by_name[d["name"]] = d
+        if user_id and self._user_repo:
+            for d in self._user_repo.get_all_metadata(user_id):
+                name = d["name"]
+                content = self._user_repo.get_content_by_name(user_id, name)
+                by_name[name] = {
+                    "name": name,
+                    "description": d["description"],
+                    "content": content,
+                    "path": None,
+                }
+        skills = [Skill(**v) for v in by_name.values()]
         return SkillListResponse(skills=skills)
 
-    def get_content_by_name(self, name: str) -> str | None:
-        """Get skill body content by name (used by load_skill tool)."""
-        return self.repository.get_content_by_name(name)
+    def get_content_by_name(self, name: str, user_id: UUID | None = None) -> str | None:
+        """Get skill body by name. If user_id set, user skill first then default."""
+        if user_id and self._user_repo:
+            content = self._user_repo.get_content_by_name(user_id, name)
+            if content is not None:
+                return content
+        return self._default_repo.get_content_by_name(name)
 
-    def update_skill(self, skill_name: str, description: str, body: str) -> bool:
-        """Update or create SKILL.md for the given skill name.
+    def update_skill(
+        self,
+        skill_name: str,
+        description: str,
+        body: str,
+        user_id: UUID | None = None,
+    ) -> bool:
+        """Create or update a user skill in the database only.
 
-        Delegates to repository.write_skill. Creating a new skill file
-        is supported but discouraged (prefer creating skills out-of-band).
-
-        Args:
-            skill_name: Skill name (directory name; must match spec).
-            description: Frontmatter description.
-            body: Markdown body (content after frontmatter).
-
-        Returns:
-            True on success, False if validation or write fails.
+        Does not write to files. If user_id is None or no db, returns False.
         """
-        return self.repository.write_skill(skill_name, description, body)
+        if user_id is None or self._user_repo is None:
+            return False
+        return self._user_repo.create_or_update(user_id, skill_name, description or "", body or "")

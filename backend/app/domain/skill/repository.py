@@ -1,14 +1,24 @@
 """Skill repository for data access.
 
-Loads skills from folder-based layout: skills/<skill-name>/SKILL.md
-with YAML frontmatter (name, description) and Markdown body.
+Default skills: folder-based layout skills/<skill-name>/SKILL.md (read-only).
+User skills: UserSkillRepository backed by DB.
 """
 
 import re
 from pathlib import Path
+from uuid import UUID
 
 import frontmatter
-import yaml
+from sqlalchemy.orm import Session
+
+from app.domain.skill.models import UserSkill
+
+
+def _validate_skill_name(name: str) -> bool:
+    """Validate skill name per Agent Skills spec: 1-64 chars, lowercase, hyphens."""
+    if not (1 <= len(name) <= 64):
+        return False
+    return bool(re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$", name))
 
 
 class SkillRepository:
@@ -94,32 +104,57 @@ class SkillRepository:
         except Exception:
             return None
 
-    def write_skill(self, name: str, description: str, body: str) -> bool:
-        """Write or overwrite SKILL.md for the given name.
 
-        Creates the skill directory if it does not exist. Validates name
-        (Agent Skills spec: lowercase, hyphens, 1-64 chars, no leading/trailing hyphen).
+class UserSkillRepository:
+    """Repository for user-owned skills stored in the database."""
 
-        Args:
-            name: Skill name (must match directory name).
-            description: Frontmatter description.
-            body: Markdown body (content after frontmatter).
+    def __init__(self, db: Session):
+        self.db = db
 
-        Returns:
-            True on success, False if name is invalid or write fails.
-        """
-        if not (1 <= len(name) <= 64):
-            return False
-        if not re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$", name):
+    def get_all_metadata(self, user_id: UUID) -> list[dict]:
+        """Return metadata (name, description) for all skills owned by the user."""
+        rows = (
+            self.db.query(UserSkill)
+            .filter(UserSkill.user_id == user_id)
+            .order_by(UserSkill.name)
+            .all()
+        )
+        return [{"name": r.name, "description": r.description or "", "path": None} for r in rows]
+
+    def get_content_by_name(self, user_id: UUID, name: str) -> str | None:
+        """Return skill body content for the user's skill by name, or None."""
+        row = (
+            self.db.query(UserSkill)
+            .filter(UserSkill.user_id == user_id, UserSkill.name == name)
+            .first()
+        )
+        if row is None:
+            return None
+        return (row.content or "").strip() or None
+
+    def create_or_update(self, user_id: UUID, name: str, description: str, content: str) -> bool:
+        """Create or update a user skill by (user_id, name). Returns False if name invalid."""
+        if not _validate_skill_name(name):
             return False
         try:
-            skill_dir = self.SKILLS_DIR / name
-            skill_dir.mkdir(parents=True, exist_ok=True)
-            skill_file = skill_dir / "SKILL.md"
-            meta = {"name": name, "description": description or ""}
-            fm = yaml.dump(meta, default_flow_style=False, allow_unicode=True).strip()
-            content = "---\n" + fm + "\n---\n\n" + (body or "")
-            skill_file.write_text(content, encoding="utf-8")
+            row = (
+                self.db.query(UserSkill)
+                .filter(UserSkill.user_id == user_id, UserSkill.name == name)
+                .first()
+            )
+            if row is None:
+                row = UserSkill(
+                    user_id=user_id,
+                    name=name,
+                    description=description or "",
+                    content=content or "",
+                )
+                self.db.add(row)
+            else:
+                row.description = description or ""
+                row.content = content or ""
+            self.db.commit()
             return True
         except Exception:
+            self.db.rollback()
             return False
