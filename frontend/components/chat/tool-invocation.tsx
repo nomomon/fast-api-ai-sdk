@@ -1,9 +1,11 @@
-import { Check, GlobeIcon, SearchIcon, X } from 'lucide-react';
+import { Cable, Check, GlobeIcon, SearchIcon, X } from 'lucide-react';
 import type React from 'react';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 
 const toolIcons: Record<string, React.ReactNode> = {
   get_current_weather: <GlobeIcon className="h-4 w-4" />,
+  update_skill: <Cable className="h-4 w-4" />,
+  load_skill: <Cable className="h-4 w-4" />,
 };
 
 /**
@@ -12,6 +14,8 @@ const toolIcons: Record<string, React.ReactNode> = {
  */
 const toolDisplayNames: Record<string, string> = {
   get_current_weather: 'Checking the weather',
+  update_skill: 'Updating a skill',
+  load_skill: 'Loading a skill',
 };
 
 export function ToolInvocation({
