@@ -43,3 +43,19 @@ class SkillService:
     def get_content_by_name(self, name: str) -> str | None:
         """Get skill body content by name (used by load_skill tool)."""
         return self.repository.get_content_by_name(name)
+
+    def update_skill(self, skill_name: str, description: str, body: str) -> bool:
+        """Update or create SKILL.md for the given skill name.
+
+        Delegates to repository.write_skill. Creating a new skill file
+        is supported but discouraged (prefer creating skills out-of-band).
+
+        Args:
+            skill_name: Skill name (directory name; must match spec).
+            description: Frontmatter description.
+            body: Markdown body (content after frontmatter).
+
+        Returns:
+            True on success, False if validation or write fails.
+        """
+        return self.repository.write_skill(skill_name, description, body)

@@ -9,6 +9,7 @@ from app.services.ai.tools.schema import function_to_openai_tool
 _TOOL_MODULES = [
     "get_current_weather",
     "load_skill",
+    "update_skill",
 ]
 
 

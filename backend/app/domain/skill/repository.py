@@ -4,6 +4,7 @@ Loads skills from folder-based layout: skills/<skill-name>/SKILL.md
 with YAML frontmatter (name, description) and Markdown body.
 """
 
+import re
 from pathlib import Path
 
 import frontmatter
@@ -91,3 +92,32 @@ class SkillRepository:
             return (post.content or "").strip() or None
         except Exception:
             return None
+
+    def write_skill(self, name: str, description: str, body: str) -> bool:
+        """Write or overwrite SKILL.md for the given name.
+
+        Creates the skill directory if it does not exist. Validates name
+        (Agent Skills spec: lowercase, hyphens, 1-64 chars, no leading/trailing hyphen).
+
+        Args:
+            name: Skill name (must match directory name).
+            description: Frontmatter description.
+            body: Markdown body (content after frontmatter).
+
+        Returns:
+            True on success, False if name is invalid or write fails.
+        """
+        if not (1 <= len(name) <= 64):
+            return False
+        if not re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$", name):
+            return False
+        try:
+            skill_dir = self.SKILLS_DIR / name
+            skill_dir.mkdir(parents=True, exist_ok=True)
+            skill_file = skill_dir / "SKILL.md"
+            post = frontmatter.Post(body or "", name=name, description=description or "")
+            with open(skill_file, "w", encoding="utf-8") as f:
+                frontmatter.dump(post, f)
+            return True
+        except Exception:
+            return False
