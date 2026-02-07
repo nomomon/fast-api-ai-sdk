@@ -8,6 +8,7 @@ from app.services.ai.tools.schema import function_to_openai_tool
 # Explicit list of tool modules (one per file). Module name = tool name = function name.
 _TOOL_MODULES = [
     "get_current_weather",
+    "load_skill",
 ]
 
 

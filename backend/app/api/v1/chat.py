@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from app.core.dependencies import get_current_user
 from app.domain.model.service import ModelService
 from app.domain.prompt.service import PromptService
+from app.domain.skill.service import SkillService
 from app.domain.user import User
 from app.services.ai.adapters.messages import ClientMessage
 from app.services.ai.adapters.streaming import SSEFormatter, patch_response_with_headers
@@ -48,12 +49,18 @@ async def handle_chat(
             detail=f"Invalid modelId: {model_id}. Use GET /api/v1/models for allowed models.",
         )
 
+    skills_xml = SkillService().get_available_skills_xml(include_location=False)
     if prompt_id:
         prompt_service = PromptService()
         prompt_content = prompt_service.get_by_id(prompt_id)
         if prompt_content:
-            system_message = ClientMessage(role="system", content=prompt_content)
-            messages = [system_message] + messages
+            system_content = prompt_content + "\n\n" + skills_xml
+        else:
+            system_content = skills_xml
+    else:
+        system_content = skills_xml
+    system_message = ClientMessage(role="system", content=system_content)
+    messages = [system_message] + messages
 
     if agent_id == "chat":
         agent = ChatAgent(model_id)
