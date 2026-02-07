@@ -13,7 +13,7 @@ from app.core.database import Base
 # app.domain.prompt.models), make sure to import those modules here so that
 # their models are registered with Base.metadata.
 from app.domain.skill import models as skill_models  # noqa: F401 - register UserSkill
-from app.domain.user import models  # noqa: F401 - register User with Base.metadata
+from app.domain.user import models as user_models  # noqa: F401 - register User with Base.metadata
 
 # Load .env from backend/ or project root so DATABASE_URL is available without app Settings.
 _backend_env = Path(__file__).resolve().parent.parent / ".env"
