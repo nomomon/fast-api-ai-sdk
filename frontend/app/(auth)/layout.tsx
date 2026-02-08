@@ -29,9 +29,9 @@ export default async function AuthLayout({
             AI Chatbot
           </div>
         </div>
-        <div className="flex flex-1 items-center justify-center">
+        <main className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">{children}</div>
-        </div>
+        </main>
       </div>
       <div className="bg-muted relative hidden lg:block">
         {/* Linear gradient using the primary color */}

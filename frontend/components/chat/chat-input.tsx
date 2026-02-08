@@ -41,12 +41,14 @@ export function ChatInput({ input, setInput, onSubmit, isLoading, children }: Ch
       <div className="relative flex flex-col w-full p-3 border rounded-2xl shadow-sm bg-background/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-ring transition-all">
         <Textarea
           ref={textareaRef}
+          id="chat-message"
           placeholder="Ask a question..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           className="min-h-15 w-full resize-none border-0 shadow-none bg-transparent focus-visible:ring-0 p-1 text-base"
           rows={1}
+          aria-label="Message"
         />
         <div className="flex justify-between items-center mt-2">
           <div className="flex items-center gap-1">

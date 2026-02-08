@@ -55,6 +55,7 @@ function UserMessageItem({ message, onEdit }: MessageItemProps) {
             onChange={(e) => setEditDraft(e.target.value)}
             className="min-h-20 resize-none"
             autoFocus
+            aria-label="Edit message"
           />
           <div className="flex gap-2 justify-end">
             <Button variant="outline" size="sm" onClick={handleCancelEdit}>

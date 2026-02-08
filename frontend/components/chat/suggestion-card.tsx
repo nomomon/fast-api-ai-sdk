@@ -1,6 +1,5 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 interface SuggestionCardProps {
@@ -11,18 +10,19 @@ interface SuggestionCardProps {
 
 export function SuggestionCard({ summary, prompt, onClick }: SuggestionCardProps) {
   return (
-    <Card
+    <button
+      type="button"
       onClick={() => onClick(prompt)}
       className={cn(
-        'cursor-pointer transition-all duration-150 ease-out',
+        'w-full text-left cursor-pointer transition-all duration-150 ease-out',
         'hover:shadow-border-medium hover:scale-[1.02]',
-        'bg-background/80 backdrop-blur-sm border',
-        'shadow-border-small py-2.5'
+        'bg-background/80 backdrop-blur-sm border rounded-xl',
+        'shadow-border-small py-2.5 px-2',
+        'flex flex-col gap-6',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
       )}
     >
-      <CardContent className="px-2">
-        <p className="text-sm text-foreground font-medium">{summary}</p>
-      </CardContent>
-    </Card>
+      <span className="text-sm text-foreground font-medium">{summary}</span>
+    </button>
   );
 }

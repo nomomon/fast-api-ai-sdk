@@ -113,6 +113,30 @@
   --sidebar-ring: oklch(0.88 0 0);
 }
 
+/* Screen-reader only: visible to assistive tech, hidden visually until focused */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+.focus\:not-sr-only:focus,
+.not-sr-only {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
