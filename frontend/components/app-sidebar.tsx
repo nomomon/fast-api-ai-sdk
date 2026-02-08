@@ -19,6 +19,7 @@ import {
 import { NavUser } from '@/components/user/nav-user';
 import { APP_SHORT_NAME, ICON_PATHS } from '@/lib/constants/seo';
 import { useNewChat } from '@/lib/contexts/new-chat-context';
+import { Separator } from './ui/separator';
 
 const GITHUB_URL = 'https://github.com/nomomon/fast-api-ai-sdk';
 
@@ -71,6 +72,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <span>New chat</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            <Separator className="my-2" />
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
@@ -85,25 +87,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenuItem>
               );
             })}
+            <Separator className="my-2" />
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="GitHub repository">
+                <a
+                  href={GITHUB_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open repository on GitHub"
+                >
+                  <Github className="size-4" />
+                  <span>GitHub</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="GitHub repository">
-              <a
-                href={GITHUB_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open repository on GitHub"
-              >
-                <Github className="size-4" />
-                <span>GitHub</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <SidebarMenu></SidebarMenu>
         <NavUser />
       </SidebarFooter>
     </Sidebar>
