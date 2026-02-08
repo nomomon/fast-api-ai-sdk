@@ -1,10 +1,10 @@
 'use client';
 
-import * as React from 'react';
+import { Github, LayoutDashboard, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Github, LayoutDashboard, MessageSquare } from 'lucide-react';
+import type * as React from 'react';
 
 import {
   Sidebar,
