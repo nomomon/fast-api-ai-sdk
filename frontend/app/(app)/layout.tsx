@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { AppShell } from '@/components/app-shell';
 import { authOptions } from '@/lib/auth';
+import { NewChatProvider } from '@/lib/contexts/new-chat-context';
 
 export default async function AppLayout({
   children,
@@ -14,5 +15,9 @@ export default async function AppLayout({
     redirect('/login');
   }
 
-  return <AppShell>{children}</AppShell>;
+  return (
+    <NewChatProvider>
+      <AppShell>{children}</AppShell>
+    </NewChatProvider>
+  );
 }

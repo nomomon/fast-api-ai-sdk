@@ -1,37 +1,10 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { AppSidebar } from '@/components/app-sidebar';
-import { ThemeToggle } from '@/components/theme-toggle';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from '@/components/ui/breadcrumb';
-import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { UserDropdownButton } from '@/components/user/user-dropdown';
 
-const PATH_LABELS: Record<string, string> = {
-  '/': 'Chat',
-  '/dashboard': 'Dashboard',
-};
-
-function AppBreadcrumb() {
-  const pathname = usePathname();
-  const label = PATH_LABELS[pathname] ?? (pathname.slice(1) || 'Chat');
-
-  return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbPage>{label}</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
-  );
-}
+const SIDEBAR_TRIGGER_CLASS =
+  'h-9 w-9 -ml-1 shadow-border-small hover:shadow-border-medium bg-background/80 backdrop-blur-sm border-0 hover:bg-background hover:scale-[1.02] transition-all duration-150 ease';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -44,14 +17,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     >
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-          <AppBreadcrumb />
-          <div className="ml-auto flex items-center gap-2">
-            <ThemeToggle />
-            <UserDropdownButton />
-          </div>
+        <header className="flex h-16 shrink-0 items-center px-4">
+          <SidebarTrigger className={SIDEBAR_TRIGGER_CLASS} />
         </header>
         <div className="flex flex-1 flex-col overflow-hidden">{children}</div>
       </SidebarInset>

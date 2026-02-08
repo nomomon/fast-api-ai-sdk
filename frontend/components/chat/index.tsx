@@ -1,10 +1,10 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
-import { AlertCircle, PlusIcon } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import { signOut } from 'next-auth/react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AgentSelector } from '@/components/chat/agent-selector';
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
@@ -13,6 +13,7 @@ import { PromptSelector } from '@/components/chat/prompt-selector';
 import { SuggestionCard } from '@/components/chat/suggestion-card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { useNewChat } from '@/lib/contexts/new-chat-context';
 import { useDefaultAgent } from '@/lib/hooks/use-default-agent';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
 import { useDefaultPrompt } from '@/lib/hooks/use-default-prompt';
@@ -70,11 +71,17 @@ export function Chat() {
   const hasMessages = messages.length > 0;
   const isLoading = status === 'streaming';
 
-  const handleNewChat = () => {
+  const { registerHandler } = useNewChat();
+
+  const handleNewChat = useCallback(() => {
     stop();
     setMessages([]);
     setInput('');
-  };
+  }, [stop, setMessages]);
+
+  useEffect(() => {
+    return registerHandler(handleNewChat);
+  }, [registerHandler, handleNewChat]);
 
   const chatBody = {
     modelId: currentModelId,
@@ -142,17 +149,6 @@ export function Chat() {
       >
         Skip to main content
       </a>
-      <div className="flex shrink-0 items-center px-4 py-2">
-        <Button
-          onClick={handleNewChat}
-          variant="outline"
-          size="icon"
-          className="h-9 w-9"
-          aria-label="New chat"
-        >
-          <PlusIcon className="h-4 w-4" />
-        </Button>
-      </div>
       <main id="main-content" className="flex-1 flex flex-col min-h-0 overflow-hidden">
         {!hasMessages && (
           <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-8 animate-fade-in">

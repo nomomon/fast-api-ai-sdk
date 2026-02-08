@@ -1,9 +1,9 @@
 'use client';
 
-import { Github, LayoutDashboard, MessageSquare } from 'lucide-react';
+import { Github, LayoutDashboard, MessageSquare, Plus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import type * as React from 'react';
 
 import {
@@ -16,7 +16,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { NavUser } from '@/components/user/nav-user';
 import { APP_SHORT_NAME, ICON_PATHS } from '@/lib/constants/seo';
+import { useNewChat } from '@/lib/contexts/new-chat-context';
 
 const GITHUB_URL = 'https://github.com/nomomon/fast-api-ai-sdk';
 
@@ -27,6 +29,16 @@ const navItems = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { requestNewChat } = useNewChat();
+
+  const handleNewChat = () => {
+    if (pathname === '/') {
+      requestNewChat();
+    } else {
+      router.push('/');
+    }
+  };
 
   return (
     <Sidebar variant="floating" {...props}>
@@ -55,6 +67,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleNewChat} tooltip="New chat">
+                <Plus className="size-4" />
+                <span>New chat</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
@@ -88,6 +106,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );
