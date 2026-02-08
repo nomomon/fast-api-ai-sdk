@@ -7,6 +7,13 @@ export const APP_NAME = 'AI Chatbot Demo';
 export const APP_SHORT_NAME = 'AI Chatbot';
 export const APP_DESCRIPTION = 'A demo chatbot built with the AI SDK by Vercel';
 
+// GitHub URL
+// Shameless self-promo
+export const GITHUB_URL = {
+  url: 'https://github.com/nomomon/fast-api-ai-sdk',
+  label: 'nomomon/fast-api-ai-sdk',
+} as const;
+
 // Theme colors (using oklch format from globals.css)
 // Light mode colors
 export const THEME_COLOR_LIGHT = '#ffffff'; // oklch(0.99 0 0) - background color

@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { ICON_PATHS } from '@/lib/constants/seo';
 
 export default async function AuthLayout({
   children,
@@ -20,7 +21,7 @@ export default async function AuthLayout({
         <div className="flex justify-center gap-2 md:justify-start">
           <div className="flex items-center gap-2 font-medium">
             <Image
-              src="/icons/app-icon.svg"
+              src={ICON_PATHS.svg}
               alt="AI Chatbot"
               className="h-6 w-6 border-2 border-gray-200 rounded-sm"
               width={40}
