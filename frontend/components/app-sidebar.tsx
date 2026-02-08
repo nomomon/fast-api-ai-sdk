@@ -17,11 +17,9 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { NavUser } from '@/components/user/nav-user';
-import { APP_SHORT_NAME, ICON_PATHS } from '@/lib/constants/seo';
+import { APP_SHORT_NAME, GITHUB_URL, ICON_PATHS } from '@/lib/constants/seo';
 import { useNewChat } from '@/lib/contexts/new-chat-context';
 import { Separator } from './ui/separator';
-
-const GITHUB_URL = 'https://github.com/nomomon/fast-api-ai-sdk';
 
 const navItems = [
   { title: 'Chat', href: '/', icon: MessageSquare },
@@ -89,15 +87,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             })}
             <Separator className="my-2" />
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="GitHub repository">
+              <SidebarMenuButton asChild tooltip={`Open ${GITHUB_URL.label} repository on GitHub`}>
                 <a
-                  href={GITHUB_URL}
+                  href={GITHUB_URL.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Open repository on GitHub"
+                  aria-label={`Open ${GITHUB_URL.label} repository on GitHub`}
                 >
                   <Github className="size-4" />
-                  <span>GitHub</span>
+                  <span>Github</span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
