@@ -13,6 +13,7 @@ import { PromptSelector } from '@/components/chat/prompt-selector';
 import { SuggestionCard } from '@/components/chat/suggestion-card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { ICON_PATHS } from '@/lib/constants/seo';
 import { useNewChat } from '@/lib/contexts/new-chat-context';
 import { useDefaultAgent } from '@/lib/hooks/use-default-agent';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
@@ -156,7 +157,7 @@ export function Chat() {
               <div className="flex flex-col gap-6 animate-slide-up">
                 <div className="flex flex-row items-center gap-3">
                   <Image
-                    src="/icons/app-icon.svg"
+                    src={ICON_PATHS.svg}
                     alt="AI Chatbot"
                     className="h-8 w-8 md:h-10 md:w-10 border-2 border-gray-200 rounded-md"
                     width={40}
