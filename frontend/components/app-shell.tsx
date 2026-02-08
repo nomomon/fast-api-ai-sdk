@@ -1,10 +1,20 @@
 'use client';
 
 import { AppSidebar } from '@/components/app-sidebar';
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
 
-const SIDEBAR_TRIGGER_CLASS =
-  'h-9 w-9 -ml-1 shadow-border-small hover:shadow-border-medium bg-background/80 backdrop-blur-sm border-0 hover:bg-background hover:scale-[1.02] transition-all duration-150 ease';
+function FloatingSidebarTrigger() {
+  const { open, isMobile } = useSidebar();
+  return (
+    <SidebarTrigger
+      className={cn(
+        'fixed top-4 z-50 h-9 w-9 -ml-1 border-0 bg-background/40 shadow-border-small backdrop-blur-sm transition-[left,transform] duration-200 ease-linear hover:bg-background hover:shadow-border-medium hover:scale-[1.02]',
+        isMobile || !open ? 'left-4' : 'left-[calc(var(--sidebar-width)+0.5rem)]'
+      )}
+    />
+  );
+}
 
 export function AppShell({
   children,
@@ -23,10 +33,8 @@ export function AppShell({
       }
     >
       <AppSidebar />
+      <FloatingSidebarTrigger />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center px-4">
-          <SidebarTrigger className={SIDEBAR_TRIGGER_CLASS} />
-        </header>
         <div className="flex flex-1 flex-col overflow-hidden">{children}</div>
       </SidebarInset>
     </SidebarProvider>
