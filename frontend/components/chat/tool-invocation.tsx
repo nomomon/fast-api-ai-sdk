@@ -75,7 +75,10 @@ const ToolDisplay: FC<{
   const pending = PENDING_STATES.includes(state);
 
   return (
-    <div className="text-sm text-muted-foreground flex items-center gap-2 mb-4">
+    <div
+      className="text-sm text-muted-foreground flex items-center gap-2 mb-4"
+      {...(pending && { role: 'status' as const, 'aria-live': 'polite' as const })}
+    >
       {icon}
       {pending ? (
         <Shimmer duration={1} className="font-medium">

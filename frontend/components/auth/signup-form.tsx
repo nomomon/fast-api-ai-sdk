@@ -70,7 +70,11 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>
             Enter your details below to create your account
           </p>
         </div>
-        {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+        {error && (
+          <div role="alert" className="text-red-500 text-sm text-center">
+            {error}
+          </div>
+        )}
         <Field>
           <FieldLabel htmlFor="name">Name</FieldLabel>
           <Input
