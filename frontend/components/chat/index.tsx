@@ -1,7 +1,7 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
-import { AlertCircle, Github, PlusIcon } from 'lucide-react';
+import { AlertCircle, PlusIcon } from 'lucide-react';
 import Image from 'next/image';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
@@ -11,14 +11,12 @@ import { MessageList } from '@/components/chat/message-list';
 import { ModelSelector } from '@/components/chat/model-selector';
 import { PromptSelector } from '@/components/chat/prompt-selector';
 import { SuggestionCard } from '@/components/chat/suggestion-card';
-import { ThemeToggle } from '@/components/theme-toggle';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useDefaultAgent } from '@/lib/hooks/use-default-agent';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
 import { useDefaultPrompt } from '@/lib/hooks/use-default-prompt';
 import type { ChatMessage } from '@/types/chat';
-import { UserDropdownButton } from '../user/user-dropdown';
 
 export function Chat() {
   const [input, setInput] = useState('');
@@ -137,42 +135,25 @@ export function Chat() {
   );
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-background focus:rounded-md focus:ring-2 focus:ring-ring focus:outline-none"
       >
         Skip to main content
       </a>
-      <header className="absolute top-3 left-3 md:top-4 md:left-4 z-10 flex gap-2 animate-fade-in">
+      <div className="flex shrink-0 items-center px-4 py-2">
         <Button
           onClick={handleNewChat}
           variant="outline"
           size="icon"
-          className="h-9 w-9 shadow-border-small hover:shadow-border-medium bg-background/80 backdrop-blur-sm border-0 hover:bg-background hover:scale-[1.02] transition-all duration-150 ease"
+          className="h-9 w-9"
           aria-label="New chat"
         >
           <PlusIcon className="h-4 w-4" />
         </Button>
-        <ThemeToggle />
-        <Button
-          asChild
-          variant="outline"
-          size="icon"
-          className="h-9 w-9 shadow-border-small hover:shadow-border-medium bg-background/80 backdrop-blur-sm border-0 hover:bg-background hover:scale-[1.02] transition-all duration-150 ease"
-        >
-          <a
-            href="https://github.com/nomomon/fast-api-ai-sdk"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Open repository on GitHub"
-          >
-            <Github className="h-4 w-4" />
-          </a>
-        </Button>
-        <UserDropdownButton />
-      </header>
-      <main id="main-content" className="flex-1 flex flex-col overflow-hidden">
+      </div>
+      <main id="main-content" className="flex-1 flex flex-col min-h-0 overflow-hidden">
         {!hasMessages && (
           <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-8 animate-fade-in">
             <div className="w-full max-w-2xl space-y-8 md:space-y-12">
