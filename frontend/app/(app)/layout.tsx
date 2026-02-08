@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { AppShell } from '@/components/app-shell';
@@ -15,9 +16,11 @@ export default async function AppLayout({
     redirect('/login');
   }
 
+  const defaultSidebarOpen = (await cookies()).get('sidebar_state')?.value !== 'false';
+
   return (
     <NewChatProvider>
-      <AppShell>{children}</AppShell>
+      <AppShell defaultSidebarOpen={defaultSidebarOpen}>{children}</AppShell>
     </NewChatProvider>
   );
 }

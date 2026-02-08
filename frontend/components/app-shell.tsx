@@ -6,9 +6,16 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 const SIDEBAR_TRIGGER_CLASS =
   'h-9 w-9 -ml-1 shadow-border-small hover:shadow-border-medium bg-background/80 backdrop-blur-sm border-0 hover:bg-background hover:scale-[1.02] transition-all duration-150 ease';
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  defaultSidebarOpen,
+}: {
+  children: React.ReactNode;
+  defaultSidebarOpen?: boolean;
+}) {
   return (
     <SidebarProvider
+      defaultOpen={defaultSidebarOpen}
       style={
         {
           '--sidebar-width': '19rem',
