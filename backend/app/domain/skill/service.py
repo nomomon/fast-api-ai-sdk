@@ -102,3 +102,36 @@ class SkillService:
         if user_id is None or self._user_repo is None:
             return False
         return self._user_repo.create_or_update(user_id, skill_name, description or "", body or "")
+
+    def get_user_skills(self, user_id: UUID) -> list[dict]:
+        """Return list of skill dicts for the user (dashboard API)."""
+        if self._user_repo is None:
+            return []
+        return self._user_repo.get_all_for_user(user_id)
+
+    def get_user_skill_by_id(self, user_id: UUID, skill_id: UUID) -> dict | None:
+        """Return one skill by id if it belongs to the user, else None."""
+        if self._user_repo is None:
+            return None
+        return self._user_repo.get_by_id(user_id, skill_id)
+
+    def update_user_skill_by_id(
+        self,
+        user_id: UUID,
+        skill_id: UUID,
+        *,
+        description: str | None = None,
+        content: str | None = None,
+    ) -> bool:
+        """Update description and/or content by id. Returns True if updated."""
+        if self._user_repo is None:
+            return False
+        return self._user_repo.update_by_id(
+            user_id, skill_id, description=description, content=content
+        )
+
+    def delete_user_skill_by_id(self, user_id: UUID, skill_id: UUID) -> bool:
+        """Delete user skill by id. Returns True if deleted."""
+        if self._user_repo is None:
+            return False
+        return self._user_repo.delete_by_id(user_id, skill_id)

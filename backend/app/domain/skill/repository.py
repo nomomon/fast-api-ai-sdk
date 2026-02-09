@@ -132,6 +132,91 @@ class UserSkillRepository:
             return None
         return (row.content or "").strip() or None
 
+    def get_all_for_user(self, user_id: UUID) -> list[dict]:
+        """Return full rows (id, name, description, content, created_at, updated_at) for user."""
+        rows = (
+            self.db.query(UserSkill)
+            .filter(UserSkill.user_id == user_id)
+            .order_by(UserSkill.name)
+            .all()
+        )
+        return [
+            {
+                "id": r.id,
+                "name": r.name,
+                "description": r.description or "",
+                "content": r.content or "",
+                "created_at": r.created_at,
+                "updated_at": r.updated_at,
+            }
+            for r in rows
+        ]
+
+    def get_by_id(self, user_id: UUID, skill_id: UUID) -> dict | None:
+        """Return one skill row as dict if it belongs to the user, else None."""
+        row = (
+            self.db.query(UserSkill)
+            .filter(UserSkill.id == skill_id, UserSkill.user_id == user_id)
+            .first()
+        )
+        if row is None:
+            return None
+        return {
+            "id": row.id,
+            "name": row.name,
+            "description": row.description or "",
+            "content": row.content or "",
+            "created_at": row.created_at,
+            "updated_at": row.updated_at,
+        }
+
+    def update_by_id(
+        self,
+        user_id: UUID,
+        skill_id: UUID,
+        *,
+        description: str | None = None,
+        content: str | None = None,
+    ) -> bool:
+        """Update description and/or content by id. Row must belong to user_id.
+
+        Returns True if updated.
+        """
+        row = (
+            self.db.query(UserSkill)
+            .filter(UserSkill.id == skill_id, UserSkill.user_id == user_id)
+            .first()
+        )
+        if row is None:
+            return False
+        try:
+            if description is not None:
+                row.description = description
+            if content is not None:
+                row.content = content
+            self.db.commit()
+            return True
+        except Exception:
+            self.db.rollback()
+            return False
+
+    def delete_by_id(self, user_id: UUID, skill_id: UUID) -> bool:
+        """Delete skill by id if it belongs to user_id. Returns True if deleted."""
+        row = (
+            self.db.query(UserSkill)
+            .filter(UserSkill.id == skill_id, UserSkill.user_id == user_id)
+            .first()
+        )
+        if row is None:
+            return False
+        try:
+            self.db.delete(row)
+            self.db.commit()
+            return True
+        except Exception:
+            self.db.rollback()
+            return False
+
     def create_or_update(self, user_id: UUID, name: str, description: str, content: str) -> bool:
         """Create or update a user skill by (user_id, name). Returns False if name invalid."""
         if not _validate_skill_name(name):
