@@ -22,6 +22,10 @@ class McpConfigStreamableHttp(BaseModel):
     url: str = Field(..., min_length=1)
 
 
+# Union type for config (stdio or streamable-http)
+McpConfig = McpConfigStdio | McpConfigStreamableHttp
+
+
 def validate_mcp_config(config: dict) -> dict:
     """Validate config shape; return normalized dict or raise ValueError."""
     transport = config.get("transport")
