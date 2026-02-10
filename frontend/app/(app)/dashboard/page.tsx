@@ -1,9 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
-import { useMcps } from '@/lib/hooks/use-mcps';
-import type { Mcp, McpConfig } from '@/lib/interfaces/mcp';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -30,6 +28,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useMcps } from '@/lib/hooks/use-mcps';
+import type { Mcp, McpConfig } from '@/lib/interfaces/mcp';
 
 function configSummary(config: McpConfig): string {
   if (config.transport === 'stdio') {
