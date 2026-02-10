@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, get_db
 from app.core.request_context import set_current_db, set_current_user_id
+from app.domain.mcp.service import McpService
 from app.domain.model.service import ModelService
 from app.domain.prompt.service import PromptService
 from app.domain.skill.service import SkillService
@@ -15,6 +16,8 @@ from app.services.ai.adapters.messages import ClientMessage
 from app.services.ai.adapters.streaming import SSEFormatter, patch_response_with_headers
 from app.services.ai.agents.chat_agent import ChatAgent
 from app.services.ai.agents.research_agent import ResearchAgent
+from app.services.ai.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
+from app.services.mcp import get_user_mcp_tools_context
 
 router = APIRouter(tags=["chat"])
 
@@ -66,35 +69,52 @@ async def handle_chat(
             skills_prompt = ClientMessage(role="system", content=skills_content)
             messages = [skills_prompt] + messages
 
+        _user_id = current_user.id
+        _db = db
+
         if agent_id == "chat":
-            agent = ChatAgent(model_id)
-            provider_stream = agent.stream_chat(messages)
+            mcp_service = McpService(db)
+            mcp_list = mcp_service.list(current_user.id) if current_user.id else []
+            mcp_configs = [(m.name, m.config) for m in mcp_list]
+
+            async def stream_with_context_cleanup():
+                set_current_user_id(_user_id)
+                set_current_db(_db)
+                try:
+                    async with get_user_mcp_tools_context(
+                        mcp_configs, TOOL_DEFINITIONS, AVAILABLE_TOOLS
+                    ) as (tool_definitions, available_tools):
+                        agent = ChatAgent(model_id)
+                        provider_stream = agent.stream_chat(
+                            messages,
+                            tool_definitions=tool_definitions,
+                            available_tools=available_tools,
+                        )
+                        formatted_stream = SSEFormatter.format_stream(provider_stream)
+                        async for event in formatted_stream:
+                            yield event
+                finally:
+                    set_current_user_id(None)
+                    set_current_db(None)
         elif agent_id == "research":
             agent = ResearchAgent(model_id)
             provider_stream = agent.execute(messages)
+            formatted_stream = SSEFormatter.format_stream(provider_stream)
+
+            async def stream_with_context_cleanup():
+                set_current_user_id(_user_id)
+                set_current_db(_db)
+                try:
+                    async for event in formatted_stream:
+                        yield event
+                finally:
+                    set_current_user_id(None)
+                    set_current_db(None)
         else:
             raise HTTPException(
                 status_code=400,
                 detail=f"Unknown agentId: {agent_id}. Supported: chat, research",
             )
-
-        formatted_stream = SSEFormatter.format_stream(provider_stream)
-
-        # Capture context for the stream; the stream may run in a different task
-        # after the handler returns, so we re-set context when the stream runs.
-        _user_id = current_user.id
-        _db = db
-
-        async def stream_with_context_cleanup():
-            """Consume the stream with request context set so tools see user and db."""
-            set_current_user_id(_user_id)
-            set_current_db(_db)
-            try:
-                async for event in formatted_stream:
-                    yield event
-            finally:
-                set_current_user_id(None)
-                set_current_db(None)
 
         response = StreamingResponse(
             stream_with_context_cleanup(),

@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import auth, chat, models, prompts
+from app.api.v1 import auth, chat, mcps, models, prompts
 from app.core import settings
 
 
@@ -35,6 +35,7 @@ api.include_router(auth.router)
 api.include_router(chat.router)
 api.include_router(models.router)
 api.include_router(prompts.router)
+api.include_router(mcps.router)
 
 app.include_router(api)
 

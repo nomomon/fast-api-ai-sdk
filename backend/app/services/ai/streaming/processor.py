@@ -1,5 +1,6 @@
 """Stream chunk processor for LLM responses."""
 
+import asyncio
 import json
 import uuid
 from collections.abc import AsyncGenerator
@@ -252,7 +253,10 @@ class StreamChunkProcessor:
                 tool_result = None
 
                 if tool_func:
-                    tool_result = tool_func(**arguments)
+                    if asyncio.iscoroutinefunction(tool_func):
+                        tool_result = await tool_func(**arguments)
+                    else:
+                        tool_result = tool_func(**arguments)
                     yield {
                         "type": "tool-output-available",
                         "toolCallId": tool_call_id,
