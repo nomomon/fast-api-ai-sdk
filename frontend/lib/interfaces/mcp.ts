@@ -10,6 +10,8 @@ export interface McpConfigStdio {
 export interface McpConfigStreamableHttp {
   transport: 'streamable-http';
   url: string;
+  api_key?: string;
+  headers?: Record<string, string>;
 }
 
 export type McpConfig = McpConfigStdio | McpConfigStreamableHttp;

@@ -89,13 +89,25 @@ async def mcp_session_context(config: dict[str, Any]) -> AsyncGenerator[ClientSe
                 await session.initialize()
                 yield session
     elif transport == "streamable-http":
+        import httpx
+
         from mcp.client.streamable_http import streamable_http_client
 
         url = config["url"]
-        async with streamable_http_client(url) as (read_stream, write_stream):
-            async with ClientSession(read_stream, write_stream) as session:
-                await session.initialize()
-                yield session
+        request_headers: dict[str, str] = {}
+        if config.get("api_key"):
+            request_headers["X-API-Key"] = config["api_key"]
+        if config.get("headers"):
+            request_headers.update(config["headers"])
+        async with httpx.AsyncClient(headers=request_headers or None) as http_client:
+            async with streamable_http_client(url, http_client=http_client) as (
+                read_stream,
+                write_stream,
+                _,
+            ):
+                async with ClientSession(read_stream, write_stream) as session:
+                    await session.initialize()
+                    yield session
     else:
         raise ValueError(f"Unsupported MCP transport: {transport}")
 

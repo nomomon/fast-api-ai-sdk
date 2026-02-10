@@ -29,7 +29,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useMcps } from '@/lib/hooks/use-mcps';
-import type { Mcp, McpConfig } from '@/lib/interfaces/mcp';
+import type { Mcp, McpConfig, McpConfigStreamableHttp } from '@/lib/interfaces/mcp';
 
 function configSummary(config: McpConfig): string {
   if (config.transport === 'stdio') {
@@ -81,6 +81,7 @@ export default function DashboardPage() {
   const [formCommand, setFormCommand] = useState('');
   const [formArgs, setFormArgs] = useState('');
   const [formUrl, setFormUrl] = useState('');
+  const [formApiKey, setFormApiKey] = useState('');
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [checkingId, setCheckingId] = useState<string | null>(null);
@@ -91,6 +92,7 @@ export default function DashboardPage() {
     setFormCommand('');
     setFormArgs('');
     setFormUrl('');
+    setFormApiKey('');
     setFormError(null);
   };
 
@@ -108,6 +110,7 @@ export default function DashboardPage() {
       setFormUrl('');
     } else {
       setFormUrl(mcp.config.url);
+      setFormApiKey(mcp.config.api_key ?? '');
       setFormCommand('');
       setFormArgs('');
     }
@@ -125,7 +128,14 @@ export default function DashboardPage() {
       const args = formArgs.trim() ? formArgs.trim().split(/\s+/).filter(Boolean) : [];
       return { transport: 'stdio', command: formCommand.trim(), args };
     }
-    return { transport: 'streamable-http', url: formUrl.trim() };
+    const streamable: McpConfig = {
+      transport: 'streamable-http',
+      url: formUrl.trim(),
+    };
+    if (formApiKey.trim()) {
+      (streamable as McpConfigStreamableHttp).api_key = formApiKey.trim();
+    }
+    return streamable;
   };
 
   const handleAdd = async () => {
@@ -313,6 +323,8 @@ export default function DashboardPage() {
             setFormArgs={setFormArgs}
             formUrl={formUrl}
             setFormUrl={setFormUrl}
+            formApiKey={formApiKey}
+            setFormApiKey={setFormApiKey}
             formError={formError}
           />
           <DialogFooter>
@@ -344,6 +356,8 @@ export default function DashboardPage() {
             setFormArgs={setFormArgs}
             formUrl={formUrl}
             setFormUrl={setFormUrl}
+            formApiKey={formApiKey}
+            setFormApiKey={setFormApiKey}
             formError={formError}
           />
           <DialogFooter>
@@ -395,6 +409,8 @@ function McpForm({
   setFormArgs,
   formUrl,
   setFormUrl,
+  formApiKey,
+  setFormApiKey,
   formError,
 }: {
   formName: string;
@@ -407,6 +423,8 @@ function McpForm({
   setFormArgs: (v: string) => void;
   formUrl: string;
   setFormUrl: (v: string) => void;
+  formApiKey: string;
+  setFormApiKey: (v: string) => void;
   formError: string | null;
 }) {
   return (
@@ -462,16 +480,29 @@ function McpForm({
           </div>
         </>
       ) : (
-        <div className="grid gap-2">
-          <Label htmlFor="mcp-url">URL</Label>
-          <Input
-            id="mcp-url"
-            type="url"
-            value={formUrl}
-            onChange={(e) => setFormUrl(e.target.value)}
-            placeholder="https://example.com/mcp"
-          />
-        </div>
+        <>
+          <div className="grid gap-2">
+            <Label htmlFor="mcp-url">URL</Label>
+            <Input
+              id="mcp-url"
+              type="url"
+              value={formUrl}
+              onChange={(e) => setFormUrl(e.target.value)}
+              placeholder="https://example.com/mcp"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="mcp-api-key">API key (optional)</Label>
+            <Input
+              id="mcp-api-key"
+              type="password"
+              value={formApiKey}
+              onChange={(e) => setFormApiKey(e.target.value)}
+              placeholder="Optional"
+              autoComplete="off"
+            />
+          </div>
+        </>
       )}
     </div>
   );

@@ -20,6 +20,8 @@ class McpConfigStreamableHttp(BaseModel):
 
     transport: str = "streamable-http"
     url: str = Field(..., min_length=1)
+    api_key: str | None = None
+    headers: dict[str, str] | None = None
 
 
 # Union type for config (stdio or streamable-http)
