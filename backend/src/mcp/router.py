@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session
 from src.auth.dependencies import get_current_user
 from src.database import get_db
 from src.mcp.client import mcp_session_context
-from src.mcp.schemas import McpCreate, McpResponse, McpUpdate
-from src.mcp.service import McpService
+from src.mcp.repository import UserMcpRepository
+from src.mcp.schemas import McpCreate, McpResponse, McpUpdate, validate_mcp_config
 from src.user.models import User
 
 router = APIRouter(prefix="/mcps", tags=["mcps"])
@@ -29,8 +29,9 @@ async def list_mcps(
     current_user: User = Depends(get_current_user),
 ):
     """List current user's MCPs."""
-    service = McpService(db)
-    return service.list(current_user.id)
+    repo = UserMcpRepository(db)
+    rows = repo.list_by_user(current_user.id)
+    return [McpResponse.model_validate(r) for r in rows]
 
 
 @router.get("/{mcp_id}", response_model=McpResponse)
@@ -40,11 +41,11 @@ async def get_mcp(
     current_user: User = Depends(get_current_user),
 ):
     """Get one MCP by id."""
-    service = McpService(db)
-    mcp = service.get(mcp_id, current_user.id)
-    if mcp is None:
+    repo = UserMcpRepository(db)
+    row = repo.get_by_id(mcp_id, current_user.id)
+    if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="MCP not found")
-    return mcp
+    return McpResponse.model_validate(row)
 
 
 @router.post("", response_model=McpResponse, status_code=status.HTTP_201_CREATED)
@@ -55,10 +56,12 @@ async def create_mcp(
 ):
     """Create a new MCP config."""
     try:
-        service = McpService(db)
-        return service.create(current_user.id, body.name, body.config)
+        config = validate_mcp_config(body.config)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+    repo = UserMcpRepository(db)
+    row = repo.create(current_user.id, body.name, config)
+    return McpResponse.model_validate(row)
 
 
 @router.put("/{mcp_id}", response_model=McpResponse)
@@ -69,19 +72,17 @@ async def update_mcp(
     current_user: User = Depends(get_current_user),
 ):
     """Update MCP name and/or config."""
-    try:
-        service = McpService(db)
-        mcp = service.update(
-            mcp_id,
-            current_user.id,
-            name=body.name,
-            config=body.config,
-        )
-        if mcp is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="MCP not found")
-        return mcp
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+    config = body.config
+    if config is not None:
+        try:
+            config = validate_mcp_config(config)
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+    repo = UserMcpRepository(db)
+    row = repo.update(mcp_id, current_user.id, name=body.name, config=config)
+    if row is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="MCP not found")
+    return McpResponse.model_validate(row)
 
 
 @router.delete("/{mcp_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -91,8 +92,8 @@ async def delete_mcp(
     current_user: User = Depends(get_current_user),
 ):
     """Delete an MCP config."""
-    service = McpService(db)
-    if not service.delete(mcp_id, current_user.id):
+    repo = UserMcpRepository(db)
+    if not repo.delete(mcp_id, current_user.id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="MCP not found")
 
 
@@ -103,16 +104,16 @@ async def check_mcp(
     current_user: User = Depends(get_current_user),
 ):
     """Connect to MCP, list tools, update cached status and tool count, return result."""
-    service = McpService(db)
-    mcp = service.get(mcp_id, current_user.id)
-    if mcp is None:
+    repo = UserMcpRepository(db)
+    row = repo.get_by_id(mcp_id, current_user.id)
+    if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="MCP not found")
     try:
-        async with mcp_session_context(mcp.config) as session:
+        async with mcp_session_context(row.config) as session:
             list_result = await session.list_tools()
             tool_count = len(list_result.tools)
-        service.update_status(mcp_id, current_user.id, "ok", tool_count)
+        repo.update_status(mcp_id, current_user.id, "ok", tool_count)
         return McpCheckResponse(status="ok", tool_count=tool_count)
     except Exception:
-        service.update_status(mcp_id, current_user.id, "error", None)
+        repo.update_status(mcp_id, current_user.id, "error", None)
         return McpCheckResponse(status="error", tool_count=0)

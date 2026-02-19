@@ -13,7 +13,7 @@ from src.auth.dependencies import get_current_user
 from src.chat.schemas import ChatRequest
 from src.database import get_db
 from src.mcp.client import get_user_mcp_tools_context
-from src.mcp.service import McpService
+from src.mcp.repository import UserMcpRepository
 from src.model.repository import ModelRepository
 from src.prompt.repository import PromptRepository
 from src.request_context import set_current_db, set_current_user_id
@@ -73,9 +73,11 @@ async def handle_chat(
         _db = db
 
         if agent_id == "chat":
-            mcp_service = McpService(db)
-            mcp_list = mcp_service.list(current_user.id) if current_user.id else []
-            mcp_configs = [(m.name, m.config) for m in mcp_list]
+            mcp_configs = []
+            if current_user.id is not None:
+                mcp_repo = UserMcpRepository(db)
+                mcp_rows = mcp_repo.list_by_user(current_user.id)
+                mcp_configs = [(r.name, r.config) for r in mcp_rows]
 
             async def stream_with_context_cleanup():
                 set_current_user_id(_user_id)
