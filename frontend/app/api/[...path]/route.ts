@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+
+const COOKIE_NAME = 'auth_token';
 
 /**
  * Catch-all API route that proxies requests to the backend.
  * Reads BASE_BACKEND_URL from environment variables at runtime.
- * Automatically adds JWT token from NextAuth session to requests.
+ * Automatically adds JWT token from auth_token cookie to requests.
  */
 
 // Route segment config for streaming support
@@ -64,9 +64,8 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
     url.searchParams.append(key, value);
   });
 
-  // Get session and extract JWT token
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  // Get JWT token from auth_token cookie
+  const token = request.cookies.get(COOKIE_NAME)?.value;
 
   // Prepare headers to forward
   const headers = new Headers();

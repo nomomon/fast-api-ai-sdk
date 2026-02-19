@@ -1,12 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { login } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'form'>) {
@@ -16,17 +16,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'form'>)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
+    const result = await login(email, password);
 
-    if (result?.ok) {
+    if (result.success) {
       router.push('/');
     } else {
       toast.error('Invalid email or password', {
-        description: 'Please check your credentials and try again.',
+        description: result.error ?? 'Please check your credentials and try again.',
       });
     }
   };

@@ -1,7 +1,7 @@
 'use client';
 
 import { LogOut } from 'lucide-react';
-import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -11,15 +11,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { logout } from '@/lib/auth/client';
+import { useUser } from '@/lib/hooks/use-user';
 import { Button } from '../ui/button';
 
 export function UserDropdownButton() {
-  const { data } = useSession();
+  const router = useRouter();
+  const { user, isLoading } = useUser();
 
-  if (!data?.user) {
+  if (isLoading || !user) {
     return null;
   }
-  const user = data.user;
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  };
 
   return (
     <DropdownMenu>
@@ -49,7 +56,7 @@ export function UserDropdownButton() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut()}>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut />
           Log out
         </DropdownMenuItem>

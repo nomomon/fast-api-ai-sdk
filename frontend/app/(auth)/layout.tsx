@@ -1,17 +1,17 @@
+import { cookies } from 'next/headers';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { ICON_PATHS } from '@/lib/constants/seo';
+
+const COOKIE_NAME = 'auth_token';
 
 export default async function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
-
-  if (session) {
+  const token = (await cookies()).get(COOKIE_NAME)?.value;
+  if (token) {
     redirect('/');
   }
 

@@ -100,7 +100,6 @@ Ensure you have the following installed on your system:
     
     Then edit `.env` and update the following required variables:
     - `OPENAI_API_KEY` - Your OpenAI API key (required)
-    - `NEXTAUTH_SECRET` - Signs NextAuth session cookies (generate with: `openssl rand -base64 32`)
     - `SECRET_KEY` - Signs backend JWT tokens for API authentication (generate with: `openssl rand -base64 32`)
     
     Optional variables (have sensible defaults):
@@ -108,7 +107,6 @@ Ensure you have the following installed on your system:
     - `DATABASE_URL` - PostgreSQL connection string
     - `CORS_ORIGINS` - Comma-separated list of allowed origins
     - `BASE_BACKEND_URL` - Your backend URL (used by Next.js API proxy, defaults to `http://localhost:8000`)
-    - `NEXTAUTH_URL` - Your frontend URL (defaults to `http://localhost:3000`)
     - `NEXT_PUBLIC_BASE_URL` - Public base URL for SEO metadata
     
     **Note:** The root `.env` file is automatically used by both the backend and frontend via `env-cmd` (frontend uses `env-cmd -f ../.env next dev`). You don't need separate `.env` files in each directory. The frontend uses a Next.js API proxy route (`/api/[...path]`) that automatically forwards requests to the backend with authentication, so client-side code uses relative paths like `/api/chat` instead of direct backend URLs.
