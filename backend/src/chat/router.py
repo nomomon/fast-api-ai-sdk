@@ -11,8 +11,8 @@ from src.ai.agents.research_agent import ResearchAgent
 from src.auth.dependencies import get_current_user
 from src.chat.schemas import ChatRequest
 from src.database import get_db
-from src.model import service as model_service
-from src.prompt import service as prompt_service
+from src.model.repository import ModelRepository
+from src.prompt.repository import PromptRepository
 from src.request_context import set_current_db, set_current_user_id
 from src.skill import service as skill_service
 from src.user.models import User
@@ -38,18 +38,25 @@ async def handle_chat(
         prompt_id = request.promptId
         agent_id = request.agentId
 
-        model_svc = model_service.ModelService()
+        model_repo = ModelRepository()
         if model_id is None:
-            model_id = model_svc.get_default_model_id()
-        elif not model_svc.is_valid_model_id(model_id):
+            model_id = model_repo.get_default_id()
+        elif not model_repo.exists(model_id):
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid modelId: {model_id}. Use GET /api/models for allowed models.",
+                detail=(f"Invalid modelId: {model_id}. Use GET /api/models for allowed models."),
             )
 
         if prompt_id:
-            prompt_svc = prompt_service.PromptService()
-            system_content = prompt_svc.get_by_id(prompt_id)
+            prompt_repo = PromptRepository()
+            system_content = prompt_repo.get_content_by_id(prompt_id)
+            if system_content is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"Invalid promptId: {prompt_id}. Use GET /api/prompts for allowed prompts."
+                    ),
+                )
             system_prompt = ClientMessage(role="system", content=system_content)
             messages = [system_prompt] + messages
 

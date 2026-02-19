@@ -2,7 +2,8 @@
 
 from fastapi import APIRouter
 
-from src.model.service import ModelService
+from src.model.repository import ModelRepository
+from src.model.schemas import Model, ModelListResponse
 
 router = APIRouter(prefix="/models", tags=["models"])
 
@@ -10,5 +11,6 @@ router = APIRouter(prefix="/models", tags=["models"])
 @router.get("")
 async def list_models():
     """List available AI models."""
-    model_service = ModelService()
-    return model_service.get_all().model_dump()
+    repo = ModelRepository()
+    models = [Model(**m) for m in repo.get_all()]
+    return ModelListResponse(models=models).model_dump()

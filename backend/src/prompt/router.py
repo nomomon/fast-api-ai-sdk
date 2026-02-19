@@ -2,7 +2,8 @@
 
 from fastapi import APIRouter
 
-from src.prompt.service import PromptService
+from src.prompt.repository import PromptRepository
+from src.prompt.schemas import Prompt, PromptListResponse
 
 router = APIRouter(prefix="/prompts", tags=["prompts"])
 
@@ -10,5 +11,6 @@ router = APIRouter(prefix="/prompts", tags=["prompts"])
 @router.get("")
 async def list_prompts():
     """List available system prompts."""
-    prompt_service = PromptService()
-    return prompt_service.get_all().model_dump()
+    repo = PromptRepository()
+    prompts = [Prompt(**p) for p in repo.get_all()]
+    return PromptListResponse(prompts=prompts).model_dump()
