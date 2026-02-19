@@ -1,12 +1,12 @@
 import json
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from pydantic import BaseModel, ConfigDict
 
 
-class ToolInvocationState(str, Enum):
+class ToolInvocationState(StrEnum):
     CALL = "call"
     PARTIAL_CALL = "partial-call"
     RESULT = "result"
