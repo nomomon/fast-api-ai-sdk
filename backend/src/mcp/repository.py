@@ -19,6 +19,11 @@ class UserMcpRepository:
             self.db.query(UserMcp).filter(UserMcp.user_id == user_id).order_by(UserMcp.name).all()
         )
 
+    def list_configs(self, user_id: UUID) -> list[tuple[str, dict]]:
+        """Return MCP configs as (name, config) tuples. Satisfies McpConfigProvider protocol."""
+        rows = self.list_by_user(user_id)
+        return [(r.name, r.config) for r in rows]
+
     def get_by_id(self, id: UUID, user_id: UUID) -> UserMcp | None:
         """Return MCP by id if it belongs to the user."""
         return self.db.query(UserMcp).filter(UserMcp.id == id, UserMcp.user_id == user_id).first()
