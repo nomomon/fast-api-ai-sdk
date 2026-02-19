@@ -1,45 +1,23 @@
-'use server';
-
-import axios, { AxiosError } from 'axios';
-
-interface SignUpPayload {
+export async function signUp(payload: {
   name: string;
   email: string;
   password: string;
-}
-
-interface SignUpResponse {
-  success: boolean;
-  error?: string;
-}
-
-export async function signUp(payload: SignUpPayload): Promise<SignUpResponse> {
+}): Promise<{ success: boolean; error?: string }> {
   try {
-    const baseUrl = process.env.BASE_BACKEND_URL;
-    const url = `${baseUrl}/api/auth/signup`;
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      credentials: 'include',
+    });
+    const data = await res.json().catch(() => ({}));
 
-    const res = await axios.post(url, payload);
-    const result = await res.data;
-
-    return {
-      success: result.success || true,
-    };
-  } catch (error: unknown) {
-    console.error('Signup error:', error);
-    if (!(error instanceof AxiosError)) {
-      return {
-        success: false,
-        error: 'An unexpected error occurred. Please try again.',
-      };
+    if (!res.ok) {
+      return { success: false, error: data.error || 'Signup failed' };
     }
-
-    const errorMessage =
-      error.response?.data?.detail ||
-      error.response?.data?.error ||
-      'Network error. Please try again.';
-    return {
-      success: false,
-      error: errorMessage,
-    };
+    return { success: true };
+  } catch (error) {
+    console.error('Signup error:', error);
+    return { success: false, error: 'An unexpected error occurred' };
   }
 }

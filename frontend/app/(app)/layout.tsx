@@ -1,9 +1,8 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/app-shell';
+import { AUTH_COOKIE_NAME } from '@/lib/auth/constants';
 import { NewChatProvider } from '@/lib/contexts/new-chat-context';
-
-const COOKIE_NAME = 'auth_token';
 
 export default async function AppLayout({
   children,
@@ -11,7 +10,7 @@ export default async function AppLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  if (!cookieStore.get(COOKIE_NAME)?.value) {
+  if (!cookieStore.get(AUTH_COOKIE_NAME)?.value) {
     redirect('/login');
   }
 

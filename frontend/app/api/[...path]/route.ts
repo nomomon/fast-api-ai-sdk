@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-
-const COOKIE_NAME = 'auth_token';
+import { AUTH_COOKIE_NAME } from '@/lib/auth/constants';
 
 /**
  * Catch-all API route that proxies requests to the backend.
@@ -65,7 +64,7 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
   });
 
   // Get JWT token from auth_token cookie
-  const token = request.cookies.get(COOKIE_NAME)?.value;
+  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
 
   // Prepare headers to forward
   const headers = new Headers();

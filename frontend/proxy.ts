@@ -1,11 +1,10 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-
-const COOKIE_NAME = 'auth_token';
+import { AUTH_COOKIE_NAME } from '@/lib/auth/constants';
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get(COOKIE_NAME)?.value;
+  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   const hasAuth = !!token;
 
   // Auth pages (login, signup): redirect to / if already logged in

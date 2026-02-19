@@ -1,8 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-
-const COOKIE_NAME = 'auth_token';
-const MAX_AGE = 7 * 24 * 60 * 60; // 7 days (matches backend jwt_exp_days)
+import { AUTH_COOKIE_MAX_AGE, AUTH_COOKIE_NAME } from '@/lib/auth/constants';
 
 export async function POST(request: Request) {
   try {
@@ -33,12 +31,12 @@ export async function POST(request: Request) {
     }
 
     const cookieStore = await cookies();
-    cookieStore.set(COOKIE_NAME, token, {
+    cookieStore.set(AUTH_COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: MAX_AGE,
+      maxAge: AUTH_COOKIE_MAX_AGE,
     });
 
     return NextResponse.json({ success: true });
