@@ -28,7 +28,7 @@ export function SkillTable({ skills, onEdit, onDelete }: SkillTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Description</TableHead>
+            <TableHead className="hidden md:table-cell">Description</TableHead>
             <TableHead className="w-[120px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -43,7 +43,7 @@ export function SkillTable({ skills, onEdit, onDelete }: SkillTableProps) {
             skills.map((skill) => (
               <TableRow key={skill.id}>
                 <TableCell className="font-medium">{skill.name}</TableCell>
-                <TableCell className="max-w-[300px] truncate text-sm">
+                <TableCell className="hidden max-w-[300px] truncate text-sm md:table-cell">
                   {truncate(skill.description || '', 80)}
                 </TableCell>
                 <TableCell>

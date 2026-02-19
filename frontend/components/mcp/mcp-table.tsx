@@ -27,9 +27,9 @@ export function McpTable({ mcps, checkingId, onCheck, onEdit, onDelete }: McpTab
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Config</TableHead>
+            <TableHead className="hidden md:table-cell">Config</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Tools</TableHead>
+            <TableHead className="hidden md:table-cell">Tools</TableHead>
             <TableHead className="w-[120px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -44,13 +44,15 @@ export function McpTable({ mcps, checkingId, onCheck, onEdit, onDelete }: McpTab
             mcps.map((mcp) => (
               <TableRow key={mcp.id}>
                 <TableCell className="font-medium">{mcp.name}</TableCell>
-                <TableCell className="max-w-lg truncate text-sm">
+                <TableCell className="hidden max-w-lg truncate text-sm md:table-cell">
                   {configSummary(mcp.config)}
                 </TableCell>
                 <TableCell>
                   <StatusIndicator status={mcp.last_status} toolCount={mcp.last_tool_count} />
                 </TableCell>
-                <TableCell>{mcp.last_tool_count != null ? mcp.last_tool_count : '—'}</TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {mcp.last_tool_count != null ? mcp.last_tool_count : '—'}
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button
