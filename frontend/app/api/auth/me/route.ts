@@ -1,26 +1,16 @@
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { AUTH_COOKIE_NAME } from '@/lib/auth/constants';
+import { fetchBackend, getAuthToken } from '@/lib/auth/api';
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-
+  const token = await getAuthToken();
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const backendUrl = process.env.BASE_BACKEND_URL || 'http://localhost:8000';
-  const res = await fetch(`${backendUrl}/api/auth/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!res.ok) {
+  const result = await fetchBackend('/api/auth/me', { method: 'GET', token });
+  if (!result.ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const user = await res.json();
-  return NextResponse.json(user);
+  return NextResponse.json(result.data);
 }

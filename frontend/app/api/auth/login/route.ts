@@ -1,6 +1,5 @@
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { AUTH_COOKIE_MAX_AGE, AUTH_COOKIE_NAME } from '@/lib/auth/constants';
+import { fetchBackend, setAuthCookie } from '@/lib/auth/api';
 
 export async function POST(request: Request) {
   try {
@@ -11,34 +10,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
-    const backendUrl = process.env.BASE_BACKEND_URL || 'http://localhost:8000';
-    const res = await fetch(`${backendUrl}/api/auth/token`, {
+    const result = await fetchBackend('/api/auth/token', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: { email, password },
     });
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      return NextResponse.json({ error: data.detail || 'Invalid credentials' }, { status: 401 });
+    if (!result.ok) {
+      return NextResponse.json(
+        { error: result.error || 'Invalid credentials' },
+        { status: result.status }
+      );
     }
 
-    const data = await res.json();
-    const token = data.access_token;
-
+    const token = (result.data as { access_token?: string })?.access_token;
     if (!token) {
       return NextResponse.json({ error: 'No token in response' }, { status: 500 });
     }
 
-    const cookieStore = await cookies();
-    cookieStore.set(AUTH_COOKIE_NAME, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: AUTH_COOKIE_MAX_AGE,
-    });
-
+    await setAuthCookie(token);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Login error:', error);

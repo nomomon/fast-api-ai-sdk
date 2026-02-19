@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { fetchBackend } from '@/lib/auth/api';
 
 export async function POST(request: Request) {
   try {
@@ -12,17 +13,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const backendUrl = process.env.BASE_BACKEND_URL || 'http://localhost:8000';
-    const res = await fetch(`${backendUrl}/api/auth/signup`, {
+    const result = await fetchBackend('/api/auth/signup', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
+      body: { name, email, password },
     });
 
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      return NextResponse.json({ error: data.detail || 'Signup failed' }, { status: res.status });
+    if (!result.ok) {
+      return NextResponse.json(
+        { error: result.error || 'Signup failed' },
+        { status: result.status }
+      );
     }
 
     return NextResponse.json({ success: true }, { status: 201 });
