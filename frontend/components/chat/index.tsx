@@ -3,7 +3,7 @@
 import { useChat } from '@ai-sdk/react';
 import { AlertCircle } from 'lucide-react';
 import Image from 'next/image';
-import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { AgentSelector } from '@/components/chat/agent-selector';
 import { ChatInput } from '@/components/chat/chat-input';
@@ -13,6 +13,7 @@ import { PromptSelector } from '@/components/chat/prompt-selector';
 import { SuggestionCard } from '@/components/chat/suggestion-card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { logout } from '@/lib/auth/client';
 import { ICON_PATHS } from '@/lib/constants/seo';
 import { useNewChat } from '@/lib/contexts/new-chat-context';
 import { useDefaultAgent } from '@/lib/hooks/use-default-agent';
@@ -59,12 +60,18 @@ export function Chat() {
     setCurrentAgentId(newAgentId);
   };
 
+  const router = useRouter();
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } =
     useChat<ChatMessage>({
-      onError: (err) => {
-        // TODO: this looks quite hacky
-        if (JSON.parse(err.message).error === 'Unauthorized') {
-          signOut({ callbackUrl: '/login' });
+      onError: async (err) => {
+        try {
+          const parsed = JSON.parse(err.message);
+          if (parsed?.error === 'Unauthorized') {
+            await logout();
+            router.push('/login');
+          }
+        } catch {
+          // Ignore parse errors
         }
       },
     });

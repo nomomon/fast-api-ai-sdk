@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronsUpDown, Laptop, LogOut, Moon, Sun } from 'lucide-react';
-import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -20,16 +20,23 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { logout } from '@/lib/auth/client';
+import { useUser } from '@/lib/hooks/use-user';
 
 export function NavUser() {
-  const { data } = useSession();
+  const router = useRouter();
+  const { user, isLoading } = useUser();
   const { theme, resolvedTheme, setTheme } = useTheme();
   const { isMobile } = useSidebar();
 
-  if (!data?.user) {
+  if (isLoading || !user) {
     return null;
   }
-  const user = data.user;
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  };
   const currentTheme = theme === 'system' ? 'system' : (resolvedTheme ?? theme ?? 'system');
 
   return (
@@ -74,7 +81,7 @@ export function NavUser() {
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="size-4" />
               Log out
             </DropdownMenuItem>

@@ -1,31 +1,40 @@
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { withAuth } from 'next-auth/middleware';
+import { AUTH_COOKIE_NAME } from '@/lib/auth/constants';
 
-export default withAuth(
-  function middleware(_req) {
-    // You can add additional middleware logic here if needed
+export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  const hasAuth = !!token;
+
+  // Auth pages (login, signup): redirect to / if already logged in
+  if (pathname === '/login' || pathname === '/signup') {
+    if (hasAuth) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
     return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
   }
-);
+
+  // Protected routes - redirect to login if not authenticated
+  if (!hasAuth) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api/auth (NextAuth routes and signup endpoint)
-     * - login (login page)
-     * - signup (signup page)
+     * - api/auth (auth API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - manifest.json / manifest.webmanifest (PWA manifest)
      * - public files (images, etc.)
+     * Note: login and signup ARE matched so we can redirect logged-in users
      */
-    '/((?!api/auth|login|signup|_next/static|_next/image|favicon.ico|manifest.json|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api/auth|_next/static|_next/image|favicon.ico|manifest.json|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

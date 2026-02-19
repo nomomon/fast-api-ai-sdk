@@ -1,13 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { signUp } from '@/lib/auth';
+import { login } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>) {
@@ -38,13 +38,8 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<'form'>
       toast.success('Account created successfully!', {
         description: 'Signing you in...',
       });
-      // Automatically sign in after sign up
-      const signInResult = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
-      if (signInResult?.ok) {
+      const loginResult = await login(email, password);
+      if (loginResult.success) {
         router.push('/');
       } else {
         toast.error('Account created but login failed', {
