@@ -3,8 +3,8 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from app.services.ai.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
-from app.services.ai.tools.schema import function_to_openai_tool
+from src.ai.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
+from src.ai.tools.schema import function_to_openai_tool
 
 
 def _sample_tool(lat: float, lon: float) -> str:
@@ -139,7 +139,7 @@ class TestRegistry(unittest.TestCase):
         mock_response.json.return_value = {"current": {"temperature_2m": 10}}
         mock_response.raise_for_status = Mock()
         with patch(
-            "app.services.ai.tools.get_current_weather.requests.get",
+            "src.ai.tools.get_current_weather.requests.get",
             return_value=mock_response,
         ):
             fn = AVAILABLE_TOOLS["get_current_weather"]

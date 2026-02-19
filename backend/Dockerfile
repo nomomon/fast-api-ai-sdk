@@ -12,7 +12,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY --from=builder /install /usr/local
-COPY ./app ./app
+COPY ./src ./src
 COPY alembic.ini .
 COPY alembic ./alembic
 
@@ -21,4 +21,4 @@ USER appuser
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

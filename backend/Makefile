@@ -28,7 +28,7 @@ setup:
 # Development server
 dev:
 	@if [ ! -d .venv ]; then echo 'Error: Virtual environment not found. Run "make setup" first.'; exit 1; fi
-	@.venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+	@.venv/bin/python -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 
 # Build (placeholder)
 build:
@@ -80,7 +80,7 @@ check-fix:
 # Type checking
 type-check:
 	@if [ ! -d .venv ]; then echo 'Error: Virtual environment not found. Run "make setup" first.'; exit 1; fi
-	@.venv/bin/mypy app || true
+	@.venv/bin/mypy src || true
 
 # Tests
 test:

@@ -6,14 +6,13 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, pool
 
 from alembic import context
-from app.core.database import Base
+from src.database import Base
 
 # IMPORTANT: Alembic's autogenerate only "sees" models that are imported here.
-# When adding new SQLAlchemy models in other domain modules (e.g.,
-# app.domain.prompt.models), make sure to import those modules here so that
-# their models are registered with Base.metadata.
-from app.domain.skill import models as skill_models  # noqa: F401 - register UserSkill
-from app.domain.user import models as user_models  # noqa: F401 - register User with Base.metadata
+# When adding new SQLAlchemy models in other domain modules, import those
+# modules here so their models are registered with Base.metadata.
+from src.skill import models as skill_models  # noqa: F401 - register UserSkill
+from src.user import models as user_models  # noqa: F401 - register User with Base.metadata
 
 # Load .env from backend/ or project root so DATABASE_URL is available without app Settings.
 _backend_env = Path(__file__).resolve().parent.parent / ".env"
