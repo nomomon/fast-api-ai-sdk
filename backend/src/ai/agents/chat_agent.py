@@ -122,11 +122,32 @@ class ChatAgent(BaseAgent):
 
         openai_messages.extend(tool_results_messages)
 
-    async def execute(self, messages: Sequence[ClientMessage]) -> AsyncGenerator[StreamEvent, None]:
-        """Execute the chat agent workflow."""
+    async def execute(
+        self,
+        messages: Sequence[ClientMessage],
+        tool_definitions: list[dict[str, Any]] | None = None,
+        available_tools: dict[str, Any] | None = None,
+    ) -> AsyncGenerator[StreamEvent, None]:
+        """Execute the chat agent workflow.
+
+        Uses a state machine to manage the conversation flow:
+        - INITIAL -> STREAMING (after start event)
+        - STREAMING -> PROCESSING_TOOLS (when tool calls detected)
+        - PROCESSING_TOOLS -> STREAMING (after tool execution, continue conversation)
+        - STREAMING -> FINISHED (when no tool calls, normal completion)
+        - Any state -> ERROR (on exceptions)
+
+        Args:
+            messages: Sequence of client messages
+            tool_definitions: Optional OpenAI-format tool definitions (default: built-in tools)
+            available_tools: Optional name -> callable (default: built-in; callables may be async)
+
+        Yields:
+            Stream events (dicts) representing the conversation flow
+        """
         openai_messages = convert_to_openai_messages(messages)
-        tool_definitions = TOOL_DEFINITIONS
-        available_tools = AVAILABLE_TOOLS
+        tool_definitions = tool_definitions if tool_definitions is not None else TOOL_DEFINITIONS
+        available_tools = available_tools if available_tools is not None else AVAILABLE_TOOLS
 
         state_machine = StreamState.INITIAL
         stream_state: StreamStateData | None = None
@@ -180,8 +201,23 @@ class ChatAgent(BaseAgent):
             yield {"type": "error", "error": str(e)}
 
     async def stream_chat(
-        self, messages: Sequence[ClientMessage]
+        self,
+        messages: Sequence[ClientMessage],
+        tool_definitions: list[dict[str, Any]] | None = None,
+        available_tools: dict[str, Any] | None = None,
     ) -> AsyncGenerator[StreamEvent, None]:
-        """Stream chat responses as structured events."""
-        async for event in self.execute(messages):
+        """Stream chat responses as structured events.
+
+        This method is kept for backward compatibility.
+        It delegates to execute().
+
+        Args:
+            messages: Sequence of client messages
+            tool_definitions: Optional OpenAI-format tool definitions
+            available_tools: Optional name -> callable map (may include async)
+
+        Yields:
+            Stream events (dicts) representing the conversation flow
+        """
+        async for event in self.execute(messages, tool_definitions, available_tools):
             yield event

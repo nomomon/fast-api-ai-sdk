@@ -12,6 +12,7 @@ mypy>=1.5.0
 
 google-genai
 litellm
+mcp[cli]>=1.0.0
 
 # Database dependencies
 sqlalchemy>=2.0.0
