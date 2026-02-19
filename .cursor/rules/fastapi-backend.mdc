@@ -68,7 +68,7 @@ async def valid_owned_post(post=Depends(valid_post_id), token_data=Depends(parse
 
 ## Migrations (Alembic)
 
-Static, reversible; descriptive names: `2022-08-24_post_content_idx.py`
+See `.cursor/rules/database-migrations.mdc`: Alembic generates templates; AI edits the generated file. Never write migrations from scratch. Static, reversible; descriptive names.
 
 ## API Documentation
 
