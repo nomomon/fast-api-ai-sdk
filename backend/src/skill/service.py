@@ -101,4 +101,5 @@ class SkillService:
         """
         if user_id is None or self._user_repo is None:
             return False
-        return self._user_repo.create_or_update(user_id, skill_name, description or "", body or "")
+        row = self._user_repo.create_or_update(user_id, skill_name, description or "", body or "")
+        return row is not None

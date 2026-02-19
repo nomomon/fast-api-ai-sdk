@@ -44,7 +44,7 @@ export function McpTable({ mcps, checkingId, onCheck, onEdit, onDelete }: McpTab
             mcps.map((mcp) => (
               <TableRow key={mcp.id}>
                 <TableCell className="font-medium">{mcp.name}</TableCell>
-                <TableCell className="max-w-[200px] truncate text-sm">
+                <TableCell className="max-w-lg truncate text-sm">
                   {configSummary(mcp.config)}
                 </TableCell>
                 <TableCell>
