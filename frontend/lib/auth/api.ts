@@ -9,6 +9,12 @@ export type FetchBackendResult =
   | { ok: true; status: number; data: unknown }
   | { ok: false; status: number; error: string };
 
+/**
+ * Fetch data from the backend on Next.js server components.
+ * @param url - The URL to fetch.
+ * @param options - The options to fetch with.
+ * @returns The result of the fetch.
+ */
 export async function fetchBackend(
   path: string,
   options: { method: string; body?: object; token?: string }
