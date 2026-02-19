@@ -1,0 +1,99 @@
+---
+description: FastAPI best practices for AI agents - structure, async, Pydantic, dependencies, DB, testing
+globs: backend/**/*.py, src/**/*.py
+alwaysApply: false
+---
+
+# FastAPI Backend Best Practices
+
+## Project Structure
+
+Organize by domain, not file type:
+```
+{domain}/   # e.g., auth/, posts/
+  router.py, schemas.py, models.py, service.py, dependencies.py,
+  config.py, constants.py, exceptions.py, utils.py
+```
+
+**Imports**: Use explicit module names across domains:
+```python
+from src.auth import constants as auth_constants
+from src.notifications import service as notification_service
+```
+
+## Async Routes
+
+- `async def`: Use ONLY non-blocking I/O (`await`)
+- `def` (sync): Use for blocking I/O (runs in threadpool)
+- CPU-intensive: Offload to Celery or multiprocessing
+
+```python
+# WRONG: Blocking in async
+async def bad(): time.sleep(10)  # Blocks event loop
+
+# CORRECT
+async def good(): await asyncio.sleep(10)
+def sync_ok(): time.sleep(10)  # Threadpool
+
+# Sync library in async context
+result = await run_in_threadpool(sync_client.make_request, data=my_data)
+```
+
+## Pydantic
+
+Use built-in validators: `EmailStr`, `Field(min_length=...)`, `Field(ge=18)`, etc.
+
+Split BaseSettings by domain; create shared base model for serialization:
+```python
+class CustomModel(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: datetime_to_gmt_str}, populate_by_name=True)
+```
+
+## Dependencies
+
+Use for validation, not just DI. Chain dependencies for shared validation.
+- Cached per request; prefer `async` dependencies.
+- Use consistent path variable names for reuse: `{profile_id}` in both `/profiles/{profile_id}` and `/creators/{profile_id}`.
+
+```python
+async def valid_post_id(post_id: UUID4) -> dict: ...
+async def valid_owned_post(post=Depends(valid_post_id), token_data=Depends(parse_jwt_data)): ...
+```
+
+## Database
+
+- `lower_case_snake`, singular tables, prefix groups (`payment_account`), `_at` / `_date` suffixes
+- Set explicit index names via `POSTGRES_INDEXES_NAMING_CONVENTION`
+- SQL-first for complex joins, aggregation, nested JSON
+
+## Migrations (Alembic)
+
+See `.cursor/rules/database-migrations.mdc`: Alembic generates templates; AI edits the generated file. Never write migrations from scratch. Static, reversible; descriptive names.
+
+## API Documentation
+
+Hide docs in production: `openapi_url=None` when `ENVIRONMENT not in SHOW_DOCS_ENVIRONMENT`.
+Document endpoints: `description`, `tags`, `responses` dict.
+
+## Testing
+
+Use `httpx.AsyncClient` with `ASGITransport(app=app)` from the start.
+
+## Linting
+
+```shell
+ruff check --fix src && ruff format src
+```
+
+## Quick Reference
+
+| Scenario | Solution |
+|----------|----------|
+| Non-blocking I/O | `async def` + `await` |
+| Blocking I/O | `def` route |
+| Sync lib in async | `run_in_threadpool()` |
+| CPU-intensive | Celery/multiprocessing |
+| Request validation | Dependencies with DB checks |
+| Shared validation | Chain dependencies |
+| Config per domain | Separate BaseSettings |
+| Complex queries | SQL + JSON aggregation |

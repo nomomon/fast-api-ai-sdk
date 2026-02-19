@@ -19,7 +19,7 @@ ignore = [
 
 
 [lint.isort]
-known-first-party = ["app"]
+known-first-party = ["src"]
 
 [format]
 quote-style = "double"
