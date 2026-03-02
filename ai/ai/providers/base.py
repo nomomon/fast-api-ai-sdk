@@ -32,7 +32,7 @@ class LLMProvider(ABC):
     """
 
     @abstractmethod
-    def stream(
+    async def stream(
         self,
         messages: list[dict[str, Any]],
         tools: list[dict[str, Any]],
