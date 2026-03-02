@@ -7,7 +7,7 @@
 # Default target
 help:
 	@echo "Available targets:"
-	@echo "  setup          - Setup backend virtual environment"
+	@echo "  setup          - Install backend and frontend dependencies"
 	@echo "  dev            - Start database and run both frontend/backend in parallel"
 	@echo "  dev-backend    - Run only backend"
 	@echo "  dev-frontend   - Run only frontend"

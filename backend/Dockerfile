@@ -1,20 +1,22 @@
 FROM python:3.11-slim AS builder
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+COPY pyproject.toml uv.lock* ./
+RUN uv sync --frozen --no-dev --no-cache
 
 FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY --from=builder /install /usr/local
+COPY --from=builder /app/.venv /app/.venv
 COPY ./src ./src
 COPY alembic.ini .
 COPY alembic ./alembic
+
+ENV PATH="/app/.venv/bin:$PATH"
 
 RUN useradd -m appuser && chown -R appuser /app
 USER appuser
