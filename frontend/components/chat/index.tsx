@@ -20,6 +20,7 @@ import { useDefaultAgent } from '@/lib/hooks/use-default-agent';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
 import { useDefaultPrompt } from '@/lib/hooks/use-default-prompt';
 import type { ChatMessage } from '@/types/chat';
+import { DefaultChatTransport } from 'ai';
 
 export function Chat() {
   const [input, setInput] = useState('');
@@ -63,6 +64,9 @@ export function Chat() {
   const router = useRouter();
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } =
     useChat<ChatMessage>({
+      transport: new DefaultChatTransport({
+        api: '/api/ai',
+      }),
       onError: async (err) => {
         try {
           const parsed = JSON.parse(err.message);
