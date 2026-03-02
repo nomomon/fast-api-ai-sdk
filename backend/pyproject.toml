@@ -19,6 +19,7 @@ dependencies = [
     "bcrypt>=4.0.0",
     "python-jose[cryptography]>=3.3.0",
     "python-frontmatter>=1.1.0",
+    "ai",
 ]
 
 [dependency-groups]
@@ -26,3 +27,6 @@ dev = [
     "ruff>=0.6.0",
     "mypy>=1.5.0",
 ]
+
+[tool.uv.sources]
+ai = { path = "../ai", editable = true }
