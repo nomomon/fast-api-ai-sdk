@@ -33,6 +33,7 @@ _model_repo = ModelRepository()
 class ChatRequest(BaseModel):
     messages: list[ClientMessage]
     modelId: str | None = None
+    promptId: str | None = None
 
 
 @router.post("")
@@ -46,7 +47,11 @@ async def handle_chat(
         raise HTTPException(status_code=400, detail=f"Invalid modelId: {request.modelId}")
     messages = convert_to_openai_messages(request.messages)
     response = StreamingResponse(
-        format_events(run_agent(messages, model_id, user_id=current_user.id, db=db)),
+        format_events(
+            run_agent(
+                messages, model_id, user_id=current_user.id, db=db, prompt_id=request.promptId
+            )
+        ),
         media_type="text/event-stream",
     )
     return patch_response_with_headers(response)

@@ -8,6 +8,7 @@ from collections.abc import AsyncGenerator
 from typing import Any
 
 from ai.agent import context
+from ai.agent.context import SystemPrompt
 from ai.agent.events import (
     AgentEvent,
     Error,
@@ -39,7 +40,7 @@ class AgentLoop:
         provider: LLMProvider,
         tools: list[Tool],
         model: str,
-        system: str | None = None,
+        system: SystemPrompt | str | None = None,
         max_iterations: int = 10,
     ) -> None:
         self.provider = provider
