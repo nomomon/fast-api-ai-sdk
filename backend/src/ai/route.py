@@ -1,0 +1,38 @@
+"""AI chat endpoint."""
+
+from __future__ import annotations
+
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+
+from src.ai.adapters.messages import ClientMessage, convert_to_openai_messages
+from src.ai.formatter import format_events, patch_response_with_headers
+from src.ai.handler import run_agent
+from src.auth.dependencies import get_current_user
+from src.model.repository import ModelRepository
+from src.user.models import User
+
+router = APIRouter(prefix="/chat", tags=["chat"])
+_model_repo = ModelRepository()
+
+
+class ChatRequest(BaseModel):
+    messages: list[ClientMessage]
+    modelId: str | None = None
+
+
+@router.post("")
+async def handle_chat(
+    request: ChatRequest,
+    current_user: User = Depends(get_current_user),
+):
+    model_id = request.modelId or _model_repo.get_default_id()
+    if request.modelId and not _model_repo.exists(request.modelId):
+        raise HTTPException(status_code=400, detail=f"Invalid modelId: {request.modelId}")
+    messages = convert_to_openai_messages(request.messages)
+    response = StreamingResponse(
+        format_events(run_agent(messages, model_id)),
+        media_type="text/event-stream",
+    )
+    return patch_response_with_headers(response)
