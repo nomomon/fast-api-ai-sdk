@@ -13,7 +13,7 @@ from src.auth.dependencies import get_current_user
 from src.model.repository import ModelRepository
 from src.user.models import User
 
-router = APIRouter(prefix="/chat", tags=["chat"])
+router = APIRouter(prefix="/ai", tags=["ai"])
 _model_repo = ModelRepository()
 
 

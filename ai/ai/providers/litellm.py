@@ -56,12 +56,14 @@ class LiteLLMProvider(LLMProvider):
 
             tool_call_deltas: list[ToolCallDelta] = []
             for tc in delta.tool_calls or []:
-                tool_call_deltas.append(ToolCallDelta(
-                    index=tc.index,
-                    id=tc.id,
-                    name=tc.function.name if tc.function else None,
-                    arguments=tc.function.arguments or "" if tc.function else "",
-                ))
+                tool_call_deltas.append(
+                    ToolCallDelta(
+                        index=tc.index,
+                        id=tc.id,
+                        name=tc.function.name if tc.function else None,
+                        arguments=tc.function.arguments or "" if tc.function else "",
+                    )
+                )
 
             yield ChunkDelta(
                 content=delta.content,

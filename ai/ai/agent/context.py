@@ -23,11 +23,13 @@ def add_assistant_turn(
     tool_calls: list[dict[str, Any]],
 ) -> None:
     """Append an assistant message with optional text content and tool calls."""
-    messages.append({
-        "role": "assistant",
-        "content": content,
-        "tool_calls": tool_calls,
-    })
+    messages.append(
+        {
+            "role": "assistant",
+            "content": content,
+            "tool_calls": tool_calls,
+        }
+    )
 
 
 def add_tool_results(

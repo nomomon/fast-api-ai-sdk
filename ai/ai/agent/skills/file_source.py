@@ -64,7 +64,9 @@ class FileSkillSource(SkillSource):
                 if not name or name != skill_file.parent.name:
                     continue
                 description = meta.get("description", "")
-                extra = {k: v for k, v in meta.items() if k not in ("name", "description")}
+                extra = {
+                    k: v for k, v in meta.items() if k not in ("name", "description")
+                }
                 skills.append(Skill(name=name, description=description, metadata=extra))
             except Exception:
                 continue

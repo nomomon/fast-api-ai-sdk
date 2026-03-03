@@ -127,11 +127,13 @@ class AgentLoop:
                 except json.JSONDecodeError:
                     arguments = {}
 
-                assistant_tool_calls.append({
-                    "id": tool_call_id,
-                    "type": "function",
-                    "function": {"name": tool_name, "arguments": arguments_str},
-                })
+                assistant_tool_calls.append(
+                    {
+                        "id": tool_call_id,
+                        "type": "function",
+                        "function": {"name": tool_name, "arguments": arguments_str},
+                    }
+                )
 
                 yield ToolInputAvailable(
                     tool_call_id=tool_call_id,
@@ -147,14 +149,18 @@ class AgentLoop:
 
                 yield ToolOutputAvailable(tool_call_id=tool_call_id, output=result)
 
-                tool_result_messages.append({
-                    "role": "tool",
-                    "tool_call_id": tool_call_id,
-                    "name": tool_name,
-                    "content": result,
-                })
+                tool_result_messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call_id,
+                        "name": tool_name,
+                        "content": result,
+                    }
+                )
 
             context.add_assistant_turn(msgs, text_content or None, assistant_tool_calls)
             context.add_tool_results(msgs, tool_result_messages)
 
-        yield Error(error=f"Reached maximum iterations ({self.max_iterations}) without finishing.")
+        yield Error(
+            error=f"Reached maximum iterations ({self.max_iterations}) without finishing."
+        )

@@ -1,0 +1,13 @@
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/ai"
+    ],
+    "editor.formatOnSave": true,
+    "[javascript][typescript][javascriptreact][typescriptreact][json][jsonc]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    }
+}

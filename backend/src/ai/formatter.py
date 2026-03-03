@@ -26,13 +26,30 @@ def _event_to_dict(event: AgentEvent) -> dict:
     elif isinstance(event, TextDelta):
         return {"type": "text-delta", "textDelta": event.delta}
     elif isinstance(event, ToolInputStart):
-        return {"type": "tool-input-start", "toolCallId": event.tool_call_id, "toolName": event.tool_name}
+        return {
+            "type": "tool-input-start",
+            "toolCallId": event.tool_call_id,
+            "toolName": event.tool_name,
+        }
     elif isinstance(event, ToolInputDelta):
-        return {"type": "tool-input-delta", "toolCallId": event.tool_call_id, "inputTextDelta": event.input_text_delta}
+        return {
+            "type": "tool-input-delta",
+            "toolCallId": event.tool_call_id,
+            "inputTextDelta": event.input_text_delta,
+        }
     elif isinstance(event, ToolInputAvailable):
-        return {"type": "tool-input-available", "toolCallId": event.tool_call_id, "toolName": event.tool_name, "input": event.input}
+        return {
+            "type": "tool-input-available",
+            "toolCallId": event.tool_call_id,
+            "toolName": event.tool_name,
+            "input": event.input,
+        }
     elif isinstance(event, ToolOutputAvailable):
-        return {"type": "tool-output-available", "toolCallId": event.tool_call_id, "output": event.output}
+        return {
+            "type": "tool-output-available",
+            "toolCallId": event.tool_call_id,
+            "output": event.output,
+        }
     elif isinstance(event, Finish):
         return {"type": "finish", "finishReason": event.finish_reason}
     elif isinstance(event, Error):
