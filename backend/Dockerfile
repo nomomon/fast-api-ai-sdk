@@ -2,19 +2,22 @@ FROM python:3.11-slim AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
+# Copy the ai package to /ai/ so uv can resolve the "../ai" path dependency
+COPY ai/ /ai/
+
 WORKDIR /app
 
-COPY pyproject.toml uv.lock* ./
-RUN uv sync --frozen --no-dev --no-cache
+COPY backend/pyproject.toml backend/uv.lock* ./
+RUN uv sync --frozen --no-dev --no-cache --no-editable
 
 FROM python:3.11-slim
 
 WORKDIR /app
 
 COPY --from=builder /app/.venv /app/.venv
-COPY ./src ./src
-COPY alembic.ini .
-COPY alembic ./alembic
+COPY backend/src ./src
+COPY backend/alembic.ini .
+COPY backend/alembic ./alembic
 
 ENV PATH="/app/.venv/bin:$PATH"
 
