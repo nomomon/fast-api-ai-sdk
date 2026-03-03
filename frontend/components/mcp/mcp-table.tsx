@@ -1,4 +1,4 @@
-import { PencilIcon, Trash2Icon } from 'lucide-react';
+import { PencilIcon, RotateCw, Trash2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -9,6 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import type { Mcp } from '@/lib/interfaces/mcp';
+import { cn } from '@/lib/utils';
 import { StatusIndicator } from './status-indicator';
 import { configSummary } from './utils';
 
@@ -29,7 +30,6 @@ export function McpTable({ mcps, checkingId, onCheck, onEdit, onDelete }: McpTab
             <TableHead>Name</TableHead>
             <TableHead className="hidden md:table-cell">Config</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="hidden md:table-cell">Tools</TableHead>
             <TableHead className="w-[120px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -50,9 +50,6 @@ export function McpTable({ mcps, checkingId, onCheck, onEdit, onDelete }: McpTab
                 <TableCell>
                   <StatusIndicator status={mcp.last_status} toolCount={mcp.last_tool_count} />
                 </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  {mcp.last_tool_count != null ? mcp.last_tool_count : '—'}
-                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button
@@ -62,7 +59,7 @@ export function McpTable({ mcps, checkingId, onCheck, onEdit, onDelete }: McpTab
                       disabled={checkingId === mcp.id}
                       title="Test connection"
                     >
-                      {checkingId === mcp.id ? '…' : 'Check'}
+                      <RotateCw className={cn('size-4', checkingId === mcp.id && 'animate-spin')} />
                     </Button>
                     <Button variant="ghost" size="icon-sm" onClick={() => onEdit(mcp)} title="Edit">
                       <PencilIcon className="size-4" />
