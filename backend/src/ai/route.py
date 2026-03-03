@@ -10,12 +10,16 @@ from sqlalchemy.orm import Session
 from src.ai.adapters.messages import ClientMessage, convert_to_openai_messages
 from src.ai.formatter import format_events, patch_response_with_headers
 from src.ai.handler import run_agent
+from src.ai.models.repository import ModelRepository
 from src.auth.dependencies import get_current_user
 from src.database import get_db
-from src.model.repository import ModelRepository
 from src.user.models import User
 
+from .models.router import router as models_router
+
 router = APIRouter(prefix="/ai", tags=["ai"])
+router.include_router(models_router)
+
 _model_repo = ModelRepository()
 
 

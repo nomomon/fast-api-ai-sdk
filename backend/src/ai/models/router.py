@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
-from src.model.repository import ModelRepository
-from src.model.schemas import Model, ModelListResponse
+from src.ai.models.repository import ModelRepository
+from src.ai.models.schemas import Model, ModelListResponse
 
 router = APIRouter(prefix="/models", tags=["models"])
 
