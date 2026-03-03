@@ -13,7 +13,7 @@ export function useSkills() {
     setLoading(true);
     setError(null);
     try {
-      const res = await authenticatedFetch('/api/skills');
+      const res = await authenticatedFetch('/api/ai/skills');
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || data.error || `Failed to load skills (${res.status})`);
@@ -33,7 +33,7 @@ export function useSkills() {
   }, [fetchSkills]);
 
   const createSkill = useCallback(async (body: SkillCreateBody): Promise<Skill | null> => {
-    const res = await authenticatedFetch('/api/skills', {
+    const res = await authenticatedFetch('/api/ai/skills', {
       method: 'POST',
       body: JSON.stringify({
         name: body.name,
@@ -52,7 +52,7 @@ export function useSkills() {
 
   const updateSkill = useCallback(
     async (id: string, body: SkillUpdateBody): Promise<Skill | null> => {
-      const res = await authenticatedFetch(`/api/skills/${id}`, {
+      const res = await authenticatedFetch(`/api/ai/skills/${id}`, {
         method: 'PUT',
         body: JSON.stringify(body),
       });
@@ -68,7 +68,7 @@ export function useSkills() {
   );
 
   const deleteSkill = useCallback(async (id: string): Promise<void> => {
-    const res = await authenticatedFetch(`/api/skills/${id}`, { method: 'DELETE' });
+    const res = await authenticatedFetch(`/api/ai/skills/${id}`, { method: 'DELETE' });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       throw new Error(data.detail || data.error || 'Failed to delete skill');

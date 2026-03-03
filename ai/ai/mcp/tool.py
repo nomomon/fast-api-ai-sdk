@@ -22,7 +22,7 @@ class MCPToolWrapper(Tool):
         tool_def: Any,
         timeout: int = 30,
     ) -> None:
-        self.name = f"mcp__{server_name}__{tool_def.name}"  # type: ignore[misc]
+        self.name = f"{server_name}:{tool_def.name}"  # type: ignore[misc]
         self.description = tool_def.description or tool_def.name  # type: ignore[misc]
         self._session = session
         self._original_name = tool_def.name

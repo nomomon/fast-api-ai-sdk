@@ -13,7 +13,7 @@ export function useMcps() {
     setLoading(true);
     setError(null);
     try {
-      const res = await authenticatedFetch('/api/mcps');
+      const res = await authenticatedFetch('/api/ai/mcps');
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || data.error || `Failed to load MCPs (${res.status})`);
@@ -33,7 +33,7 @@ export function useMcps() {
   }, [fetchMcps]);
 
   const createMcp = useCallback(async (body: McpCreateBody): Promise<Mcp | null> => {
-    const res = await authenticatedFetch('/api/mcps', {
+    const res = await authenticatedFetch('/api/ai/mcps', {
       method: 'POST',
       body: JSON.stringify(body),
     });
@@ -47,7 +47,7 @@ export function useMcps() {
   }, []);
 
   const updateMcp = useCallback(async (id: string, body: McpUpdateBody): Promise<Mcp | null> => {
-    const res = await authenticatedFetch(`/api/mcps/${id}`, {
+    const res = await authenticatedFetch(`/api/ai/mcps/${id}`, {
       method: 'PUT',
       body: JSON.stringify(body),
     });
@@ -61,7 +61,7 @@ export function useMcps() {
   }, []);
 
   const deleteMcp = useCallback(async (id: string): Promise<void> => {
-    const res = await authenticatedFetch(`/api/mcps/${id}`, { method: 'DELETE' });
+    const res = await authenticatedFetch(`/api/ai/mcps/${id}`, { method: 'DELETE' });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       throw new Error(data.detail || data.error || 'Failed to delete MCP');
@@ -71,7 +71,7 @@ export function useMcps() {
 
   const checkMcp = useCallback(
     async (id: string): Promise<{ status: string; tool_count: number }> => {
-      const res = await authenticatedFetch(`/api/mcps/${id}/check`, { method: 'POST' });
+      const res = await authenticatedFetch(`/api/ai/mcps/${id}/check`, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || data.error || 'Check failed');
