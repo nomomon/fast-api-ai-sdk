@@ -37,10 +37,14 @@ class MCPToolWrapper(Tool):
                 timeout=self._timeout,
             )
         except asyncio.TimeoutError:
-            logger.warning("MCP tool '%s' timed out after %ds", self.name, self._timeout)
+            logger.warning(
+                "MCP tool '%s' timed out after %ds", self.name, self._timeout
+            )
             return f"(MCP tool call timed out after {self._timeout}s)"
 
-        is_error = getattr(result, "is_error", None) or getattr(result, "isError", False)
+        is_error = getattr(result, "is_error", None) or getattr(
+            result, "isError", False
+        )
         if is_error:
             return f"(error) {getattr(result, 'content', 'Tool call failed')}"
 

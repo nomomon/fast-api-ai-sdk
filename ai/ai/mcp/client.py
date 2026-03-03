@@ -32,7 +32,9 @@ async def mcp_tools_context(
                 session = await stack.enter_async_context(mcp_session_context(cfg))
                 list_result = await session.list_tools()
                 for tool_def in list_result.tools:
-                    tools.append(MCPToolWrapper(session, server_name, tool_def, timeout=timeout))
+                    tools.append(
+                        MCPToolWrapper(session, server_name, tool_def, timeout=timeout)
+                    )
                 logger.debug(
                     "MCP server '%s': connected, %d tools registered",
                     server_name,

@@ -14,8 +14,8 @@ from ai.agent.tools.weather import GetCurrentWeather
 from ai.providers.litellm import LiteLLMProvider
 from sqlalchemy.orm import Session
 
-from src.ai.tools import LoadSkillTool, UpdateSkillTool
 from src.ai.skills.repository import DBSkillSource, UserSkillRepository
+from src.ai.tools import LoadSkillTool, UpdateSkillTool
 
 
 async def run_agent(
