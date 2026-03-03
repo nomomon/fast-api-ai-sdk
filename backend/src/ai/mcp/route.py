@@ -22,6 +22,7 @@ class McpCheckResponse(BaseModel):
 
     status: str  # "ok" | "error"
     tool_count: int
+    error: str | None = None
 
 
 @router.get("", response_model=list[McpResponse])
@@ -115,6 +116,6 @@ async def check_mcp(
             tool_count = len(list_result.tools)
         repo.update_status(mcp_id, current_user.id, "ok", tool_count)
         return McpCheckResponse(status="ok", tool_count=tool_count)
-    except Exception:
+    except Exception as e:
         repo.update_status(mcp_id, current_user.id, "error", None)
-        return McpCheckResponse(status="error", tool_count=0)
+        return McpCheckResponse(status="error", tool_count=0, error=str(e))

@@ -74,13 +74,19 @@ export function useMcps() {
   });
 
   const checkMutation = useMutation({
-    mutationFn: async (id: string): Promise<{ status: string; tool_count: number }> => {
+    mutationFn: async (
+      id: string
+    ): Promise<{ status: string; tool_count: number; error?: string }> => {
       const res = await authenticatedFetch(`/api/ai/mcps/${id}/check`, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || data.error || 'Check failed');
       }
-      return res.json();
+      const data = await res.json();
+      if (data.status === 'error') {
+        throw new Error(data.error || 'MCP check failed');
+      }
+      return data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: MCPS_KEY }),
   });
