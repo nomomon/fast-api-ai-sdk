@@ -30,7 +30,7 @@ def verify_token(token: str) -> UUID | None:
             auth_settings.secret_key,
             algorithms=[auth_settings.algorithm],
         )
-        user_id: str = payload.get("sub")
+        user_id: str | None = payload.get("sub")
         if user_id is None:
             return None
         return UUID(user_id)

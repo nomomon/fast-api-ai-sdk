@@ -16,7 +16,7 @@ export function useAvailablePrompts() {
   useEffect(() => {
     const fetchPrompts = async () => {
       try {
-        const response = await authenticatedFetch('/api/prompts');
+        const response = await authenticatedFetch('/api/ai/prompts');
         if (!response.ok) {
           throw new Error('Failed to fetch prompts');
         }

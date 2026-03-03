@@ -1,11 +1,11 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { AgentSelector } from '@/components/chat/agent-selector';
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
 import { ModelSelector } from '@/components/chat/model-selector';
@@ -16,7 +16,6 @@ import { Button } from '@/components/ui/button';
 import { logout } from '@/lib/auth/client';
 import { ICON_PATHS } from '@/lib/constants/seo';
 import { useNewChat } from '@/lib/contexts/new-chat-context';
-import { useDefaultAgent } from '@/lib/hooks/use-default-agent';
 import { useDefaultModel } from '@/lib/hooks/use-default-model';
 import { useDefaultPrompt } from '@/lib/hooks/use-default-prompt';
 import type { ChatMessage } from '@/types/chat';
@@ -40,14 +39,6 @@ export function Chat() {
     error: promptError,
   } = useDefaultPrompt();
 
-  const {
-    agentId: currentAgentId,
-    setAgentId: setCurrentAgentId,
-    agents,
-    isLoading: isAgentLoading,
-    error: agentError,
-  } = useDefaultAgent();
-
   const handleModelChange = (newModelId: string) => {
     setCurrentModelId(newModelId);
   };
@@ -56,13 +47,12 @@ export function Chat() {
     setCurrentPromptId(newPromptId);
   };
 
-  const handleAgentChange = (newAgentId: string) => {
-    setCurrentAgentId(newAgentId);
-  };
-
   const router = useRouter();
   const { messages, error, sendMessage, regenerate, setMessages, stop, status } =
     useChat<ChatMessage>({
+      transport: new DefaultChatTransport({
+        api: '/api/ai',
+      }),
       onError: async (err) => {
         try {
           const parsed = JSON.parse(err.message);
@@ -70,9 +60,9 @@ export function Chat() {
             await logout();
             router.push('/login');
           }
-        } catch {
-          // Ignore parse errors
-        }
+        } catch {}
+
+        console.error('Chat error:', err);
       },
     });
 
@@ -94,7 +84,6 @@ export function Chat() {
   const chatBody = {
     modelId: currentModelId,
     promptId: currentPromptId,
-    agentId: currentAgentId || 'chat',
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -131,13 +120,6 @@ export function Chat() {
         onModelChange={handleModelChange}
         isLoading={isModelLoading}
         error={modelError}
-      />
-      <AgentSelector
-        agentId={currentAgentId}
-        agents={agents}
-        onAgentChange={handleAgentChange}
-        isLoading={isAgentLoading}
-        error={agentError}
       />
       <PromptSelector
         promptId={currentPromptId}

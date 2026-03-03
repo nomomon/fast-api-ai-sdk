@@ -1,5 +1,5 @@
 [project]
-name = "fast-api-ai-sdk"
+name = "fast-api-ai-sdk-backend"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
@@ -19,10 +19,22 @@ dependencies = [
     "bcrypt>=4.0.0",
     "python-jose[cryptography]>=3.3.0",
     "python-frontmatter>=1.1.0",
+    "ai",
 ]
 
 [dependency-groups]
 dev = [
     "ruff>=0.6.0",
     "mypy>=1.5.0",
+    "types-python-jose",
 ]
+
+[tool.mypy]
+plugins = ["sqlalchemy.ext.mypy.plugin"]
+
+[[tool.mypy.overrides]]
+module = ["frontmatter", "litellm", "litellm.*"]
+ignore_missing_imports = true
+
+[tool.uv.sources]
+ai = { path = "../ai", editable = true }
