@@ -16,6 +16,7 @@ make type-check   # mypy (backend) + tsc (frontend)
 ```
 
 Backend only (from `backend/`):
+
 ```bash
 uv run uvicorn src.main:app --reload
 uv run ruff check --fix . && uv run ruff format .
@@ -24,6 +25,7 @@ make test
 ```
 
 Git hooks (lefthook) run automatically on commit/push:
+
 - **pre-commit**: lint + format fix for all packages, lockfile sync
 - **pre-push**: lint + format check for all packages
 
