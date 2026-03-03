@@ -12,6 +12,10 @@ pre-commit:
       glob: "backend/**/*.py"
       run: make -C backend check-fix
       stage_fixed: true
+    ai-format-and-lint:
+      glob: "ai/**/*.py"
+      run: make -C ai check-fix
+      stage_fixed: true
     check-lockfile:
       glob: "frontend/package.json"
       run: cd frontend && pnpm install --lockfile-only
@@ -24,3 +28,6 @@ pre-push:
     backend-check:
       glob: "backend/**/*.py"
       run: make -C backend check
+    ai-check:
+      glob: "ai/**/*.py"
+      run: make -C ai check
