@@ -167,7 +167,10 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
       }
     });
 
-    return new NextResponse(responseBody, {
+    // 204/205/304 must not carry a body (spec-mandated null body status)
+    const nullBodyStatus =
+      response.status === 204 || response.status === 205 || response.status === 304;
+    return new NextResponse(nullBodyStatus ? null : responseBody, {
       status: response.status,
       statusText: response.statusText,
       headers: responseHeaders,
