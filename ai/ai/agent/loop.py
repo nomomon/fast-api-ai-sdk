@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import uuid
 from collections.abc import AsyncGenerator
 from typing import Any
 
@@ -12,6 +13,7 @@ from ai.agent.events import (
     Error,
     Finish,
     TextDelta,
+    TextEnd,
     TextStart,
     ToolInputAvailable,
     ToolInputDelta,
@@ -63,6 +65,7 @@ class AgentLoop:
 
         for _ in range(self.max_iterations):
             text_started = False
+            text_id: str | None = None
             text_content = ""
 
             # tool_calls_state: index → {id, name, arguments}
@@ -76,10 +79,11 @@ class AgentLoop:
 
                 if chunk.content:
                     if not text_started:
-                        yield TextStart()
+                        text_id = str(uuid.uuid4())
+                        yield TextStart(id=text_id)
                         text_started = True
                     text_content += chunk.content
-                    yield TextDelta(delta=chunk.content)
+                    yield TextDelta(id=text_id, delta=chunk.content)
 
                 for tc in chunk.tool_calls:
                     state = tool_calls_state.setdefault(
@@ -105,6 +109,9 @@ class AgentLoop:
                             tool_call_id=state["id"],
                             input_text_delta=tc.arguments,
                         )
+
+            if text_started and text_id:
+                yield TextEnd(id=text_id)
 
             if not tool_calls_state:
                 yield Finish(finish_reason=finish_reason or "stop")
@@ -162,5 +169,5 @@ class AgentLoop:
             context.add_tool_results(msgs, tool_result_messages)
 
         yield Error(
-            error=f"Reached maximum iterations ({self.max_iterations}) without finishing."
+            error_text=f"Reached maximum iterations ({self.max_iterations}) without finishing."
         )
