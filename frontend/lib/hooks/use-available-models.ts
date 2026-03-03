@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { authenticatedFetch } from '@/lib/api-client';
 import type { DisplayModel } from '@/lib/interfaces/display-model';
 
@@ -8,36 +8,29 @@ interface ModelEntry {
   provider: string;
 }
 
+async function fetchModels(): Promise<DisplayModel[]> {
+  const response = await authenticatedFetch('/api/ai/models');
+  if (!response.ok) {
+    throw new Error('Failed to fetch models');
+  }
+  const data = await response.json();
+  return data.models.map((model: ModelEntry) => ({
+    id: model.id,
+    label: model.name,
+    provider: model.provider,
+  }));
+}
+
 export function useAvailableModels() {
-  const [models, setModels] = useState<DisplayModel[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    const fetchModels = async () => {
-      try {
-        const response = await authenticatedFetch('/api/ai/models');
-        if (!response.ok) {
-          throw new Error('Failed to fetch models');
-        }
-        const data = await response.json();
-        setModels(
-          data.models.map((model: ModelEntry) => ({
-            id: model.id,
-            label: model.name,
-            provider: model.provider,
-          }))
-        );
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch models'));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchModels();
-  }, []);
+  const {
+    data: models = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['available-models'],
+    queryFn: fetchModels,
+    staleTime: 5 * 60 * 1000,
+  });
 
   return { models, isLoading, error };
 }

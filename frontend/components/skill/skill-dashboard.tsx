@@ -11,7 +11,7 @@ import { EditSkillDialog } from './edit-skill-dialog';
 import { SkillTable } from './skill-table';
 
 export function SkillDashboard() {
-  const { skills, loading, error, createSkill, updateSkill, deleteSkill } = useSkills();
+  const { skills, isLoading, error, createSkill, updateSkill, deleteSkill } = useSkills();
   const [addOpen, setAddOpen] = useState(false);
   const [editSkill, setEditSkill] = useState<Skill | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -133,7 +133,7 @@ export function SkillDashboard() {
           </p>
         )}
 
-        {loading ? (
+        {isLoading ? (
           <p className="text-muted-foreground text-sm">Loading skills…</p>
         ) : (
           <SkillTable skills={skills} onEdit={openEdit} onDelete={openDelete} />

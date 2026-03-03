@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 export interface User {
   id: string;
@@ -10,33 +10,24 @@ export interface User {
   updated_at: string;
 }
 
+async function fetchUser(): Promise<User | null> {
+  const res = await fetch('/api/auth/me', { credentials: 'include' });
+  if (!res.ok) return null;
+  return res.json();
+}
+
 export function useUser() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const {
+    data: user = null,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['user'],
+    queryFn: fetchUser,
+    retry: false,
+    staleTime: 30 * 1000,
+  });
 
-  const mutate = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
-      if (!res.ok) {
-        setUser(null);
-        return;
-      }
-      const data = await res.json();
-      setUser(data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch user'));
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    mutate();
-  }, [mutate]);
-
-  return { user, isLoading, error, mutate };
+  return { user, isLoading, error, refetch };
 }

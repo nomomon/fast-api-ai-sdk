@@ -11,7 +11,7 @@ import { EditMcpDialog } from './edit-mcp-dialog';
 import { McpTable } from './mcp-table';
 
 export function McpDashboard() {
-  const { mcps, loading, error, createMcp, updateMcp, deleteMcp, checkMcp } = useMcps();
+  const { mcps, isLoading, error, createMcp, updateMcp, deleteMcp, checkMcp } = useMcps();
   const [addOpen, setAddOpen] = useState(false);
   const [editMcp, setEditMcp] = useState<Mcp | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -184,7 +184,7 @@ export function McpDashboard() {
           </p>
         )}
 
-        {loading ? (
+        {isLoading ? (
           <p className="text-muted-foreground text-sm">Loading MCPs…</p>
         ) : (
           <McpTable

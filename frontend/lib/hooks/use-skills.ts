@@ -1,57 +1,58 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authenticatedFetch } from '@/lib/api-client';
 import type { Skill, SkillCreateBody, SkillUpdateBody } from '@/lib/interfaces/skill';
 
-export function useSkills() {
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const SKILLS_KEY = ['skills'] as const;
 
-  const fetchSkills = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await authenticatedFetch('/api/ai/skills');
+async function fetchSkillsApi(): Promise<Skill[]> {
+  const res = await authenticatedFetch('/api/ai/skills');
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || data.error || `Failed to load skills (${res.status})`);
+  }
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
+export function useSkills() {
+  const queryClient = useQueryClient();
+
+  const {
+    data: skills = [],
+    isLoading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: SKILLS_KEY,
+    queryFn: fetchSkillsApi,
+  });
+
+  const error =
+    queryError instanceof Error ? queryError.message : queryError ? String(queryError) : null;
+
+  const createMutation = useMutation({
+    mutationFn: async (body: SkillCreateBody): Promise<Skill> => {
+      const res = await authenticatedFetch('/api/ai/skills', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: body.name,
+          description: body.description ?? '',
+          content: body.content ?? '',
+        }),
+      });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || data.error || `Failed to load skills (${res.status})`);
+        throw new Error(data.detail || data.error || 'Failed to create skill');
       }
-      const data = await res.json();
-      setSkills(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load skills');
-      setSkills([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SKILLS_KEY }),
+  });
 
-  useEffect(() => {
-    fetchSkills();
-  }, [fetchSkills]);
-
-  const createSkill = useCallback(async (body: SkillCreateBody): Promise<Skill | null> => {
-    const res = await authenticatedFetch('/api/ai/skills', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: body.name,
-        description: body.description ?? '',
-        content: body.content ?? '',
-      }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.detail || data.error || 'Failed to create skill');
-    }
-    const created = await res.json();
-    setSkills((prev) => [...prev, created]);
-    return created;
-  }, []);
-
-  const updateSkill = useCallback(
-    async (id: string, body: SkillUpdateBody): Promise<Skill | null> => {
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, body }: { id: string; body: SkillUpdateBody }): Promise<Skill> => {
       const res = await authenticatedFetch(`/api/ai/skills/${id}`, {
         method: 'PUT',
         body: JSON.stringify(body),
@@ -60,21 +61,29 @@ export function useSkills() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || data.error || 'Failed to update skill');
       }
-      const updated = await res.json();
-      setSkills((prev) => prev.map((s) => (s.id === id ? updated : s)));
-      return updated;
+      return res.json();
     },
-    []
-  );
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SKILLS_KEY }),
+  });
 
-  const deleteSkill = useCallback(async (id: string): Promise<void> => {
-    const res = await authenticatedFetch(`/api/ai/skills/${id}`, { method: 'DELETE' });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.detail || data.error || 'Failed to delete skill');
-    }
-    setSkills((prev) => prev.filter((s) => s.id !== id));
-  }, []);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string): Promise<void> => {
+      const res = await authenticatedFetch(`/api/ai/skills/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || data.error || 'Failed to delete skill');
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SKILLS_KEY }),
+  });
 
-  return { skills, loading, error, fetchSkills, createSkill, updateSkill, deleteSkill };
+  const fetchSkills = async () => {
+    await refetch();
+  };
+  const createSkill = (body: SkillCreateBody) => createMutation.mutateAsync(body);
+  const updateSkill = (id: string, body: SkillUpdateBody) =>
+    updateMutation.mutateAsync({ id, body });
+  const deleteSkill = (id: string) => deleteMutation.mutateAsync(id);
+
+  return { skills, isLoading, error, fetchSkills, createSkill, updateSkill, deleteSkill };
 }

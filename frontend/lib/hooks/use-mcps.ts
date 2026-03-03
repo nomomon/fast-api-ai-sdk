@@ -1,98 +1,97 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authenticatedFetch } from '@/lib/api-client';
 import type { Mcp, McpCreateBody, McpUpdateBody } from '@/lib/interfaces/mcp';
 
-export function useMcps() {
-  const [mcps, setMcps] = useState<Mcp[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const MCPS_KEY = ['mcps'] as const;
 
-  const fetchMcps = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await authenticatedFetch('/api/ai/mcps');
+async function fetchMcpsApi(): Promise<Mcp[]> {
+  const res = await authenticatedFetch('/api/ai/mcps');
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || data.error || `Failed to load MCPs (${res.status})`);
+  }
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
+export function useMcps() {
+  const queryClient = useQueryClient();
+
+  const {
+    data: mcps = [],
+    isLoading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: MCPS_KEY,
+    queryFn: fetchMcpsApi,
+  });
+
+  const error =
+    queryError instanceof Error ? queryError.message : queryError ? String(queryError) : null;
+
+  const createMutation = useMutation({
+    mutationFn: async (body: McpCreateBody): Promise<Mcp> => {
+      const res = await authenticatedFetch('/api/ai/mcps', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || data.error || `Failed to load MCPs (${res.status})`);
+        throw new Error(data.detail || data.error || 'Failed to create MCP');
       }
-      const data = await res.json();
-      setMcps(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load MCPs');
-      setMcps([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: MCPS_KEY }),
+  });
 
-  useEffect(() => {
-    fetchMcps();
-  }, [fetchMcps]);
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, body }: { id: string; body: McpUpdateBody }): Promise<Mcp> => {
+      const res = await authenticatedFetch(`/api/ai/mcps/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || data.error || 'Failed to update MCP');
+      }
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: MCPS_KEY }),
+  });
 
-  const createMcp = useCallback(async (body: McpCreateBody): Promise<Mcp | null> => {
-    const res = await authenticatedFetch('/api/ai/mcps', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.detail || data.error || 'Failed to create MCP');
-    }
-    const created = await res.json();
-    setMcps((prev) => [...prev, created]);
-    return created;
-  }, []);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string): Promise<void> => {
+      const res = await authenticatedFetch(`/api/ai/mcps/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || data.error || 'Failed to delete MCP');
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: MCPS_KEY }),
+  });
 
-  const updateMcp = useCallback(async (id: string, body: McpUpdateBody): Promise<Mcp | null> => {
-    const res = await authenticatedFetch(`/api/ai/mcps/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.detail || data.error || 'Failed to update MCP');
-    }
-    const updated = await res.json();
-    setMcps((prev) => prev.map((m) => (m.id === id ? updated : m)));
-    return updated;
-  }, []);
-
-  const deleteMcp = useCallback(async (id: string): Promise<void> => {
-    const res = await authenticatedFetch(`/api/ai/mcps/${id}`, { method: 'DELETE' });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.detail || data.error || 'Failed to delete MCP');
-    }
-    setMcps((prev) => prev.filter((m) => m.id !== id));
-  }, []);
-
-  const checkMcp = useCallback(
-    async (id: string): Promise<{ status: string; tool_count: number }> => {
+  const checkMutation = useMutation({
+    mutationFn: async (id: string): Promise<{ status: string; tool_count: number }> => {
       const res = await authenticatedFetch(`/api/ai/mcps/${id}/check`, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || data.error || 'Check failed');
       }
-      const data = await res.json();
-      setMcps((prev) =>
-        prev.map((m) =>
-          m.id === id
-            ? {
-                ...m,
-                last_status: data.status,
-                last_tool_count: data.tool_count,
-                last_checked_at: new Date().toISOString(),
-              }
-            : m
-        )
-      );
-      return { status: data.status, tool_count: data.tool_count };
+      return res.json();
     },
-    []
-  );
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: MCPS_KEY }),
+  });
 
-  return { mcps, loading, error, fetchMcps, createMcp, updateMcp, deleteMcp, checkMcp };
+  const fetchMcps = async () => {
+    await refetch();
+  };
+  const createMcp = (body: McpCreateBody) => createMutation.mutateAsync(body);
+  const updateMcp = (id: string, body: McpUpdateBody) => updateMutation.mutateAsync({ id, body });
+  const deleteMcp = (id: string) => deleteMutation.mutateAsync(id);
+  const checkMcp = (id: string) => checkMutation.mutateAsync(id);
+
+  return { mcps, isLoading, error, fetchMcps, createMcp, updateMcp, deleteMcp, checkMcp };
 }

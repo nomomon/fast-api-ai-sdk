@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
+import { AppQueryClientProvider } from '@/lib/query-client-provider';
 import './globals.css';
 import {
   APP_DESCRIPTION,
@@ -85,7 +86,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AppQueryClientProvider>{children}</AppQueryClientProvider>
         </ThemeProvider>
       </body>
     </html>
