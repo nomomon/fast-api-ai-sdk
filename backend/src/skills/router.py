@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 
 from src.auth.dependencies import get_current_user
 from src.database import get_db
-from src.skill.repository import UserSkillRepository, _validate_skill_name
-from src.skill.schemas import SkillCreate, SkillResponse, SkillUpdate
+from src.skills.repository import UserSkillRepository, _validate_skill_name
+from src.skills.schemas import SkillCreate, SkillResponse, SkillUpdate
 from src.user.models import User
 
 router = APIRouter(prefix="/skills", tags=["skills"])

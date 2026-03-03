@@ -11,7 +11,7 @@ from src.config import settings
 from src.mcp import router as mcp_router
 from src.model import router as model_router
 from src.prompt import router as prompt_router
-from src.skill import router as skill_router
+from src.skills import router as skill_router
 
 
 @asynccontextmanager

@@ -1,18 +1,18 @@
 """Skill repository for data access.
 
-Default skills: folder-based layout skills/<skill-name>/SKILL.md (read-only).
 User skills: UserSkillRepository backed by DB.
+Default skills: use FileSkillSource from the ai package.
 """
 
 import re
-from pathlib import Path
 from uuid import UUID
 
-import frontmatter
+from ai.agent.skills import Skill as AiSkill
+from ai.agent.skills import SkillSource
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from src.skill.models import UserSkill
+from src.skills.models import UserSkill
 
 
 def _validate_skill_name(name: str) -> bool:
@@ -22,88 +22,19 @@ def _validate_skill_name(name: str) -> bool:
     return bool(re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$", name))
 
 
-class SkillRepository:
-    """Repository for skill data access operations.
+class DBSkillSource(SkillSource):
+    """SkillSource backed by the user's DB-stored skills."""
 
-    Discovers skills as subdirs of ``skills/`` that contain SKILL.md.
-    """
+    def __init__(self, repo: "UserSkillRepository", user_id: UUID) -> None:
+        self._repo = repo
+        self._user_id = user_id
 
-    SKILLS_DIR = Path(__file__).resolve().parent / "skills"
+    def list_metadata(self) -> list[AiSkill]:
+        rows = self._repo.list_by_user(self._user_id)
+        return [AiSkill(name=r.name, description=r.description) for r in rows]
 
-    def _skill_paths(self) -> list[Path]:
-        """Paths to SKILL.md files (one per skill directory)."""
-        if not self.SKILLS_DIR.is_dir():
-            return []
-        return sorted(self.SKILLS_DIR.glob("*/SKILL.md"))
-
-    def get_all_metadata(self) -> list[dict]:
-        """Load metadata (name, description, path) from frontmatter only.
-
-        Skips skills where frontmatter name does not match directory name.
-        """
-        result: list[dict] = []
-        for path in self._skill_paths():
-            try:
-                post = frontmatter.load(path)
-                meta = post.metadata
-                dir_name = path.parent.name
-                name = meta.get("name")
-                if name is None or name != dir_name:
-                    continue
-                description = meta.get("description") or ""
-                result.append(
-                    {
-                        "name": name,
-                        "description": description,
-                        "path": str(path.resolve()),
-                    }
-                )
-            except Exception:
-                continue
-        return result
-
-    def get_all(self) -> list[dict]:
-        """Get all skills (metadata + content)."""
-        result: list[dict] = []
-        for path in self._skill_paths():
-            try:
-                post = frontmatter.load(path)
-                meta = post.metadata
-                dir_name = path.parent.name
-                name = meta.get("name")
-                if name is None or name != dir_name:
-                    continue
-                description = meta.get("description") or ""
-                content = (post.content or "").strip()
-                result.append(
-                    {
-                        "name": name,
-                        "description": description,
-                        "path": str(path.resolve()),
-                        "content": content or None,
-                    }
-                )
-            except Exception:
-                continue
-        return result
-
-    def get_by_name(self, name: str) -> dict | None:
-        """Get skill by name (directory name)."""
-        for skill in self.get_all():
-            if skill["name"] == name:
-                return skill
-        return None
-
-    def get_content_by_name(self, name: str) -> str | None:
-        """Load full SKILL.md for the given name and return body only."""
-        skill_file = self.SKILLS_DIR / name / "SKILL.md"
-        if not skill_file.is_file():
-            return None
-        try:
-            post = frontmatter.load(skill_file)
-            return (post.content or "").strip() or None
-        except Exception:
-            return None
+    def load_content(self, name: str) -> str | None:
+        return self._repo.get_content_by_name(self._user_id, name)
 
 
 class UserSkillRepository:
@@ -128,16 +59,6 @@ class UserSkillRepository:
             .filter(UserSkill.id == skill_id, UserSkill.user_id == user_id)
             .first()
         )
-
-    def get_all_metadata(self, user_id: UUID) -> list[dict]:
-        """Return metadata (name, description) for all skills owned by the user."""
-        rows = (
-            self.db.query(UserSkill)
-            .filter(UserSkill.user_id == user_id)
-            .order_by(UserSkill.name)
-            .all()
-        )
-        return [{"name": r.name, "description": r.description or "", "path": None} for r in rows]
 
     def get_content_by_name(self, user_id: UUID, name: str) -> str | None:
         """Return skill body content for the user's skill by name, or None."""
