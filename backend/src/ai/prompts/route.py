@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
-from src.prompt.repository import PromptRepository
-from src.prompt.schemas import Prompt, PromptListResponse
+from .repository import PromptRepository
+from .schemas import Prompt, PromptListResponse
 
 router = APIRouter(prefix="/prompts", tags=["prompts"])
 

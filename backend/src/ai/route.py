@@ -15,10 +15,17 @@ from src.auth.dependencies import get_current_user
 from src.database import get_db
 from src.user.models import User
 
-from .models.router import router as models_router
+from .mcp import router as mcp_router
+from .models import router as models_router
+from .prompts import router as prompts_router
+from .skills import router as skills_router
 
 router = APIRouter(prefix="/ai", tags=["ai"])
+
 router.include_router(models_router)
+router.include_router(mcp_router)
+router.include_router(prompts_router)
+router.include_router(skills_router)
 
 _model_repo = ModelRepository()
 

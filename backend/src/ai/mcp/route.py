@@ -8,10 +8,11 @@ from sqlalchemy.orm import Session
 
 from src.auth.dependencies import get_current_user
 from src.database import get_db
-from src.mcp.repository import UserMcpRepository
-from src.mcp.schemas import McpCreate, McpResponse, McpUpdate, validate_mcp_config
-from src.mcp.transports import mcp_session_context
 from src.user.models import User
+
+from .repository import UserMcpRepository
+from .schemas import McpCreate, McpResponse, McpUpdate, validate_mcp_config
+from .transports import mcp_session_context
 
 router = APIRouter(prefix="/mcps", tags=["mcps"])
 

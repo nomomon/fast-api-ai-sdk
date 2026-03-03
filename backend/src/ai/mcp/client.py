@@ -5,8 +5,8 @@ from contextlib import AsyncExitStack, asynccontextmanager
 from typing import Any
 
 from mcp import ClientSession
-from src.mcp.converters import call_tool_result_to_message, mcp_tools_to_openai
-from src.mcp.transports import mcp_session_context
+from .converters import call_tool_result_to_message, mcp_tools_to_openai
+from .transports import mcp_session_context
 
 logger = logging.getLogger(__name__)
 

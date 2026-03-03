@@ -1,7 +1,7 @@
 """Skill domain package."""
 
-from src.skills.router import router
-from src.skills.schemas import Skill, SkillListResponse, SkillMetadata
+from .route import router
+from .schemas import Skill, SkillListResponse, SkillMetadata
 
 __all__ = [
     "Skill",

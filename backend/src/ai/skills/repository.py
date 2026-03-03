@@ -12,7 +12,7 @@ from ai.agent.skills import SkillSource
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from src.skills.models import UserSkill
+from .models import UserSkill
 
 
 def _validate_skill_name(name: str) -> bool:

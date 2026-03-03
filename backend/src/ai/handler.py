@@ -15,7 +15,7 @@ from ai.providers.litellm import LiteLLMProvider
 from sqlalchemy.orm import Session
 
 from src.ai.tools import LoadSkillTool, UpdateSkillTool
-from src.skills.repository import DBSkillSource, UserSkillRepository
+from src.ai.skills.repository import DBSkillSource, UserSkillRepository
 
 
 async def run_agent(

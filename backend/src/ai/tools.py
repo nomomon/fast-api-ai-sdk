@@ -8,7 +8,7 @@ from ai.agent.skills import SkillsLoader
 from ai.agent.tools.base import Tool
 from pydantic import BaseModel, Field
 
-from src.skills.repository import UserSkillRepository
+from src.ai.skills.repository import UserSkillRepository
 
 
 class LoadSkillTool(Tool):
