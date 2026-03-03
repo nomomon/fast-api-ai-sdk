@@ -15,18 +15,10 @@ class LiteLLMProvider(LLMProvider):
 
     Usage::
 
-        provider = LiteLLMProvider(api_key="sk-...")
+        provider = LiteLLMProvider()
         async for chunk in provider.stream(messages, tools, model="gpt-4o"):
             ...
     """
-
-    def __init__(
-        self,
-        api_key: str | None = None,
-        api_base: str | None = None,
-    ) -> None:
-        self.api_key = api_key
-        self.api_base = api_base
 
     async def stream(
         self,
@@ -40,10 +32,6 @@ class LiteLLMProvider(LLMProvider):
             "tools": tools or None,  # some providers reject an empty list
             "stream": True,
         }
-        if self.api_key:
-            kwargs["api_key"] = self.api_key
-        if self.api_base:
-            kwargs["api_base"] = self.api_base
 
         response = await litellm.acompletion(**kwargs)
 
