@@ -48,7 +48,7 @@ export function SkillForm({
           onChange={(e) => setFormDescription(e.target.value)}
           placeholder="What the skill does and when to use it"
           rows={2}
-          className="min-h-[60px]"
+          className="min-h-15"
         />
       </div>
       <div className="grid gap-2">
@@ -58,7 +58,7 @@ export function SkillForm({
           value={formContent}
           onChange={(e) => setFormContent(e.target.value)}
           placeholder="Markdown instructions for the agent"
-          className="min-h-[200px] font-mono text-sm"
+          className="min-h-50 font-mono text-sm"
         />
       </div>
     </div>

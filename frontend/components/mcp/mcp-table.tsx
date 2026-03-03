@@ -30,7 +30,7 @@ export function McpTable({ mcps, checkingId, onCheck, onEdit, onDelete }: McpTab
             <TableHead>Name</TableHead>
             <TableHead className="hidden md:table-cell">Config</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="w-[120px]">Actions</TableHead>
+            <TableHead className="w-30">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
