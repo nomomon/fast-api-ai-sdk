@@ -2,7 +2,6 @@ import json
 from enum import StrEnum
 from typing import Any
 
-from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from pydantic import BaseModel, ConfigDict
 
 
@@ -52,7 +51,7 @@ class ClientMessage(BaseModel):
     toolInvocations: list[ToolInvocation] | None = None
 
 
-def convert_to_openai_messages(messages: list[ClientMessage]) -> list[ChatCompletionMessageParam]:
+def convert_to_openai_messages(messages: list[ClientMessage]) -> list[dict[str, Any]]:
     """Convert ClientMessage list to OpenAI format messages.
 
     Args:
@@ -61,7 +60,7 @@ def convert_to_openai_messages(messages: list[ClientMessage]) -> list[ChatComple
     Returns:
         List of OpenAI-formatted message dictionaries
     """
-    openai_messages = []
+    openai_messages: list[dict[str, Any]] = []
 
     for message in messages:
         message_parts: list[dict] = []
@@ -155,7 +154,7 @@ def convert_to_openai_messages(messages: list[ClientMessage]) -> list[ChatComple
         else:
             content_payload = ""
 
-        openai_message: ChatCompletionMessageParam = {
+        openai_message: dict[str, Any] = {
             "role": message.role,
             "content": content_payload,
         }

@@ -26,7 +26,15 @@ dependencies = [
 dev = [
     "ruff>=0.6.0",
     "mypy>=1.5.0",
+    "types-python-jose",
 ]
+
+[tool.mypy]
+plugins = ["sqlalchemy.ext.mypy.plugin"]
+
+[[tool.mypy.overrides]]
+module = ["frontmatter", "litellm", "litellm.*"]
+ignore_missing_imports = true
 
 [tool.uv.sources]
 ai = { path = "../ai", editable = true }

@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-import frontmatter
+import frontmatter  # type: ignore[import-untyped]
 
 
 class PromptRepository:

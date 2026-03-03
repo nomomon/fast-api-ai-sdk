@@ -23,7 +23,7 @@ class Config(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # OpenAI Configuration
-    openai_api_key: str
+    openai_api_key: str | None = None
 
     # Gemini Configuration
     gemini_api_key: str | None = None

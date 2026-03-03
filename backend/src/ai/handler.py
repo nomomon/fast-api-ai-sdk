@@ -9,7 +9,7 @@ from uuid import UUID
 from ai.agent.context import SystemPrompt
 from ai.agent.events import AgentEvent
 from ai.agent.loop import AgentLoop
-from ai.agent.skills import FileSkillSource, SkillsLoader
+from ai.agent.skills import FileSkillSource, SkillsLoader, SkillSource
 from ai.agent.tools.base import Tool
 from ai.agent.tools.weather import GetCurrentWeather
 from ai.providers.litellm import LiteLLMProvider
@@ -31,7 +31,7 @@ async def run_agent(
     db: Session | None = None,
     prompt_id: str | None = None,
 ) -> AsyncGenerator[AgentEvent, None]:
-    skill_sources = [FileSkillSource()]
+    skill_sources: list[SkillSource] = [FileSkillSource()]
     extra_tools: list[Tool] = []
     mcp_configs: list[tuple[str, dict]] = []
 
