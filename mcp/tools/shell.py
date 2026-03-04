@@ -3,11 +3,16 @@ import io
 import subprocess
 import traceback
 
+from fastmcp import FastMCP
+
 from workspace import get_workspace_root
+
+mcp = FastMCP("Shell")
 
 WORKSPACE = get_workspace_root()
 
 
+@mcp.tool
 def run_python(code: str) -> str:
     """Execute arbitrary Python code and return its output or error."""
     buffer = io.StringIO()
@@ -20,6 +25,7 @@ def run_python(code: str) -> str:
         return "Error while executing code:\n" + traceback.format_exc()
 
 
+@mcp.tool
 def run_bash(command: str, timeout_seconds: int = 120) -> str:
     """Run a bash command in the workspace directory. Returns combined stdout and stderr."""
     if timeout_seconds <= 0 or timeout_seconds > 120:

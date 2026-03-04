@@ -1,12 +1,10 @@
 from fastmcp import FastMCP
-
-from tools.files import edit_file, list_dir, read_file, write_file
-from tools.shell import run_bash, run_python
+from tools.files import mcp as files_mcp
+from tools.shell import mcp as shell_mcp
 
 mcp = FastMCP("Demo 🚀")
-
-for fn in [read_file, list_dir, edit_file, write_file, run_python, run_bash]:
-    mcp.tool(fn)
+mcp.mount(files_mcp, prefix="files")
+mcp.mount(shell_mcp, prefix="shell")
 
 
 if __name__ == "__main__":

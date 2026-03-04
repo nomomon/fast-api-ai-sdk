@@ -1,6 +1,9 @@
+from fastmcp import FastMCP
 from pathlib import Path
 
 from workspace import get_workspace_root, resolve_under_root
+
+mcp = FastMCP("Files")
 
 WORKSPACE = get_workspace_root()
 
@@ -17,6 +20,7 @@ DEFAULT_IGNORE = [
 ]
 
 
+@mcp.tool
 def read_file(
     path: str,
     offset: int = 0,
@@ -47,6 +51,7 @@ def read_file(
     return "\n".join(out) if out else "(empty slice)"
 
 
+@mcp.tool
 def list_dir(
     path: str,
     max_entries: int = 100,
@@ -68,7 +73,9 @@ def list_dir(
         if count[0] >= max_entries:
             return
         try:
-            children = sorted(p.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower()))
+            children = sorted(
+                p.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())
+            )
         except OSError:
             return
         for i, child in enumerate(children):
@@ -89,6 +96,7 @@ def list_dir(
     return "\n".join(entries_list) if entries_list else "(empty)"
 
 
+@mcp.tool
 def edit_file(
     path: str,
     old_string: str,
@@ -118,6 +126,7 @@ def edit_file(
     return "Updated."
 
 
+@mcp.tool
 def write_file(path: str, content: str) -> str:
     """Write content to a file (creates or overwrites). Path is relative to workspace."""
     resolved = resolve_under_root(WORKSPACE, path)
