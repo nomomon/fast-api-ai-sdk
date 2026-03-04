@@ -20,6 +20,7 @@ dependencies = [
     "python-jose[cryptography]>=3.3.0",
     "python-frontmatter>=1.1.0",
     "ai",
+    "fastmcp>=3.1.0",
 ]
 
 [dependency-groups]

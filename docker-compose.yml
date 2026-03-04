@@ -51,6 +51,17 @@ services:
     networks:
       - app-network
 
+  my_mcp:
+    build:
+      context: .
+      dockerfile: mcp/Dockerfile
+    container_name: fastapi-my-mcp
+    ports:
+      - "8001:8000"
+    restart: always
+    networks:
+      - app-network
+
   frontend:
     build:
       context: ./frontend
