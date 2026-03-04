@@ -6,9 +6,10 @@ class ModelRepository:
 
     # In-memory storage; can be migrated to config/DB later
     MODELS_DATA = [
-        {"id": "openai/gpt-5", "name": "GPT-5", "provider": "OpenAI"},
-        {"id": "openai/responses/gpt-5", "name": "GPT-5 Think", "provider": "OpenAI"},
+        # {"id": "openai/gpt-5", "name": "GPT-5", "provider": "OpenAI"},
+        # {"id": "openai/responses/gpt-5", "name": "GPT-5 Think", "provider": "OpenAI"},
         {"id": "gemini/gemini-3-flash-preview", "name": "Gemini 3 Flash", "provider": "Google"},
+        {"id": "gemini/gemini-3.1-pro-preview", "name": "Gemini 3.1 Pro", "provider": "Google"},
     ]
 
     def get_all(self) -> list[dict]:
