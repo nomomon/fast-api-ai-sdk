@@ -53,8 +53,7 @@ services:
 
   my_mcp:
     build:
-      context: .
-      dockerfile: mcp/Dockerfile
+      context: ./mcp
     container_name: fastapi-my-mcp
     ports:
       - "8001:8000"
