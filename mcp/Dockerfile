@@ -14,7 +14,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY --from=builder /app/.venv /app/.venv
-COPY mcp/main.py ./main.py
+COPY mcp/main.py mcp/workspace.py ./
 
 ENV PATH="/app/.venv/bin:$PATH"
 

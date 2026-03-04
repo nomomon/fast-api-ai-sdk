@@ -58,6 +58,10 @@ services:
     container_name: fastapi-my-mcp
     ports:
       - "8001:8000"
+    environment:
+      - WORKSPACE_ROOT=/workspace
+    volumes:
+      - .:/workspace
     restart: always
     networks:
       - app-network
