@@ -76,32 +76,32 @@ const TOOL_CONFIG: Record<string, Partial<ToolConfig>> = {
     icon: <Cable className="h-4 w-4" />,
     inputContext: inputContextFrom('skill_name'),
   },
-  'my_mcp:run_python': {
+  'my_mcp:shell_run_python': {
     displayName: 'Running Python code',
     icon: <CodeIcon className="h-4 w-4" />,
     inputContext: inputContextFrom('code'),
   },
-  'my_mcp:read_file': {
+  'my_mcp:files_read_file': {
     displayName: 'Reading file',
     icon: <FileText className="h-4 w-4" />,
     inputContext: inputContextFrom('path'),
   },
-  'my_mcp:list_dir': {
+  'my_mcp:files_list_dir': {
     displayName: 'Listing directory',
     icon: <FolderOpen className="h-4 w-4" />,
     inputContext: inputContextFrom('path'),
   },
-  'my_mcp:edit_file': {
+  'my_mcp:files_edit_file': {
     displayName: 'Editing file',
     icon: <Pencil className="h-4 w-4" />,
     inputContext: inputContextFrom('path'),
   },
-  'my_mcp:write_file': {
+  'my_mcp:files_write_file': {
     displayName: 'Writing file',
     icon: <FilePlus className="h-4 w-4" />,
     inputContext: inputContextFrom('path'),
   },
-  'my_mcp:run_bash': {
+  'my_mcp:shell_run_bash': {
     displayName: 'Running command',
     icon: <Terminal className="h-4 w-4" />,
     inputContext: inputContextFrom('command'),
