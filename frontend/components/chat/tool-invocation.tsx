@@ -131,7 +131,10 @@ const ToolDisplay: FC<{
         <span className="font-medium">{displayName}</span>
       )}
       {contextText ? (
-        <span className="text-muted-foreground/50 truncate max-w-50">
+        <span
+          className="text-muted-foreground/50 truncate sm:max-w-50 max-w-xs"
+          title={contextText}
+        >
           &ldquo;{contextText}&rdquo;
         </span>
       ) : null}
