@@ -81,7 +81,7 @@ const ToolDisplay: FC<{
 
   return (
     <div
-      className="text-sm text-muted-foreground flex items-center gap-2 mb-4"
+      className="text-sm text-muted-foreground flex items-center gap-2 my-2"
       {...(pending && { role: 'status' as const, 'aria-live': 'polite' as const })}
     >
       {icon}
