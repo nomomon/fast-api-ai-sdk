@@ -1,5 +1,18 @@
 import type { DynamicToolUIPart } from 'ai';
-import { Cable, Check, CodeIcon, GlobeIcon, Loader2, SearchIcon, X } from 'lucide-react';
+import {
+  Cable,
+  Check,
+  CodeIcon,
+  FilePlus,
+  FileText,
+  FolderOpen,
+  GlobeIcon,
+  Loader2,
+  Pencil,
+  SearchIcon,
+  Terminal,
+  X,
+} from 'lucide-react';
 import type { FC } from 'react';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 
@@ -67,6 +80,31 @@ const TOOL_CONFIG: Record<string, Partial<ToolConfig>> = {
     displayName: 'Running Python code',
     icon: <CodeIcon className="h-4 w-4" />,
     inputContext: inputContextFrom('code'),
+  },
+  'my_mcp:read_file': {
+    displayName: 'Reading file',
+    icon: <FileText className="h-4 w-4" />,
+    inputContext: inputContextFrom('path'),
+  },
+  'my_mcp:list_dir': {
+    displayName: 'Listing directory',
+    icon: <FolderOpen className="h-4 w-4" />,
+    inputContext: inputContextFrom('path'),
+  },
+  'my_mcp:edit_file': {
+    displayName: 'Editing file',
+    icon: <Pencil className="h-4 w-4" />,
+    inputContext: inputContextFrom('path'),
+  },
+  'my_mcp:write_file': {
+    displayName: 'Writing file',
+    icon: <FilePlus className="h-4 w-4" />,
+    inputContext: inputContextFrom('path'),
+  },
+  'my_mcp:run_bash': {
+    displayName: 'Running command',
+    icon: <Terminal className="h-4 w-4" />,
+    inputContext: inputContextFrom('command'),
   },
 };
 
