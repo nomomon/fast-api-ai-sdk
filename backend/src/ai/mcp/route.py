@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ai.mcp import mcp_session_context
+from src.ai.mcp._errors import format_mcp_error
 from src.auth.dependencies import get_current_user
 from src.database import get_db
 from src.user.models import User
@@ -118,4 +119,4 @@ async def check_mcp(
         return McpCheckResponse(status="ok", tool_count=tool_count)
     except Exception as e:
         repo.update_status(mcp_id, current_user.id, "error", None)
-        return McpCheckResponse(status="error", tool_count=0, error=str(e))
+        return McpCheckResponse(status="error", tool_count=0, error=format_mcp_error(e))
