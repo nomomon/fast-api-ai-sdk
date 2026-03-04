@@ -1,5 +1,5 @@
 import type { DynamicToolUIPart } from 'ai';
-import { Cable, Check, GlobeIcon, Loader2, SearchIcon, X } from 'lucide-react';
+import { Cable, Check, CodeIcon, GlobeIcon, Loader2, SearchIcon, X } from 'lucide-react';
 import type { FC } from 'react';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 
@@ -62,6 +62,11 @@ const TOOL_CONFIG: Record<string, Partial<ToolConfig>> = {
     displayName: 'Loading a skill',
     icon: <Cable className="h-4 w-4" />,
     inputContext: inputContextFrom('skill_name'),
+  },
+  'my_mcp:run_python': {
+    displayName: 'Running Python code',
+    icon: <CodeIcon className="h-4 w-4" />,
+    inputContext: inputContextFrom('code'),
   },
 };
 
