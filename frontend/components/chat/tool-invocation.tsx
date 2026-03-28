@@ -76,6 +76,11 @@ const TOOL_CONFIG: Record<string, Partial<ToolConfig>> = {
     icon: <Cable className="h-4 w-4" />,
     inputContext: inputContextFrom('skill_name'),
   },
+  search: {
+    displayName: 'Searching',
+    icon: <SearchIcon className="h-4 w-4" />,
+    inputContext: inputContextFrom('query'),
+  },
   'my_mcp:shell_run_python': {
     displayName: 'Running Python code',
     icon: <CodeIcon className="h-4 w-4" />,
@@ -132,7 +137,7 @@ const ToolDisplay: FC<{
       )}
       {contextText ? (
         <span
-          className="text-muted-foreground/50 truncate sm:max-w-50 max-w-xs"
+          className="text-muted-foreground/50 truncate sm:max-w-75 max-w-xs"
           title={contextText}
         >
           &ldquo;{contextText}&rdquo;
