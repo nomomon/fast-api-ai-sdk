@@ -1,6 +1,6 @@
 'use client';
 
-import { Github, LayoutDashboard, MessageSquare, Plus } from 'lucide-react';
+import { Cog, Github, LayoutDashboard, MessageSquare, Plus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -24,6 +24,7 @@ import { Separator } from './ui/separator';
 const navItems = [
   { title: 'Chat', href: '/', icon: MessageSquare },
   { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { title: 'Settings', href: '/settings', icon: Cog },
 ] as const;
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
