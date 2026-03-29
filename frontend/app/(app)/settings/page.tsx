@@ -1,3 +1,5 @@
-import Settings from '@/components/settings';
+import { SettingsContent } from '@/components/settings/settings-content';
 
-export default Settings;
+export default function GeneralSettingsPage() {
+  return <SettingsContent title="General" />;
+}

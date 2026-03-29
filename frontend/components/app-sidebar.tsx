@@ -73,7 +73,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuItem>
             <Separator className="my-2" />
             {navItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive =
+                item.href === '/settings'
+                  ? pathname === '/settings' || pathname.startsWith('/settings/')
+                  : pathname === item.href;
               const Icon = item.icon;
               return (
                 <SidebarMenuItem key={item.title}>

@@ -5,12 +5,18 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useSkills } from '@/lib/hooks/use-skills';
 import type { Skill } from '@/lib/interfaces/skill';
+import { cn } from '@/lib/utils';
 import { AddSkillDialog } from './add-skill-dialog';
 import { DeleteSkillDialog } from './delete-skill-dialog';
 import { EditSkillDialog } from './edit-skill-dialog';
 import { SkillTable } from './skill-table';
 
-export function SkillDashboard() {
+type SkillDashboardProps = {
+  variant?: 'dashboard' | 'settings';
+};
+
+export function SkillDashboard({ variant = 'dashboard' }: SkillDashboardProps) {
+  const inSettings = variant === 'settings';
   const { skills, isLoading, error, createSkill, updateSkill, deleteSkill } = useSkills();
   const [addOpen, setAddOpen] = useState(false);
   const [editSkill, setEditSkill] = useState<Skill | null>(null);
@@ -119,8 +125,8 @@ export function SkillDashboard() {
   return (
     <>
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium">Your Skills</h2>
+        <div className={cn('flex items-center justify-between', inSettings && 'justify-end')}>
+          {!inSettings ? <h2 className="font-medium text-lg">Your Skills</h2> : null}
           <Button onClick={openAdd} size="sm">
             <PlusIcon className="size-4" />
             Add Skill

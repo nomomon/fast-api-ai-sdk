@@ -1,13 +1,7 @@
-import { SettingsContent } from './settings-content';
-import { SettingsSidebar } from './settings-sidebar';
-
-const Settings = () => {
-  return (
-    <div className="flex min-h-0 w-full flex-1 flex-row">
-      <SettingsSidebar />
-      <SettingsContent title="General" />
-    </div>
-  );
-};
-
-export default Settings;
+export { SettingsContent } from './settings-content';
+export { SettingsNavItem } from './settings-nav-item';
+export { SettingsNavLink } from './settings-nav-link';
+export { SettingsSearchField } from './settings-search-field';
+export { SettingsSectionLabel } from './settings-section-label';
+export { SettingsShell } from './settings-shell';
+export { SettingsSidebar } from './settings-sidebar';

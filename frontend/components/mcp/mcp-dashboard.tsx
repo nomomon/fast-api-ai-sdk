@@ -5,12 +5,18 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useMcps } from '@/lib/hooks/use-mcps';
 import type { Mcp, McpConfig, McpConfigStreamableHttp } from '@/lib/interfaces/mcp';
+import { cn } from '@/lib/utils';
 import { AddMcpDialog } from './add-mcp-dialog';
 import { DeleteMcpDialog } from './delete-mcp-dialog';
 import { EditMcpDialog } from './edit-mcp-dialog';
 import { McpTable } from './mcp-table';
 
-export function McpDashboard() {
+type McpDashboardProps = {
+  variant?: 'dashboard' | 'settings';
+};
+
+export function McpDashboard({ variant = 'dashboard' }: McpDashboardProps) {
+  const inSettings = variant === 'settings';
   const { mcps, isLoading, error, createMcp, updateMcp, deleteMcp, checkMcp } = useMcps();
   const [addOpen, setAddOpen] = useState(false);
   const [editMcp, setEditMcp] = useState<Mcp | null>(null);
@@ -170,8 +176,8 @@ export function McpDashboard() {
   return (
     <>
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium">Your MCPs</h2>
+        <div className={cn('flex items-center justify-between', inSettings && 'justify-end')}>
+          {!inSettings ? <h2 className="font-medium text-lg">Your MCPs</h2> : null}
           <Button onClick={openAdd} size="sm">
             <PlusIcon className="size-4" />
             Add MCP
