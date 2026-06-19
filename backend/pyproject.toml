@@ -7,7 +7,7 @@ dependencies = [
     "uvicorn[standard]>=0.32.0",
     "python-dotenv>=1.2.2",
     "pydantic[email]>=2.9.0",
-    "pydantic-settings>=2.6.0",
+    "pydantic-settings>=2.14.2",
     "openai>=1.54.0",
     "requests>=2.31.0",
     "google-genai",
