@@ -5,25 +5,25 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      all-days: 7
+      default-days: 7
 
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:
       interval: "weekly"
     cooldown:
-      all-days: 7
+      default-days: 7
 
   - package-ecosystem: "pip"
     directory: "/mcp"
     schedule:
       interval: "weekly"
     cooldown:
-      all-days: 7
+      default-days: 7
 
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
       interval: "weekly"
     cooldown:
-      all-days: 7
+      default-days: 7
