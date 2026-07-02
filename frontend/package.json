@@ -54,7 +54,7 @@
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "env-cmd": "^10.1.0",
-    "lefthook": "2.0.15",
+    "lefthook": "2.1.9",
     "sharp": "^0.33.5",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3"
